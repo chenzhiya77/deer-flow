@@ -52,6 +52,25 @@ def test_snapshot_merge_yaml_precedence_and_disable(store):
     assert merge_managed_models(base).get_model_config("yaml").use == "test"
 
 
+def test_catalog_exposes_supports_vision_for_config_rows(store, monkeypatch):
+    """④ 2026-10-08: config.yaml 来源行也序列化 supports_vision——功能模型的 VLM 下拉按它过滤。"""
+    from app.gateway.routers import managed_models as router
+
+    base = AppConfig.model_validate(
+        {
+            "sandbox": {"use": "test"},
+            "models": [
+                {"name": "vision-yes", "model": "vision-yes", "use": "test", "supports_vision": True},
+                {"name": "vision-no", "model": "vision-no", "use": "test"},
+            ],
+        }
+    )
+    monkeypatch.setattr(router, "get_app_config", lambda: base)
+    rows = {row["name"]: row for row in router._catalog()["models"]}
+    assert rows["vision-yes"]["supports_vision"] is True
+    assert rows["vision-no"]["supports_vision"] is False
+
+
 def test_missing_encryption_key_never_replaced(store):
     store.save(profile(), expected_revision=None)
     store.key_path.unlink()

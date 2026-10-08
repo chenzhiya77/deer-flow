@@ -29,7 +29,17 @@ def _catalog():
     yaml_models = [item for item in config.models if item.name not in config._managed_model_names]
     yaml_names = {item.name for item in yaml_models}
     return {
-        "models": [{"name": item.name, "display_name": item.display_name or item.name, "model": item.model, "source": "config", "enabled": True} for item in yaml_models]
+        "models": [
+            {
+                "name": item.name,
+                "display_name": item.display_name or item.name,
+                "model": item.model,
+                "source": "config",
+                "enabled": True,
+                "supports_vision": item.supports_vision,
+            }
+            for item in yaml_models
+        ]
         + [{**item.public(), "conflict": item.name in yaml_names} for item in ManagedModelStore().list()]
     }
 
