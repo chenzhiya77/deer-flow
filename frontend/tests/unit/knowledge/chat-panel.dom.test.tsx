@@ -21,6 +21,8 @@ const mockDeleteThread = rs.fn();
 const mockUseModels = rs.fn();
 const mockUseAgentsApiEnabled = rs.fn();
 const mockStop = rs.fn();
+const mockRegenerate = rs.fn();
+const mockEditAndRegenerate = rs.fn();
 
 rs.mock("@/core/agents", () => ({
   useAgentsApiEnabled: () => mockUseAgentsApiEnabled(),
@@ -71,6 +73,7 @@ import { KnowledgeChatPanel } from "@/components/workspace/knowledge/chat-panel"
 import { KB_TOASTER_ID } from "@/components/workspace/knowledge/kb-toast";
 import { I18nContext } from "@/core/i18n/context";
 import { zhCN } from "@/core/i18n/locales/zh-CN";
+import { KNOWLEDGE_SCOPE_KEY } from "@/core/knowledge/scope";
 import type { KnowledgeBase } from "@/core/knowledge/types";
 
 const KB: KnowledgeBase = {
@@ -175,6 +178,8 @@ beforeEach(() => {
     thread: makeThreadState(),
     sendMessage: mockSendMessage,
     stop: mockStop,
+    regenerateMessage: mockRegenerate,
+    editAndRegenerateMessage: mockEditAndRegenerate,
   }));
   mockUseInfiniteThreads.mockReturnValue({
     data: { pages: [[KB_THREAD, OTHER_KB_THREAD, PLAIN_THREAD]] },
@@ -251,6 +256,74 @@ describe("KnowledgeChatPanel", () => {
       "请等待当前响应完成。",
       expect.objectContaining({ toasterId: KB_TOASTER_ID }),
     );
+  });
+
+  it("wires regenerate and edit-and-rerun into the kb message actions (⑥)", () => {
+    renderPanel(KB, { requestedThreadId: "thread-kb1-a" });
+    expect(capturedMessageListProps).not.toBeNull();
+    expect(capturedMessageListProps!.canRegenerate).toBe(true);
+    expect(capturedMessageListProps!.canEdit).toBe(true);
+    const onRegenerateMessage = capturedMessageListProps!
+      .onRegenerateMessage as (
+      messageId: string,
+      supersededMessageIds: string[],
+    ) => void;
+    const onEditAndRegenerateMessage = capturedMessageListProps!
+      .onEditAndRegenerateMessage as (
+      messageId: string,
+      replacementText: string,
+    ) => void;
+    onRegenerateMessage("m1", ["m2"]);
+    expect(mockRegenerate).toHaveBeenCalledWith("thread-kb1-a", "m1", ["m2"]);
+    onEditAndRegenerateMessage("m1", "换个问法");
+    expect(mockEditAndRegenerate).toHaveBeenCalledWith(
+      "thread-kb1-a",
+      "m1",
+      "换个问法",
+      expect.objectContaining({ [KNOWLEDGE_SCOPE_KEY]: expect.anything() }),
+    );
+  });
+
+  it("blocks edit-and-rerun while a human-input card is open, but keeps regenerate (⑥ guard)", () => {
+    const request = {
+      version: 1,
+      kind: "human_input_request",
+      source: "ask_clarification",
+      request_id: "req-open",
+      question: "想查什么？",
+      input_mode: "free_text",
+    };
+    mockUseThreadStream.mockImplementation(() => ({
+      thread: makeThreadState([
+        { id: "h1", type: "human", content: "问题 1" },
+        { id: "a1", type: "ai", content: "答1" },
+        {
+          id: "req-msg",
+          type: "tool",
+          content: "",
+          artifact: { human_input: request },
+        },
+      ]),
+      sendMessage: mockSendMessage,
+      stop: mockStop,
+      regenerateMessage: mockRegenerate,
+      editAndRegenerateMessage: mockEditAndRegenerate,
+    }));
+    renderPanel(KB, { requestedThreadId: "thread-kb1-a" });
+    expect(capturedMessageListProps!.canRegenerate).toBe(true);
+    expect(capturedMessageListProps!.canEdit).toBe(false);
+  });
+
+  it("disables both message actions while the thread is streaming (⑥)", () => {
+    mockUseThreadStream.mockImplementation(() => ({
+      thread: { ...makeThreadState(), isLoading: true, stop: mockStop },
+      sendMessage: mockSendMessage,
+      regenerateMessage: mockRegenerate,
+      editAndRegenerateMessage: mockEditAndRegenerate,
+    }));
+    renderPanel(KB, { requestedThreadId: "thread-kb1-a" });
+    expect(capturedMessageListProps!.canRegenerate).toBe(false);
+    expect(capturedMessageListProps!.canEdit).toBe(false);
   });
 
   it("binds the current kb through stream context (agent_name + kb_id)", () => {

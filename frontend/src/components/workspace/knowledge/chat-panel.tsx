@@ -47,9 +47,11 @@ import { threadsForKb } from "@/core/knowledge/kb-threads";
 import type { KnowledgeBase } from "@/core/knowledge/types";
 import {
   buildHumanInputResponseText,
+  hasOpenHumanInputRequest,
   type HumanInputRequest,
   type HumanInputResponse,
 } from "@/core/messages/human-input";
+import { isHiddenFromUIMessage } from "@/core/messages/utils";
 import { useModels } from "@/core/models/hooks";
 import {
   useDeleteThread,
@@ -189,6 +191,8 @@ export function KnowledgeChatPanel({
   const {
     thread,
     sendMessage,
+    regenerateMessage,
+    editAndRegenerateMessage,
     isHistoryLoading,
     hasMoreHistory,
     loadMoreHistory,
@@ -280,6 +284,33 @@ export function KnowledgeChatPanel({
     thread.isLoading,
     threadId,
   ]);
+
+  const hasOpenHumanInputCard = useMemo(
+    () =>
+      hasOpenHumanInputRequest(
+        thread.messages,
+        (message) => !isHiddenFromUIMessage(message),
+      ),
+    [thread.messages],
+  );
+
+  const handleRegenerate = useCallback(
+    (messageId: string, supersededMessageIds: string[]) =>
+      regenerateMessage(threadId, messageId, supersededMessageIds),
+    [regenerateMessage, threadId],
+  );
+  const handleEditAndRegenerate = useCallback(
+    (messageId: string, replacementText: string) =>
+      editAndRegenerateMessage(
+        threadId,
+        messageId,
+        replacementText,
+        knowledgeScopeSnapshot
+          ? { [KNOWLEDGE_SCOPE_KEY]: knowledgeScopeSnapshot }
+          : undefined,
+      ),
+    [editAndRegenerateMessage, knowledgeScopeSnapshot, threadId],
+  );
 
   const renderMessageFooter = useCallback(
     (message: Message) => {
@@ -463,6 +494,12 @@ export function KnowledgeChatPanel({
             isHistoryLoading={isHistoryLoading}
             renderMessageContent={renderMessageContent}
             renderMessageFooter={renderMessageFooter}
+            canRegenerate={!isNewThread && !thread.isLoading}
+            onRegenerateMessage={handleRegenerate}
+            canEdit={
+              !isNewThread && !thread.isLoading && !hasOpenHumanInputCard
+            }
+            onEditAndRegenerateMessage={handleEditAndRegenerate}
             onSubmitHumanInput={handleSubmitHumanInput}
           />
         ) : (
