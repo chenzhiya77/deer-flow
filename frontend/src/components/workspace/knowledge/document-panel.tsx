@@ -1160,35 +1160,41 @@ export function DocumentPanel({
         </ScrollArea>
       </div>
 
-      {/* Bottom stats row (spec §3.6, aggregated client-side). Two nowrap segments
-          (spec 2026-09-24 §7.2 甲): volume on the left, status counts on the right with
-          the status column's own dots; a zero count stays silent instead of shouting "0". */}
+      {/* Bottom stats row (spec §3.6 / 2026-10-08 rag-ui-findings §一 乙): volume on the
+          left, only actionable states (indexing / failed) on the right with the status
+          column's own dots. "Ready" is the silent default — no chip, and no status
+          segment at all when nothing is in progress or failed. The row never wraps:
+          the volume segment shrinks, the status segment holds its width. */}
       <div
-        className="text-muted-foreground flex flex-wrap gap-x-3 border-t px-4 py-2 text-xs"
+        className="text-muted-foreground flex gap-x-3 border-t px-4 py-2 text-xs"
         data-testid="document-stats-row"
       >
-        <span className="flex items-center gap-1 whitespace-nowrap">
+        <span className="min-w-0 truncate">
           {tk.statsDocuments} {stats.total} · {tk.statsChunks}{" "}
           {stats.totalChunks} · {formatBytes(stats.totalBytes)}
         </span>
-        <span className="ml-auto flex items-center gap-2 whitespace-nowrap">
-          {(
-            [
-              ["ready", stats.ready],
-              ["indexing", stats.inProgress],
-              ["failed", stats.failed],
-            ] as const
-          ).map(([key, count]) =>
-            count > 0 ? (
-              <span key={key} className="flex items-center gap-1">
-                <span
-                  className={cn("size-1.5 rounded-full", STATUS_DOT_CLASS[key])}
-                />
-                {tk.status[key]} {count}
-              </span>
-            ) : null,
-          )}
-        </span>
+        {stats.inProgress > 0 || stats.failed > 0 ? (
+          <span className="ml-auto flex shrink-0 items-center gap-2 whitespace-nowrap">
+            {(
+              [
+                ["indexing", stats.inProgress],
+                ["failed", stats.failed],
+              ] as const
+            ).map(([key, count]) =>
+              count > 0 ? (
+                <span key={key} className="flex items-center gap-1">
+                  <span
+                    className={cn(
+                      "size-1.5 rounded-full",
+                      STATUS_DOT_CLASS[key],
+                    )}
+                  />
+                  {tk.status[key]} {count}
+                </span>
+              ) : null,
+            )}
+          </span>
+        ) : null}
       </div>
 
       {/* Document delete confirm */}
