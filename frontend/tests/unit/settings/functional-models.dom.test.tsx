@@ -419,7 +419,7 @@ const ANTHROPIC_MODEL = {
   editable: true,
 };
 
-function renderPage(
+function renderPageRaw(
   models: Array<Record<string, unknown>> = [VL_MODEL, TEXT_MODEL],
 ) {
   modelHooksMock.useModels.mockReturnValue({
@@ -477,6 +477,43 @@ function renderPage(
     </QueryClientProvider>,
   );
 }
+
+/** 2026-10-08 rag-ui-findings ③ 乙-b：功能区块改在视图切换之后——既有断言统一先切进去。 */
+function renderPage(
+  models: Array<Record<string, unknown>> = [VL_MODEL, TEXT_MODEL],
+) {
+  const view = renderPageRaw(models);
+  const toggle = screen.queryByRole("button", { name: M.viewFunctionalModels });
+  if (toggle) {
+    fireEvent.click(toggle);
+  }
+  return view;
+}
+
+describe("view switch (③ 乙-b)", () => {
+  it("defaults to the chat list with a single view-switch button", () => {
+    renderPageRaw();
+    expect(screen.getByRole("button", { name: M.add })).toBeTruthy();
+    expect(screen.getByRole("button", { name: M.reload })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: M.viewFunctionalModels }),
+    ).toBeTruthy();
+    expect(screen.queryByText(F.defaultModel)).toBeNull();
+  });
+
+  it("switches into the functional view and back on the same button", () => {
+    renderPageRaw();
+    fireEvent.click(
+      screen.getByRole("button", { name: M.viewFunctionalModels }),
+    );
+    expect(screen.getByText(F.defaultModel)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: M.add })).toBeNull();
+    expect(screen.queryByRole("button", { name: M.reload })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: M.viewChatModels }));
+    expect(screen.getByRole("button", { name: M.add })).toBeTruthy();
+    expect(screen.queryByText(F.defaultModel)).toBeNull();
+  });
+});
 
 beforeEach(() => {
   saveMock.mockReset();

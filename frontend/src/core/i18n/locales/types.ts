@@ -1365,6 +1365,8 @@ export interface Translations {
       adminOnly: string;
       /** 该行要求 operator（管理员）身份；非管理员只读。 */
       adminRequired: string;
+      viewChatModels: string;
+      viewFunctionalModels: string;
       add: string;
       loading: string;
       failed: string;

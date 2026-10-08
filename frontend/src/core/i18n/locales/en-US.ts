@@ -1636,6 +1636,8 @@ export const enUS: Translations = {
         "Connection test failed. Check the endpoint, credentials, model ID and streaming/tool support.",
       test: "Test connection",
       title: "Models",
+      viewChatModels: "Chat models",
+      viewFunctionalModels: "Functional models",
       vision: "Supports image input",
       working: "Working…",
       yaml: "Server configuration · read-only",

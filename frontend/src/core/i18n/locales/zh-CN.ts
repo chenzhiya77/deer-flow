@@ -1543,6 +1543,8 @@ export const zhCN: Translations = {
         "连接测试失败，请检查接口地址、凭据、模型 ID 以及流式输出和工具调用支持。",
       test: "测试连接",
       title: "模型",
+      viewChatModels: "对话模型",
+      viewFunctionalModels: "功能模型",
       vision: "支持图片输入",
       working: "处理中…",
       yaml: "服务器配置 · 只读",

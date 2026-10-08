@@ -43,6 +43,7 @@ export function ModelSettingsPage() {
   });
   const [editing, setEditing] = useState<ManagedModel | "new" | null>(null);
   const [pending, setPending] = useState(false);
+  const [view, setView] = useState<"chat" | "functional">("chat");
   async function refresh() {
     await Promise.all([
       client.invalidateQueries({ queryKey: ["managed-models"] }),
@@ -70,76 +71,95 @@ export function ModelSettingsPage() {
       ) : (
         <div className="space-y-4">
           <div className="flex gap-2">
-            <Button disabled={pending} onClick={() => setEditing("new")}>
-              {text.add}
-            </Button>
+            {view === "chat" && (
+              <>
+                <Button disabled={pending} onClick={() => setEditing("new")}>
+                  {text.add}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={pending || catalog.isFetching}
+                  onClick={() => void catalog.refetch()}
+                >
+                  {text.reload}
+                </Button>
+              </>
+            )}
             <Button
               variant="outline"
-              disabled={pending || catalog.isFetching}
-              onClick={() => void catalog.refetch()}
+              onClick={() =>
+                setView((value) => (value === "chat" ? "functional" : "chat"))
+              }
             >
-              {text.reload}
+              {view === "chat"
+                ? text.viewFunctionalModels
+                : text.viewChatModels}
             </Button>
           </div>
-          {catalog.isLoading && <p role="status">{text.loading}</p>}
-          {catalog.error && (
-            <div role="alert">
-              <p>{text.failed}</p>
-            </div>
-          )}
-          {catalog.data?.models.length === 0 && <p>{text.empty}</p>}
-          {catalog.data?.models.map((model) => (
-            <div
-              key={`${model.source}:${model.name}`}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
-            >
-              <div>
-                <p className="font-medium">
-                  {model.display_name || model.name}
-                </p>
-                <p className="text-muted-foreground text-sm">
-                  {model.model} ·{" "}
-                  {model.source === "config"
-                    ? text.yaml
-                    : model.enabled
-                      ? text.enabled
-                      : text.disabled}
-                </p>
-                {model.source === "managed" && model.conflict && (
-                  <p role="alert">{text.conflict}</p>
-                )}
-              </div>
-              {model.source === "managed" && (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    disabled={pending || model.conflict}
-                    onClick={() => setEditing(model)}
-                  >
-                    {text.edit}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    disabled={pending || model.conflict}
-                    onClick={() => void toggle(model)}
-                  >
-                    {model.enabled ? text.disable : text.enable}
-                  </Button>
+          {view === "chat" ? (
+            <>
+              {catalog.isLoading && <p role="status">{text.loading}</p>}
+              {catalog.error && (
+                <div role="alert">
+                  <p>{text.failed}</p>
                 </div>
               )}
-            </div>
-          ))}
-          {editing && (
-            <ModelEditor
-              key={`${user?.id}:${editing === "new" ? "new" : editing.name}`}
-              model={editing === "new" ? undefined : editing}
-              close={() => setEditing(null)}
-              saved={refresh}
-            />
+              {catalog.data?.models.length === 0 && <p>{text.empty}</p>}
+              {catalog.data?.models.map((model) => (
+                <div
+                  key={`${model.source}:${model.name}`}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
+                >
+                  <div>
+                    <p className="font-medium">
+                      {model.display_name || model.name}
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      {model.model} ·{" "}
+                      {model.source === "config"
+                        ? text.yaml
+                        : model.enabled
+                          ? text.enabled
+                          : text.disabled}
+                    </p>
+                    {model.source === "managed" && model.conflict && (
+                      <p role="alert">{text.conflict}</p>
+                    )}
+                  </div>
+                  {model.source === "managed" && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        disabled={pending || model.conflict}
+                        onClick={() => setEditing(model)}
+                      >
+                        {text.edit}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={pending || model.conflict}
+                        onClick={() => void toggle(model)}
+                      >
+                        {model.enabled ? text.disable : text.enable}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {editing && (
+                <ModelEditor
+                  key={`${user?.id}:${editing === "new" ? "new" : editing.name}`}
+                  model={editing === "new" ? undefined : editing}
+                  close={() => setEditing(null)}
+                  saved={refresh}
+                />
+              )}
+            </>
+          ) : (
+            // 功能模型与知识库后端配置（首期 RAG）：挂在共享模型页内、与模型列表同一
+            // operator 门（canManage）之下——功能模型的引用选项来自上面的模型列表。
+            <FunctionalModelsView />
           )}
-          {/* 功能模型与知识库后端配置（首期 RAG）：挂在共享模型页内、与模型列表同一
-              operator 门（canManage）之下——功能模型的引用选项来自上面的模型列表。 */}
-          <FunctionalModelsView />
         </div>
       )}
     </SettingsSection>
