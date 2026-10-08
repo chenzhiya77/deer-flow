@@ -24,6 +24,18 @@ def other_tool(query: str) -> str:
     return query
 
 
+@tool
+def list_knowledge_documents() -> str:
+    """List documents."""
+    return ""
+
+
+@tool
+def read_knowledge_document(doc_id: str = "") -> str:
+    """Read a document."""
+    return doc_id
+
+
 class _ModelRequest:
     def __init__(self, messages, *, tools=(), runtime=None):
         self.messages = list(messages)
@@ -115,7 +127,7 @@ async def test_model_paths_strip_every_historical_scope_and_hide_disabled_tool(
     ]
     request = _ModelRequest(
         messages,
-        tools=[knowledge_search, other_tool],
+        tools=[knowledge_search, list_knowledge_documents, read_knowledge_document, other_tool],
         runtime=runtime,
     )
     captured = []
@@ -155,6 +167,26 @@ def test_disabled_execution_guard_blocks_knowledge_tool() -> None:
     assert isinstance(result, ToolMessage)
     assert result.status == "error"
     assert result.tool_call_id == "call-1"
+    assert "disabled" in str(result.content).lower()
+
+
+@pytest.mark.parametrize("tool_name", ["knowledge_search", "list_knowledge_documents", "read_knowledge_document"])
+def test_disabled_execution_guard_blocks_every_knowledge_tool(tool_name: str) -> None:
+    """The disabled gate covers the whole document-tool family (spec 2026-10-08 §2.4)."""
+    runtime = Runtime(context={KNOWLEDGE_SCOPE_RUNTIME_KEY: _scope("disabled")})
+    request = SimpleNamespace(
+        tool_call={"name": tool_name, "id": "call-1"},
+        runtime=runtime,
+    )
+
+    result = KnowledgeScopeMiddleware().wrap_tool_call(
+        request,
+        lambda _request: pytest.fail("disabled call must not execute"),
+    )
+
+    assert isinstance(result, ToolMessage)
+    assert result.status == "error"
+    assert result.name == tool_name
     assert "disabled" in str(result.content).lower()
 
 

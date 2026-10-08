@@ -22,7 +22,7 @@ from deerflow.knowledge_scope import (
 )
 from deerflow.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
 
-_KNOWLEDGE_SEARCH_TOOL_NAME = "knowledge_search"
+_KNOWLEDGE_TOOL_NAMES = frozenset({"knowledge_search", "list_knowledge_documents", "read_knowledge_document"})
 
 
 def _runtime_context(value: object) -> dict[str, Any] | None:
@@ -80,22 +80,23 @@ class KnowledgeScopeMiddleware(AgentMiddleware[AgentState]):
         tools = list(request.tools)
         scope = _scope_from_runtime(request.runtime)
         if scope is not None and scope["mode"] == "disabled":
-            tools = [tool for tool in tools if getattr(tool, "name", None) != _KNOWLEDGE_SEARCH_TOOL_NAME]
+            tools = [tool for tool in tools if getattr(tool, "name", None) not in _KNOWLEDGE_TOOL_NAMES]
         if messages == list(request.messages) and tools == list(request.tools):
             return request
         return request.override(messages=messages, tools=tools)
 
     @staticmethod
     def _disabled_tool_message(request: ToolCallRequest) -> ToolMessage | None:
-        if str(request.tool_call.get("name") or "") != _KNOWLEDGE_SEARCH_TOOL_NAME:
+        tool_name = str(request.tool_call.get("name") or "")
+        if tool_name not in _KNOWLEDGE_TOOL_NAMES:
             return None
         scope = _scope_from_runtime(getattr(request, "runtime", None))
         if scope is None or scope["mode"] != "disabled":
             return None
         return ToolMessage(
-            content="Error: Knowledge search is disabled for this turn.",
+            content=f"Error: {tool_name} is disabled for this turn.",
             tool_call_id=str(request.tool_call.get("id") or "missing_tool_call_id"),
-            name=_KNOWLEDGE_SEARCH_TOOL_NAME,
+            name=tool_name,
             status="error",
         )
 
