@@ -694,6 +694,8 @@ export interface Translations {
       loadMore: string;
       loading: string;
       viewRendered: string;
+      tickAria: string;
+      notLoaded: string;
       viewRaw: string;
       imageUnavailable: string;
     };

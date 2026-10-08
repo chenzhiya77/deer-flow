@@ -638,6 +638,8 @@ export const enUS: Translations = {
       tokens: "tokens",
       viewRaw: "Raw text",
       viewRendered: "Rendered view",
+      tickAria: "Chunk",
+      notLoaded: "not loaded",
     },
     clearSearch: "Clear search",
     collapseKbList: "Collapse the list panel",

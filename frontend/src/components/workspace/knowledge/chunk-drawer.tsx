@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { useI18n } from "@/core/i18n/hooks";
 import { listDocumentChunks } from "@/core/knowledge/api";
+import { chunkPreview } from "@/core/knowledge/format";
 import { knowledgeChunksKey } from "@/core/knowledge/hooks";
 import type {
   KnowledgeChunk,
@@ -25,6 +26,7 @@ import type {
 import { cn } from "@/lib/utils";
 
 import { ChunkCard } from "./chunk-card";
+import { ChunkTickRail, type ChunkTickEntry } from "./chunk-tick-rail";
 import { FileTypeBadge } from "./file-type-badge";
 
 const PAGE_SIZE = 20;
@@ -153,6 +155,15 @@ export function ChunkDrawer({
     pendingJumpRef.current = null;
     requestAnimationFrame(() => scrollToIndex(pending));
   }, [items, scrollToIndex]);
+
+  const railEntries = useMemo<ChunkTickEntry[]>(
+    () =>
+      items.map((chunk) => ({
+        index: chunk.chunk_index,
+        preview: chunkPreview(chunk),
+      })),
+    [items],
+  );
 
   // active = 顶部越过视口上 1/3 带的最后一张卡；rAF 节流的 scroll 监听挂在
   // Radix viewport 元素上（ScrollArea 经 viewportRef 外露）。
@@ -314,6 +325,14 @@ export function ChunkDrawer({
               )}
             </div>
           </ScrollArea>
+          <ChunkTickRail
+            active={activeIndex}
+            entries={railEntries}
+            onJump={jumpTo}
+            tickLabel={tc.tickAria}
+            total={total}
+            unloadedLabel={tc.notLoaded}
+          />
         </div>
       </SheetContent>
     </Sheet>

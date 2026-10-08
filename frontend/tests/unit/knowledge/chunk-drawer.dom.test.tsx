@@ -147,6 +147,35 @@ describe("ChunkCard", () => {
     expect(screen.queryByRole("button", { name: "删除" })).toBeNull();
     expect(screen.queryByRole("button", { name: /重抽/ })).toBeNull();
   });
+
+  it("renders the tick rail once the document has at least five chunks (②)", async () => {
+    mockChunks([CHUNK], 6);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
+    expect(await screen.findByRole("button", { name: "切片 #1" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "切片 #6" })).toBeTruthy();
+  });
+
+  it("hides the tick rail below five chunks (②)", async () => {
+    mockChunks([CHUNK], 4);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
+    expect(await screen.findByText(/产品手册/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^切片 #/ })).toBeNull();
+  });
+
+  it("opens the tick label panel on hover with one row per chunk (②)", async () => {
+    mockChunks([CHUNK], 6);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
+    const firstTick = await screen.findByRole("button", { name: "切片 #1" });
+    fireEvent.mouseEnter(firstTick.parentElement!.parentElement!);
+    await waitFor(() => expect(screen.getAllByText("未加载").length).toBe(5));
+    expect(screen.getByText("1.1 目标")).toBeTruthy();
+  });
 });
 
 describe("fetchChunkWindow", () => {

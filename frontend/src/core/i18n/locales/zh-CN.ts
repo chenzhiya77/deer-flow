@@ -599,6 +599,8 @@ export const zhCN: Translations = {
       tokens: "tokens",
       viewRaw: "原始文本",
       viewRendered: "渲染视图",
+      tickAria: "切片",
+      notLoaded: "未加载",
     },
     clearSearch: "清空搜索",
     collapseKbList: "收起列表栏",
