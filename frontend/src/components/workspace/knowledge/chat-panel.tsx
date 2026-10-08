@@ -4,7 +4,6 @@ import type { Message } from "@langchain/langgraph-sdk";
 import {
   ArrowUpIcon,
   ArrowUpRightIcon,
-  CheckIcon,
   ChevronDownIcon,
   HistoryIcon,
   PlusIcon,
@@ -14,15 +13,6 @@ import {
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import {
-  ModelSelector,
-  ModelSelectorContent,
-  ModelSelectorInput,
-  ModelSelectorItem,
-  ModelSelectorList,
-  ModelSelectorName,
-  ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -34,6 +24,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageList } from "@/components/workspace/messages";
+import {
+  ModelPicker,
+  ModelPickerContent,
+  ModelPickerTrigger,
+} from "@/components/workspace/model-picker-content";
 import { Tooltip } from "@/components/workspace/tooltip";
 import { useAgentsApiEnabled } from "@/core/agents";
 import { useI18n } from "@/core/i18n/hooks";
@@ -539,11 +534,11 @@ export function KnowledgeChatPanel({
           />
           <div className="flex items-center justify-between gap-2 px-2 pb-2">
             <div className="flex min-w-0 items-center gap-2">
-              <ModelSelector
+              <ModelPicker
                 open={modelDialogOpen}
                 onOpenChange={setModelDialogOpen}
               >
-                <ModelSelectorTrigger asChild>
+                <ModelPickerTrigger asChild>
                   <button
                     aria-label={tc.selectModel}
                     className="text-muted-foreground hover:text-foreground flex max-w-40 min-w-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs transition-colors disabled:pointer-events-none disabled:opacity-50"
@@ -557,34 +552,14 @@ export function KnowledgeChatPanel({
                     </span>
                     <ChevronDownIcon className="size-3 shrink-0" />
                   </button>
-                </ModelSelectorTrigger>
-                <ModelSelectorContent title={tc.selectModel}>
-                  <ModelSelectorInput placeholder={tc.searchModels} />
-                  <ModelSelectorList>
-                    {models.map((m) => (
-                      <ModelSelectorItem
-                        key={m.name}
-                        value={m.name}
-                        onSelect={() => handleModelSelect(m.name)}
-                      >
-                        <div className="flex min-w-0 flex-1 flex-col">
-                          <ModelSelectorName>
-                            {m.display_name ?? m.name}
-                          </ModelSelectorName>
-                          <span className="text-muted-foreground truncate text-[10px]">
-                            {m.model}
-                          </span>
-                        </div>
-                        {m.name === selectedModelName ? (
-                          <CheckIcon className="ml-auto size-4" />
-                        ) : (
-                          <div className="ml-auto size-4" />
-                        )}
-                      </ModelSelectorItem>
-                    ))}
-                  </ModelSelectorList>
-                </ModelSelectorContent>
-              </ModelSelector>
+                </ModelPickerTrigger>
+                <ModelPickerContent
+                  open={modelDialogOpen}
+                  models={models}
+                  selectedModelName={selectedModelName ?? undefined}
+                  onModelSelect={handleModelSelect}
+                />
+              </ModelPicker>
             </div>
             <Tooltip content={tc.send}>
               {/* The span keeps the tooltip reachable while the button is disabled */}

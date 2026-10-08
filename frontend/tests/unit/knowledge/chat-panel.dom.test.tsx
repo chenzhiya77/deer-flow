@@ -42,6 +42,14 @@ rs.mock("sonner", () => ({
   toast: { info: rs.fn(), error: rs.fn(), success: rs.fn(), warning: rs.fn() },
 }));
 
+rs.mock("@/core/auth/AuthProvider", () => ({
+  useAuth: () => ({ user: { id: "test-user" }, isLoading: false }),
+}));
+
+rs.mock("@/core/models/use-model-favorites", () => ({
+  useModelFavorites: () => ({ names: [], canEdit: true, setFavorite: rs.fn() }),
+}));
+
 // 面板挂载时会向外壳登记「当前跟哪个会话」(spec §10.3),但那件事由
 // activity-context / agent-pet 两套用例覆盖(含注册值),这里只测 kb 绑定与流,
 // 不为了它把每条 render 都包一层 ActivityProvider。
@@ -611,6 +619,16 @@ describe("KnowledgeChatPanel", () => {
 // ── P6 检索联动（2026-08-15 spec §9 通道二）：最新一轮提问+引用上报 page 层 ──
 
 describe("KnowledgeChatPanel model selector", () => {
+  it("opens the favourites picker with a star per row (⑪)", () => {
+    renderPanel();
+    fireEvent.click(screen.getByRole("button", { name: "选择模型" }));
+    expect(screen.getByRole("group", { name: "其他模型" })).toBeTruthy();
+    expect(screen.queryByRole("group", { name: "收藏" })).toBeNull();
+    expect(
+      screen.getAllByRole("button", { name: /^收藏 / }).length,
+    ).toBeGreaterThan(0);
+  });
+
   it("shows the first configured model as the effective default and keeps context.model_name undefined", () => {
     renderPanel();
     // 未显式选择时：触发器显示后端默认（models[0]），context 保持 undefined
