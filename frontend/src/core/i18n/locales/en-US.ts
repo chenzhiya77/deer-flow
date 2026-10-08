@@ -647,11 +647,11 @@ export const enUS: Translations = {
     degradedRetryHint: "Some outputs did not succeed — retry to complete them",
     deleteDocument: "Delete",
     deleteDocumentConfirmDescription:
-      "Its chunks, vectors and graph contributions will be cascade-deleted. This cannot be undone.",
+      "Its chunks and vectors will be cascade-deleted. This cannot be undone.",
     deleteDocumentConfirmTitle: "Delete this document?",
     deleteKb: "Delete knowledge base",
     deleteKbConfirmDescription:
-      "All documents, chunks, vectors, graph data and wiki entries will be cascade-deleted. This cannot be undone.",
+      "All documents, chunks and vectors will be cascade-deleted. This cannot be undone.",
     deleteKbConfirmTitle: "Delete this knowledge base?",
     deleteSelected: "Delete selected",
     docErrors: {
@@ -730,7 +730,6 @@ export const enUS: Translations = {
     selectKbTitle: "No knowledge base selected",
     selectedCount: (count) => `${count} selected`,
     settings: "Settings",
-    sharedKBs: "Shared knowledge bases",
     sortDocuments: "Sort documents",
     statsChunks: "Chunks",
     statsDocuments: "Documents",
@@ -760,7 +759,6 @@ export const enUS: Translations = {
     uploadDocuments: "Upload documents",
     uploaderMe: "Me",
     uploadingDocuments: "Uploading…",
-    sharedKbSamples: ["Team shared library", "Product public docs"],
     status: {
       uploaded: "Uploaded",
       parsing: "Parsing",

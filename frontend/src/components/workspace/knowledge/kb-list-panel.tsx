@@ -5,7 +5,6 @@ import {
   PanelLeftClose,
   Plus,
   UserRound,
-  Users,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -65,7 +64,6 @@ export function KbListPanel({
   const [overId, setOverId] = useState<string | null>(null);
   // 分组折叠态（2026-09-10）：标题文字即折叠开关，两组各自记忆。
   const [personalOpen, setPersonalOpen] = useState(true);
-  const [sharedOpen, setSharedOpen] = useState(true);
 
   const resetAndClose = () => {
     setCreateOpen(false);
@@ -128,7 +126,7 @@ export function KbListPanel({
         )}
       </div>
 
-      {/* 百科 Tab 容器同款 overlay 滚动条（2026-09-04）：库列表内滚改 ScrollArea
+      {/* 保留面同款 overlay 滚动条（2026-09-04）：库列表内滚改 ScrollArea
           （type="scroll"、停 2s 淡出），取代原生 overflow-y-auto。 */}
       {/* px-2 在内容层而非 Root（焦点环修复 2026-10-02）：裁剪盒是 ScrollArea 视口自己，
           Root 的留白挡不住外扩 3px 的 focus ring——留白下移到 ul/分组层后行几何不变。 */}
@@ -210,37 +208,6 @@ export function KbListPanel({
             </ul>
           ))}
 
-        {/* 共享知识库（2026-09-10 纯展示）：后期规划的共享库分组预览——静态行
-            （无按钮、不可拖拽、不可选中），数据未接后端，仅演示信息架构。 */}
-        <div
-          className="mt-4 flex flex-col gap-0.5 px-2"
-          data-testid="kb-shared-group"
-        >
-          <div className="flex items-center gap-1.5 px-2 pb-1">
-            <button
-              aria-expanded={sharedOpen}
-              className="text-muted-foreground hover:text-foreground mr-auto -ml-1 flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium whitespace-nowrap transition-colors"
-              data-testid="kb-shared-toggle"
-              type="button"
-              onClick={() => setSharedOpen((open) => !open)}
-            >
-              <Users className="size-3.5 shrink-0 text-violet-600 dark:text-violet-500" />
-              {tk.sharedKBs}
-            </button>
-          </div>
-          {sharedOpen && (
-            <ul className="flex flex-col gap-0.5">
-              {tk.sharedKbSamples.map((sample) => (
-                <li key={sample}>
-                  <div className="text-muted-foreground flex w-full cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm">
-                    <Users className="size-4 shrink-0" />
-                    <span className="min-w-0 truncate">{sample}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       </ScrollArea>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

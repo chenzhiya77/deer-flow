@@ -50,29 +50,12 @@ rs.mock("@/core/models/use-model-favorites", () => ({
   useModelFavorites: () => ({ names: [], canEdit: true, setFavorite: rs.fn() }),
 }));
 
-// 面板挂载时会向外壳登记「当前跟哪个会话」(spec §10.3),但那件事由
-// activity-context / agent-pet 两套用例覆盖(含注册值),这里只测 kb 绑定与流,
-// 不为了它把每条 render 都包一层 ActivityProvider。
-rs.mock("@/core/threads/activity-context", () => ({
-  useRegisterActivity: () => undefined,
-}));
-
 let capturedMessageListProps: Record<string, unknown> | null = null;
 
 rs.mock("@/components/workspace/messages", () => ({
   MessageList: (props: Record<string, unknown>) => {
     capturedMessageListProps = props;
-    // 假滚动层 + human turn 节点（2026-09-08 刻度轨接线）：面板侧 active
-    // 追踪与跳转都挂这两个钩子（data-slot 视口 / data-human-turn 全局序号），
-    // mock 环境以同结构节点代替真实 MessageList 渲染。
-    return (
-      <div data-testid="message-list">
-        <div data-slot="scroll-area-viewport">
-          <div data-human-turn="0" />
-          <div data-human-turn="1" />
-        </div>
-      </div>
-    );
+    return <div data-testid="message-list" />;
   },
   MESSAGE_LIST_DEFAULT_PADDING_BOTTOM: 120,
 }));

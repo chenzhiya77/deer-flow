@@ -55,7 +55,7 @@ const StreamingCodeBlockContext = createContext(false);
  * 表格沉入隐式 ScrollArea（2026-09-10 对齐项目隐式滑条，aa02a307 同款）：streamdown
  * 表格外壳（data-streamdown="table-wrapper"）硬编码的原生 overflow-x/y-auto 粗滑条
  * （带箭头、常驻）由 globals.css 退役为 visible，横滚/纵滚改由 ScrollArea
- * （horizontal + type="scroll" + 停 2s 淡出）承担——与题库表/百科 Tab/窄视口横滚同款。
+ * （horizontal + type="scroll" + 停 2s 淡出）承担——与文档表/窄视口横滚同款。
  */
 function StreamingTable({
   node: _node,

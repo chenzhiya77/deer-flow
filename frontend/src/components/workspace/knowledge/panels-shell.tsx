@@ -74,8 +74,8 @@ export interface KnowledgePanelsControls {
  * The middle column keeps its 320px minimum; the chat column keeps a 320px
  * floor too so the composer row (deep-research switch + model selector + send
  * button) never wraps at the panel's narrowest drag position. Extreme narrow
- * widths fall back to horizontal scrolling on an overlay ScrollArea (百科 Tab
- * 容器同款隐式滑条：只滚动时浮现、停 2s 淡出、不占布局高度) instead of the old
+ * widths fall back to horizontal scrolling on an overlay ScrollArea (保留面
+ * 同款隐式滑条：只滚动时浮现、停 2s 淡出、不占布局高度) instead of the old
  * native overflow-x-auto bar spanning the columns, and never crush columns.
  * The Group carries min-w-[52rem] because the library
  * always fits panels into the container width — without it, a viewport

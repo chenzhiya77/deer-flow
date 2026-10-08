@@ -168,7 +168,7 @@ class KnowledgeIndexWorker:
     async def _require_alive(self, doc_id: str) -> None:
         """Liveness checkpoint against the delete-vs-worker race: a document
         deleted mid-pipeline must not be resurrected by further writes
-        (insert_chunks / graph upserts would otherwise recreate zombie rows
+        (insert_chunks would otherwise recreate zombie rows
         and phantom chunk references; status updates no-op silently)."""
         if await self._store.get_document(doc_id) is None:
             raise _DocumentDeletedError(doc_id)
@@ -332,7 +332,7 @@ class KnowledgeIndexWorker:
 
     async def _append_error_marker(self, doc_id: str, marker: str, *, replace_prefix: str | None = None) -> None:
         """Append a visible sub-marker to the document error field without
-        clobbering an existing one (e.g. "graph degraded") — degraded stages
+        clobbering an existing one (e.g. "degraded") — degraded stages
         stack their markers, never silently (spec 2026-08-10 D3 降级).
 
         ``replace_prefix`` refreshes a *counted* marker of the same stage in place

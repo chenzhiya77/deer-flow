@@ -608,11 +608,10 @@ export const zhCN: Translations = {
     degradedRetryHint: "部分产物未成功，可重试补齐",
     deleteDocument: "删除",
     deleteDocumentConfirmDescription:
-      "将级联清理该文档的切片、向量与图谱贡献，且不可恢复。",
+      "将级联清理该文档的切片与向量，且不可恢复。",
     deleteDocumentConfirmTitle: "删除文档？",
     deleteKb: "删除知识库",
-    deleteKbConfirmDescription:
-      "将同时删除全部文档、切片、向量、图谱与百科条目，且不可恢复。",
+    deleteKbConfirmDescription: "将同时删除全部文档、切片与向量，且不可恢复。",
     deleteKbConfirmTitle: "删除知识库？",
     deleteSelected: "删除所选",
     docErrors: {
@@ -687,7 +686,6 @@ export const zhCN: Translations = {
     selectKbTitle: "未选择知识库",
     selectedCount: (count) => `已选 ${count} 项`,
     settings: "设置",
-    sharedKBs: "共享知识库",
     sortDocuments: "排序方式",
     statsChunks: "切片",
     statsDocuments: "文档",
@@ -717,7 +715,6 @@ export const zhCN: Translations = {
     uploadDocuments: "上传文档",
     uploaderMe: "我",
     uploadingDocuments: "上传中…",
-    sharedKbSamples: ["团队共享库", "产品公共文档"],
     status: {
       uploaded: "待解析",
       parsing: "解析中",

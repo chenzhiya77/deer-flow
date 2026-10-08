@@ -740,7 +740,7 @@ export function DocumentPanel({
               </p>
             </div>
           ))}
-        {/* 百科 Tab 容器同款 overlay 滚动条（2026-09-04）：文档表纵+横滚改 ScrollArea
+        {/* 保留面同款 overlay 滚动条（2026-09-04）：文档表纵+横滚改 ScrollArea
             （horizontal 接管 min-w-[34rem] 横滚；吸顶表头的滚动祖先变为 Viewport，sticky 不变）。 */}
         <ScrollArea
           className="h-full"

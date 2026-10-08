@@ -3,14 +3,10 @@
 import { Code2, Eye, ImageOff } from "lucide-react";
 import { type ComponentProps, useMemo, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MarkdownContent } from "@/components/workspace/messages/markdown-content";
 import { useI18n } from "@/core/i18n/hooks";
 import { documentFileUrl } from "@/core/knowledge/api";
-
-/** 实体徽章展示上限（2026-09-05 切片导航卡片减重）：超出折成 +N，title 列其余。 */
-const ENTITY_CAP = 6;
 
 /**
  * Chunk markdown image (2026-08-22 切片图片显示): MinerU-parsed images are
@@ -76,7 +72,6 @@ export function ChunkCard({
   index,
   page,
   tokenCount,
-  entities,
   docName,
   kbId,
   docId,
@@ -90,7 +85,6 @@ export function ChunkCard({
   index?: number;
   page?: number | null;
   tokenCount?: number;
-  entities?: string[];
   docName?: string;
   /** Enable in-place image rendering: relative `images/…` refs resolve via the document files route. */
   kbId?: string;
@@ -101,7 +95,6 @@ export function ChunkCard({
   // 渲染/原始切换（2026-08-22 展示增强）：查看态默认渲染 Markdown，调试切片
   // 边界时可切回原始文本（单换行、# 符号等原样保留）。
   const [viewMode, setViewMode] = useState<"rendered" | "raw">("rendered");
-  const [entitiesExpanded, setEntitiesExpanded] = useState(false);
   const components = useMemo(
     () => ({
       img: (props: ComponentProps<"img">) => (
@@ -119,11 +112,6 @@ export function ChunkCard({
   const hasHeader =
     index != null ||
     Boolean(docName ?? (headingPath && headingPath.length > 0));
-  const visibleEntities = entities
-    ? entitiesExpanded
-      ? entities
-      : entities.slice(0, ENTITY_CAP)
-    : entities;
   // 页脚栏渲染条件：有度量（tokens/页码）时才加分隔线。
   const hasFooterMeta = page != null || tokenCount != null;
 
@@ -186,27 +174,6 @@ export function ChunkCard({
         />
       ) : (
         <p className="text-sm break-words whitespace-pre-wrap">{text}</p>
-      )}
-      {entities && entities.length > 0 && (
-        <span className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs">
-          <span className="shrink-0">{tc.entities}:</span>
-          {visibleEntities?.map((entity) => (
-            <Badge className="text-[10px]" key={entity} variant="secondary">
-              {entity}
-            </Badge>
-          ))}
-          {entities.length > ENTITY_CAP && !entitiesExpanded && (
-            <button
-              onClick={() => setEntitiesExpanded(true)}
-              title={entities.slice(ENTITY_CAP).join(", ")}
-              type="button"
-            >
-              <Badge className="text-[10px]" variant="outline">
-                +{entities.length - ENTITY_CAP}
-              </Badge>
-            </button>
-          )}
-        </span>
       )}
       {/* 页脚栏（2026-09-05 卡片重设计）：border-t 把度量与正文分层；
           tokens/页码不再夹在正文与按钮之间。 */}

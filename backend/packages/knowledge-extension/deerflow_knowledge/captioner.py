@@ -28,8 +28,7 @@ from deerflow_knowledge.vlm_target import VlmTarget, resolve_vlm_target
 
 logger = logging.getLogger(__name__)
 
-#: Doc-level caption degradation threshold: over 30% of images failed (relocated from the
-#: cut graph leg's indexer, spec lineage §3.4).
+#: Doc-level caption degradation threshold: over 30% of images failed (spec lineage §3.4).
 DEGRADED_FAILURE_THRESHOLD = 0.3
 
 
@@ -37,9 +36,9 @@ DEGRADED_FAILURE_THRESHOLD = 0.3
 class CaptionOutcome:
     """What one document's image pass produced (spec 2026-09-23 D8/R13).
 
-    Same family as the video leg's outcome: the captions themselves plus the verdict the
-    worker records. The verdict is computed here — against the graph leg's own threshold
-    constant — so the worker reads it instead of recomputing a ratio of its own.
+    The captions themselves plus the verdict the worker records. The verdict is
+    computed here — against the doc-level threshold constant — so the worker
+    reads it instead of recomputing a ratio of its own.
     """
 
     captions: dict[str, str] = field(default_factory=dict)
@@ -76,7 +75,7 @@ async def caption_images(
     list order to protect Markdown image position mapping.
 
     The verdict travels with the data (spec 2026-09-23 D8/R13): the failure count and the
-    degradation flag are computed here, against the same threshold the graph leg uses, so the
+    degradation flag are computed here, against the doc-level threshold, so the
     worker never recomputes a ratio of its own.
     """
     if not images:

@@ -197,7 +197,7 @@ export function ChunkDrawer({
   return (
     <Sheet onOpenChange={onOpenChange} open={open}>
       <SheetContent className="w-full overflow-hidden sm:max-w-xl" side="right">
-        {/* 百科 Tab 容器同款 overlay 滚动条（2026-09-04）：整抽屉经
+        {/* 保留面同款 overlay 滚动条（2026-09-04）：整抽屉经
             ScrollArea 滚动；头部 sticky 留在视口内承担位置感（2026-09-05 切片导航）。 */}
         <div className="relative flex min-h-0 flex-1 flex-col">
           <ScrollArea
@@ -297,7 +297,6 @@ export function ChunkDrawer({
                     <ChunkCard
                       chunkId={chunk.chunk_id}
                       docId={doc.id}
-                      entities={chunk.entities}
                       headingPath={chunk.heading_path}
                       index={position}
                       kbId={kbId}

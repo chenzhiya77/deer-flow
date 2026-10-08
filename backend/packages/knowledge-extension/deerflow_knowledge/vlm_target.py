@@ -82,7 +82,7 @@ class VlmTarget:
 def resolve_vlm_target(config: AppConfig, model: str | None = None) -> VlmTarget:
     """Resolve the caption target for ``model``, defaulting to ``rag.vlm_model``.
 
-    ``model`` names a ``models:`` entry; the video leg passes nothing and shares the chain.
+    ``model`` names a ``models:`` entry; the caption leg shares this chain.
     """
     from deerflow_knowledge.model_target import require_usable_rag_target
 

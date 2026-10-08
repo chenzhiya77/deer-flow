@@ -54,7 +54,7 @@ def count_tokens(text: str) -> int:
 @dataclass(slots=True)
 class Chunk:
     """One chunk per spec §3.2. ``kb_id``/``entities`` are filled downstream:
-    ``kb_id`` by the indexing pipeline, ``entities`` by the graph backfill."""
+    ``kb_id`` by the indexing pipeline; ``entities`` stays empty in the first phase (schema parity)."""
 
     chunk_id: str
     doc_id: str

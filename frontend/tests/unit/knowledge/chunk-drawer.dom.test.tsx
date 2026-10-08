@@ -95,14 +95,13 @@ afterEach(() => {
 });
 
 describe("ChunkCard", () => {
-  it("renders text with heading path, page, tokens, and entities", () => {
+  it("renders text with heading path, page, and tokens", () => {
     renderWithI18n(
       <ChunkCard
         text={CHUNK.text}
         headingPath={CHUNK.heading_path}
         page={CHUNK.page}
         tokenCount={CHUNK.token_count}
-        entities={CHUNK.entities}
       />,
     );
     expect(screen.getByText(CHUNK.text)).toBeTruthy();
@@ -110,8 +109,6 @@ describe("ChunkCard", () => {
     expect(screen.getByText(/1\.1 目标/)).toBeTruthy();
     expect(screen.getByText(/3/)).toBeTruthy();
     expect(screen.getByText(/512/)).toBeTruthy();
-    expect(screen.getByText("DeerFlow")).toBeTruthy();
-    expect(screen.getByText("Gateway")).toBeTruthy();
   });
 
   it("renders the citation form (doc name + text) without drawer-only metadata", () => {
@@ -120,23 +117,6 @@ describe("ChunkCard", () => {
     );
     expect(screen.getByText(/产品手册\.pdf/)).toBeTruthy();
     expect(screen.getByText(CHUNK.text)).toBeTruthy();
-  });
-
-  it("lets the entity badge row wrap so many long entities never overflow the card", () => {
-    // Production repro: six long entity badges rendered on ONE nowrap flex line and
-    // spilled past the card boundary; the 实体: label got squeezed into a vertical column.
-    const many = [
-      "知识库 RAG 一期",
-      "三路索引",
-      "三栏工作台",
-      "多租户共享与权限",
-      "召回测试与评估面板",
-      "图谱可视化探索",
-    ];
-    renderWithI18n(<ChunkCard text={CHUNK.text} entities={many} />);
-    const label = screen.getByText(/实体/);
-    expect(label.className).toContain("shrink-0");
-    expect(label.parentElement!.className).toContain("flex-wrap");
   });
 
   it("offers the rendered/raw view toggle without any edit affordance (read-only)", () => {

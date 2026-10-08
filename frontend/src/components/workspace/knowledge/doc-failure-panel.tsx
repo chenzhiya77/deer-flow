@@ -108,7 +108,7 @@ export function DocFailurePanel({
           <X className="size-3.5" />
         </button>
       </div>
-      {/* 百科 Tab 容器同款 overlay 滚动条（2026-09-04）：失败清单 max-h 内滚改 ScrollArea。 */}
+      {/* 保留面同款 overlay 滚动条（2026-09-04）：失败清单 max-h 内滚改 ScrollArea。 */}
       {multiple && expanded && (
         <ScrollArea
           className="border-border max-h-40 border-t"

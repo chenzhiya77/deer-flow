@@ -1,7 +1,7 @@
 """Shared citation numbering for the retrieval tools.
 
 The model cites ``[n]`` copied from each evidence item's ``citation_no``
-field. All three retrieval tools (hybrid/wiki/graph) must draw numbers from
+field. The retrieval tool (hybrid) must draw numbers from
 ONE per-run counter so a multi-path answer never faces three colliding
 ``[1]``s — the numbering-space collision behind the observed citation drift
 (answers repeating ``[1]`` everywhere). The counter rides the runtime

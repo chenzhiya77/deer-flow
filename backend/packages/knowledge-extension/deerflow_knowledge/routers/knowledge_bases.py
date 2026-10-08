@@ -133,7 +133,7 @@ def build_router(service: KnowledgeExtensionService) -> APIRouter:
     @router.get("/{kb_id}/documents")
     async def list_documents(request: Request, kb_id: str):
         service = await _require_kb_access(request, kb_id)
-        # service 层组装：path_status 携带 vector/graph，wiki 为库级镜像注入（spec §5）
+        # service 层组装：path_status 携带 vector/caption（切片保留面，spec §5）
         return await service.list_documents(kb_id)
 
     @router.post("/{kb_id}/documents", status_code=202)
@@ -188,11 +188,10 @@ def build_router(service: KnowledgeExtensionService) -> APIRouter:
     ):
         """Batch-fetch chunks by id (2026-09-05 条目↔切片血缘).
 
-        The wiki entry drawer expands ``source_chunk_ids`` into read-only cards:
-        one batched request returns the rows in the *requested* order, each
+        One batched request returns the rows in the *requested* order, each
         carrying its source document's name. Unknown ids drop silently (the
-        chunk may have been deleted; the UI reports the count delta); ids that
-        belong to another knowledge base are filtered out (resource scope).
+        chunk may have been deleted); ids that belong to another knowledge base
+        are filtered out (resource scope).
         """
         service = await _require_kb_access(request, kb_id)
         items = await service.store.get_chunks_by_ids(ids, kb_id=kb_id)

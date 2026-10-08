@@ -2,8 +2,7 @@
 
 Owns everything between the thin router and the harness layer: upload
 persistence (host-side file + ``documents`` row + worker enqueue), cascade
-deletes across the three stores (Qdrant → graph → wiki lifecycle → business
-rows), failed-document retry, and fire-and-forget wiki generation.
+deletes across the vector store and business rows, and failed-document retry.
 
 Cascade ordering rule (mirrors ``KnowledgeStore.delete_kb``'s docstring): the
 Qdrant cleanup runs first and its failures are logged but swallowed — a vector

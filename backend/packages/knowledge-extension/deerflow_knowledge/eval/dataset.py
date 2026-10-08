@@ -88,7 +88,7 @@ def _require_expected_paths(raw: dict, source: str) -> tuple[str, ...]:
     value = raw["expected_paths"]
     if not isinstance(value, list) or not value or any(item not in EXPECTED_PATHS for item in value):
         _fail(source, f"expected_paths must be a non-empty list drawn from {EXPECTED_PATHS}, got {value!r}")
-    # Dedupe preserving order: {vector, graph} and {graph, vector, graph} mean the same expectation.
+    # Dedupe preserving order: repeated {vector} entries mean the same expectation.
     return tuple(dict.fromkeys(value))
 
 

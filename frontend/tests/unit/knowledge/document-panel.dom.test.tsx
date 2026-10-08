@@ -383,7 +383,7 @@ describe("DocumentPanel table", () => {
     });
     fireEvent.click(await screen.findByRole("menuitem", { name: "删除" }));
     expect(
-      await screen.findByText(/将级联清理该文档的切片、向量与图谱贡献/),
+      await screen.findByText(/将级联清理该文档的切片与向量/),
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "确认删除" }));
     expect(onDeleteDocument).toHaveBeenCalledWith("doc-1");

@@ -576,8 +576,6 @@ export interface Translations {
       historySelected: (datasets: number, documents: number) => string;
     };
     personalKBs: string;
-    sharedKBs: string;
-    sharedKbSamples: string[];
     createKB: string;
     kbNamePlaceholder: string;
     kbDescriptionPlaceholder: string;

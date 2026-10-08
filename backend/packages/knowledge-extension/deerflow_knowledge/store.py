@@ -26,7 +26,7 @@ from deerflow_knowledge.models import (
 #: indexing → ready / failed.
 DOCUMENT_STATUSES: frozenset[str] = frozenset({"uploaded", "parsing", "chunking", "indexing", "ready", "failed"})
 
-#: Per-chunk graph-extract states (spec §3.4); persisted for resume.
+#: Per-chunk extract states (spec §3.4); kept for schema parity — the first phase has no graph backfill.
 CHUNK_EXTRACT_STATUSES: frozenset[str] = frozenset({"pending", "done", "empty", "failed"})
 
 
