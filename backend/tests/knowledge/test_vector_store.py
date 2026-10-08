@@ -150,6 +150,32 @@ async def test_hybrid_query_filters_by_kb(vector_store):
     assert all(point.payload["kb_id"] == "kb-1" for point in results)
 
 
+async def test_hybrid_query_filters_by_doc_within_kb(vector_store):
+    """篇内检索（spec 2026-10-08 §2.3）: an optional doc_id narrows the same
+    per-path filter — hits inside the doc, empty for a missing doc and for a
+    doc that lives in another KB."""
+    store, _ = vector_store
+    await store.upsert_chunks(
+        [
+            _chunk("doc-1#0000", "kb-1", "doc-1", dense_seed=0.02),
+            _chunk("doc-1#0001", "kb-1", "doc-1", dense_seed=0.03),
+            _chunk("doc-2#0000", "kb-1", "doc-2", dense_seed=0.02),
+            _chunk("doc-9#0000", "kb-2", "doc-9", dense_seed=0.02),
+        ]
+    )
+    query = dict(dense=[0.02] * 1024, sparse=SparseVector(indices=[1, 42], values=[0.5, 0.3]), kb_id="kb-1", top_k=5)
+
+    hits = await store.hybrid_query(doc_id="doc-1", **query)
+    assert {point.payload["chunk_id"] for point in hits} == {"doc-1#0000", "doc-1#0001"}
+    assert all(point.payload["doc_id"] == "doc-1" for point in hits)
+
+    missing = await store.hybrid_query(doc_id="doc-nope", **query)
+    assert missing == []
+
+    cross_kb = await store.hybrid_query(doc_id="doc-9", **query)
+    assert cross_kb == []
+
+
 async def test_delete_by_doc_removes_only_that_doc(vector_store):
     store, client = vector_store
     await store.upsert_chunks(

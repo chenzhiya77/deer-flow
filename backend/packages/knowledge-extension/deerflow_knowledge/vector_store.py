@@ -251,16 +251,20 @@ class KnowledgeVectorStore:
         dense: list[float],
         sparse: SparseVector,
         kb_id: str,
+        doc_id: str | None = None,
         top_k: int = 5,
         per_path_limit: int = 20,
     ) -> list[ScoredPoint]:
-        """Dense+sparse prefetch (per-path limit) fused with RRF, scoped to one KB."""
-        kb_filter = Filter(must=[FieldCondition(key="kb_id", match=MatchValue(value=kb_id))])
+        """Dense+sparse prefetch (per-path limit) fused with RRF, scoped to one KB (optionally one document)."""
+        must = [FieldCondition(key="kb_id", match=MatchValue(value=kb_id))]
+        if doc_id:
+            must.append(FieldCondition(key="doc_id", match=MatchValue(value=doc_id)))
+        scope_filter = Filter(must=must)
         response = await self._client.query_points(
             collection_name=self.chunks_collection,
             prefetch=[
-                Prefetch(query=dense, using="dense", filter=kb_filter, limit=per_path_limit),
-                Prefetch(query=sparse, using="sparse", filter=kb_filter, limit=per_path_limit),
+                Prefetch(query=dense, using="dense", filter=scope_filter, limit=per_path_limit),
+                Prefetch(query=sparse, using="sparse", filter=scope_filter, limit=per_path_limit),
             ],
             query=FusionQuery(fusion=Fusion.RRF),
             limit=top_k,
