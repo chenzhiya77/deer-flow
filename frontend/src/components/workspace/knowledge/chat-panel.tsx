@@ -8,6 +8,7 @@ import {
   ChevronDownIcon,
   HistoryIcon,
   PlusIcon,
+  SquareIcon,
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
@@ -60,6 +61,7 @@ import { cn } from "@/lib/utils";
 
 import { KbAssistantContent } from "./kb-assistant-content";
 import { KbCitationSources } from "./kb-citation-sources";
+import { toast } from "./kb-toast";
 
 /** Per-kb composer model memory: `rag-chat-model:{kbId}` → model name. */
 const MODEL_STORAGE_PREFIX = "rag-chat-model:";
@@ -479,7 +481,7 @@ export function KnowledgeChatPanel({
         <div className="focus-within:border-ring focus-within:ring-ring/50 dark:bg-background/80 rounded-xl border bg-white/80 shadow-xs transition-colors focus-within:ring-[3px]">
           <Textarea
             className="max-h-32 min-h-14 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
-            disabled={!kb || thread.isLoading}
+            disabled={!kb}
             placeholder={tc.inputPlaceholder}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
@@ -490,7 +492,11 @@ export function KnowledgeChatPanel({
                 !event.nativeEvent.isComposing
               ) {
                 event.preventDefault();
-                handleSubmit();
+                if (thread.isLoading) {
+                  toast.info(t.inputBox.pleaseWaitStreaming);
+                } else {
+                  handleSubmit();
+                }
               }
             }}
           />
@@ -549,11 +555,15 @@ export function KnowledgeChatPanel({
                 <Button
                   aria-label={tc.send}
                   className="rounded-full"
-                  disabled={!canSend}
+                  disabled={thread.isLoading ? !kb : !canSend}
                   size="icon-sm"
-                  onClick={handleSubmit}
+                  onClick={thread.isLoading ? thread.stop : handleSubmit}
                 >
-                  <ArrowUpIcon className="size-4" />
+                  {thread.isLoading ? (
+                    <SquareIcon className="size-4" />
+                  ) : (
+                    <ArrowUpIcon className="size-4" />
+                  )}
                 </Button>
               </span>
             </Tooltip>

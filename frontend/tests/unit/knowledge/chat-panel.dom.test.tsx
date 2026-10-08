@@ -12,6 +12,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
+import { toast } from "sonner";
 
 const mockUseThreadStream = rs.fn();
 const mockUseInfiniteThreads = rs.fn();
@@ -19,6 +20,7 @@ const mockSendMessage = rs.fn();
 const mockDeleteThread = rs.fn();
 const mockUseModels = rs.fn();
 const mockUseAgentsApiEnabled = rs.fn();
+const mockStop = rs.fn();
 
 rs.mock("@/core/agents", () => ({
   useAgentsApiEnabled: () => mockUseAgentsApiEnabled(),
@@ -32,6 +34,10 @@ rs.mock("@/core/threads/hooks", () => ({
 
 rs.mock("@/core/models/hooks", () => ({
   useModels: () => mockUseModels(),
+}));
+
+rs.mock("sonner", () => ({
+  toast: { info: rs.fn(), error: rs.fn(), success: rs.fn(), warning: rs.fn() },
 }));
 
 // 面板挂载时会向外壳登记「当前跟哪个会话」(spec §10.3),但那件事由
@@ -62,6 +68,7 @@ rs.mock("@/components/workspace/messages", () => ({
 }));
 
 import { KnowledgeChatPanel } from "@/components/workspace/knowledge/chat-panel";
+import { KB_TOASTER_ID } from "@/components/workspace/knowledge/kb-toast";
 import { I18nContext } from "@/core/i18n/context";
 import { zhCN } from "@/core/i18n/locales/zh-CN";
 import type { KnowledgeBase } from "@/core/knowledge/types";
@@ -167,6 +174,7 @@ beforeEach(() => {
   mockUseThreadStream.mockImplementation(() => ({
     thread: makeThreadState(),
     sendMessage: mockSendMessage,
+    stop: mockStop,
   }));
   mockUseInfiniteThreads.mockReturnValue({
     data: { pages: [[KB_THREAD, OTHER_KB_THREAD, PLAIN_THREAD]] },
@@ -205,6 +213,43 @@ describe("KnowledgeChatPanel", () => {
     expect(screen.getByRole("button", { name: "发送" })).toHaveProperty(
       "disabled",
       true,
+    );
+  });
+
+  it("keeps the composer typeable while streaming and swaps send for stop (⑤＋⑬)", () => {
+    mockUseThreadStream.mockImplementation(() => ({
+      thread: { ...makeThreadState(), isLoading: true, stop: mockStop },
+      sendMessage: mockSendMessage,
+    }));
+    renderPanel();
+    const textarea = screen.getByPlaceholderText("向当前知识库提问…");
+    expect(textarea).toHaveProperty("disabled", false);
+    fireEvent.change(textarea, { target: { value: "流式中也能打字" } });
+    expect(textarea).toHaveProperty("value", "流式中也能打字");
+
+    // The send key becomes a stop key — enabled even with an empty draft.
+    fireEvent.change(textarea, { target: { value: "" } });
+    const button = screen.getByRole("button", { name: "发送" });
+    expect(button).toHaveProperty("disabled", false);
+    expect(button.querySelector("svg.lucide-square")).toBeTruthy();
+    fireEvent.click(button);
+    expect(mockStop).toHaveBeenCalledTimes(1);
+    expect(mockSendMessage).not.toHaveBeenCalled();
+  });
+
+  it("tells the user to wait when Enter is pressed while streaming (⑬)", () => {
+    mockUseThreadStream.mockImplementation(() => ({
+      thread: { ...makeThreadState(), isLoading: true, stop: mockStop },
+      sendMessage: mockSendMessage,
+    }));
+    renderPanel();
+    const textarea = screen.getByPlaceholderText("向当前知识库提问…");
+    fireEvent.change(textarea, { target: { value: "再问一句" } });
+    fireEvent.keyDown(textarea, { key: "Enter" });
+    expect(mockSendMessage).not.toHaveBeenCalled();
+    expect(toast.info).toHaveBeenCalledWith(
+      "请等待当前响应完成。",
+      expect.objectContaining({ toasterId: KB_TOASTER_ID }),
     );
   });
 
