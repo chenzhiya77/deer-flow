@@ -305,6 +305,8 @@ function DocumentStatusCell({
   // 菜单都保留重试兜底，所以本列被隐藏时重试入口不会跟着消失。
   // 降级态（2026-10-04 D2=甲）：ready+任一腿 degraded 复用同款重试卡（说明不点名
   // 具体腿，明细行自证）；干净行保持 Tooltip。
+  // 卡内布局（2026-10-08 甲，验收反馈第九节）：文案与按钮同排两端、按钮收右缘——
+  // 短句不再右半留空，按钮垂直居中。
   // P3：path_status 非 null 才挂悬停（老行/未进索引不展示）。
   const degraded = doc.status === "ready" && hasDegradedLeg(doc.path_status);
   const content =
@@ -321,17 +323,19 @@ function DocumentStatusCell({
           data-testid="doc-retry-card"
           side="top"
         >
-          <p className="text-muted-foreground mb-2 text-xs">
-            {tk.docErrors[classifyDocError(doc.error)]}
-          </p>
-          <Button
-            className="h-7 gap-1.5 px-2.5"
-            size="sm"
-            onClick={() => onRetryDocument(doc.id)}
-          >
-            <RotateCcw className="size-3.5" />
-            {tk.retryDocument}
-          </Button>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-muted-foreground min-w-0 flex-1 text-xs">
+              {tk.docErrors[classifyDocError(doc.error)]}
+            </p>
+            <Button
+              className="h-7 shrink-0 gap-1.5 px-2.5"
+              size="sm"
+              onClick={() => onRetryDocument(doc.id)}
+            >
+              <RotateCcw className="size-3.5" />
+              {tk.retryDocument}
+            </Button>
+          </div>
         </HoverCardContent>
       </HoverCard>
     ) : degraded ? (
@@ -347,17 +351,19 @@ function DocumentStatusCell({
           data-testid="doc-retry-card"
           side="top"
         >
-          <p className="text-muted-foreground mb-2 text-xs">
-            {tk.degradedRetryHint}
-          </p>
-          <Button
-            className="h-7 gap-1.5 px-2.5"
-            size="sm"
-            onClick={() => onRetryDocument(doc.id)}
-          >
-            <RotateCcw className="size-3.5" />
-            {tk.retryDocument}
-          </Button>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-muted-foreground min-w-0 flex-1 text-xs">
+              {tk.degradedRetryHint}
+            </p>
+            <Button
+              className="h-7 shrink-0 gap-1.5 px-2.5"
+              size="sm"
+              onClick={() => onRetryDocument(doc.id)}
+            >
+              <RotateCcw className="size-3.5" />
+              {tk.retryDocument}
+            </Button>
+          </div>
           <div className="mt-2">
             <PathStatusBreakdown doc={doc} />
           </div>

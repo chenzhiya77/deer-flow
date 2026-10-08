@@ -419,7 +419,12 @@ describe("DocumentPanel table", () => {
     const card = await screen.findByTestId("doc-retry-card");
     expect(card.textContent).toContain("解析服务多次重试仍失败");
     expect(card.textContent).not.toContain("retry limit");
-    fireEvent.click(within(card).getByRole("button", { name: "重试" }));
+    // 甲案（2026-10-08）：文案与按钮同排两端、按钮收右缘——用例钉结构，几何靠实机。
+    const row = card.firstElementChild!;
+    expect(row.className).toContain("justify-between");
+    const button = within(card).getByRole("button", { name: "重试" });
+    expect(row.contains(button)).toBe(true);
+    fireEvent.click(button);
     expect(handlers.onRetryDocument).toHaveBeenCalledWith("doc-1");
   });
 
@@ -438,6 +443,11 @@ describe("DocumentPanel table", () => {
     fireEvent.pointerEnter(trigger);
     fireEvent.pointerMove(trigger);
     const card = await screen.findByTestId("doc-retry-card");
+    // 甲案（2026-10-08）：同排右收与失败态同构——说明句与按钮同一行容器。
+    const row = card.firstElementChild!;
+    expect(row.className).toContain("justify-between");
+    const button = within(card).getByRole("button", { name: "重试" });
+    expect(row.contains(button)).toBe(true);
     // 说明句只说「有产物未成功、可重试」，具体腿由卡内明细行自证——配文一词
     // 只允许出现在 breakdown 里，不出现在说明句里（spec §2.5）。
     const hint = card.querySelector("p")!;
@@ -446,7 +456,7 @@ describe("DocumentPanel table", () => {
     expect(
       within(card).getByTestId("path-status-breakdown").textContent,
     ).toContain("配文");
-    fireEvent.click(within(card).getByRole("button", { name: "重试" }));
+    fireEvent.click(button);
     expect(handlers.onRetryDocument).toHaveBeenCalledWith("doc-1");
   });
 
