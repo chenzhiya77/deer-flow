@@ -125,6 +125,17 @@ class TestRecordingIO:
         (materials / "a.md").write_text("hello", encoding="utf-8")
         assert material_fingerprint(materials) == first
 
+    def test_material_fingerprint_is_platform_independent(self, tmp_path: Path):
+        # 同一材料在 Windows 与 POSIX 上须得同一指纹：Path 排序在两侧语义不同
+        # （大小写不敏感 vs 敏感），指纹按规范化相对名的固定序计算（金丝雀值）。
+        materials = tmp_path / "materials"
+        materials.mkdir()
+        (materials / "README.md").write_text("r", encoding="utf-8")
+        (materials / "alpha.md").write_text("a", encoding="utf-8")
+        (materials / "Beta.md").write_text("b", encoding="utf-8")
+
+        assert material_fingerprint(materials) == "043cc9db8a8173a83dba9708818dd38e4466bfcc5439a0e2dc9ddfbc75b14073"
+
 
 class TestRerankRemap:
     def _entry(self, documents: list[str] | None = None) -> dict:

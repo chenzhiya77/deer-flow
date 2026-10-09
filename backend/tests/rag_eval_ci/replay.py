@@ -238,8 +238,12 @@ def material_fingerprint(materials_dir: str | Path) -> str:
     from deerflow_knowledge.chunker import MAX_CHUNK_TOKENS, MIN_CHUNK_TOKENS
 
     base = Path(materials_dir)
-    files = sorted(path for path in base.rglob("*") if path.is_file())
-    items = [{"name": str(path.relative_to(base)).replace("\\", "/"), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()} for path in files]
+    named = [(str(path.relative_to(base)).replace("\\", "/"), path) for path in base.rglob("*") if path.is_file()]
+    # Sort on the normalized relative name: Path ordering is case-insensitive on
+    # Windows and case-sensitive on POSIX, so sorting Paths is platform-bound
+    # and would fingerprint the same material differently per platform.
+    named.sort(key=lambda entry: (entry[0].lower(), entry[0]))
+    items = [{"name": name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()} for name, path in named]
     return _stable_hash(
         {
             "version": 1,

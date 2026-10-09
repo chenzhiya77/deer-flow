@@ -66,13 +66,19 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: backend
-        run: uv sync --group dev
+        run: uv sync --group dev --all-packages
+
+      - name: Install the lazy spreadsheet parser
+        working-directory: backend
+        # Deliberately outside the workspace lock (knowledge-extension/README);
+        # pinned to the version the recording was made with.
+        run: uv pip install python-calamine==0.8.2
 
       - name: Start the replay service
         working-directory: backend
         run: |
           set -euo pipefail
-          nohup uv run python scripts/rag_eval_replay_server.py \
+          nohup uv run --no-sync python scripts/rag_eval_replay_server.py \
             --recording tests/fixtures/rag_eval/ci/recording.jsonl.gz \
             --materials tests/fixtures/rag_eval/materials \
             --port 8642 > "$RUNNER_TEMP/replay-server.log" 2>&1 &
@@ -86,7 +92,7 @@ jobs:
         working-directory: backend
         run: |
           set -euo pipefail
-          uv run python scripts/rag_eval_ci_seed.py | tee "$RUNNER_TEMP/seed-summary.json"
+          uv run --no-sync python scripts/rag_eval_ci_seed.py | tee "$RUNNER_TEMP/seed-summary.json"
 
       - name: Run the evaluation against the replay service
         id: eval
@@ -95,7 +101,7 @@ jobs:
           set -uo pipefail
           KB_ID=$(tail -1 "$RUNNER_TEMP/seed-summary.json" | python -c "import sys, json; print(json.load(sys.stdin)['kb_id'])")
           set +e
-          uv run python scripts/run_rag_eval.py \
+          uv run --no-sync python scripts/run_rag_eval.py \
             --golden tests/fixtures/rag_eval/golden.jsonl \
             --out "$RUNNER_TEMP/rag-eval-nocloud" \
             --kb-id "$KB_ID" \
