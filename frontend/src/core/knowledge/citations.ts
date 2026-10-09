@@ -13,21 +13,32 @@ import type { KnowledgeCitation } from "./types";
 const RETRIEVAL_TOOL = "knowledge_search";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : null;
 }
 
-function toCitation(value: unknown, fallbackName: string | undefined): KnowledgeCitation | null {
+function toCitation(
+  value: unknown,
+  fallbackName: string | undefined,
+): KnowledgeCitation | null {
   const record = asRecord(value);
   if (!record) return null;
   const chunkId = record.chunk_id;
   const text = record.text;
   if (typeof chunkId !== "string" || typeof text !== "string") return null;
-  const citationNo = typeof record.citation_no === "number" ? record.citation_no : null;
+  const citationNo =
+    typeof record.citation_no === "number" ? record.citation_no : null;
   return {
     chunk_id: chunkId,
-    doc_name: typeof record.doc_name === "string" ? record.doc_name : (fallbackName ?? ""),
+    doc_name:
+      typeof record.doc_name === "string"
+        ? record.doc_name
+        : (fallbackName ?? ""),
     page: typeof record.page === "number" ? record.page : null,
-    heading_path: Array.isArray(record.heading_path) ? (record.heading_path as string[]) : [],
+    heading_path: Array.isArray(record.heading_path)
+      ? (record.heading_path as string[])
+      : [],
     text,
     score: typeof record.score === "number" ? record.score : 0,
     source_type: "chunk",
@@ -36,7 +47,10 @@ function toCitation(value: unknown, fallbackName: string | undefined): Knowledge
 }
 
 /** Parse one retrieval tool message payload into citations (bad input → []). */
-export function parseRetrievalToolContent(toolName: string | null | undefined, content: unknown): KnowledgeCitation[] {
+export function parseRetrievalToolContent(
+  toolName: string | null | undefined,
+  content: unknown,
+): KnowledgeCitation[] {
   if (toolName !== RETRIEVAL_TOOL) {
     return [];
   }
@@ -52,9 +66,18 @@ export function parseRetrievalToolContent(toolName: string | null | undefined, c
   if (!record) {
     return [];
   }
-  const items = Array.isArray(record.results) ? (record.results as unknown[]) : [];
+  const items = Array.isArray(record.results)
+    ? (record.results as unknown[])
+    : [];
   return items
-    .map((item) => toCitation(item, typeof asRecord(item)?.title === "string" ? (asRecord(item)?.title as string) : undefined))
+    .map((item) =>
+      toCitation(
+        item,
+        typeof asRecord(item)?.title === "string"
+          ? (asRecord(item)?.title as string)
+          : undefined,
+      ),
+    )
     .filter((citation): citation is KnowledgeCitation => citation !== null);
 }
 
@@ -74,7 +97,9 @@ export function sourcesForAssistantMessage(
   if (!assistantMessageId) {
     return [];
   }
-  const answerIndex = messages.findIndex((message) => message.id === assistantMessageId);
+  const answerIndex = messages.findIndex(
+    (message) => message.id === assistantMessageId,
+  );
   if (answerIndex < 0) {
     return [];
   }
@@ -93,7 +118,10 @@ export function sourcesForAssistantMessage(
       continue;
     }
     const toolName = (message as { name?: string }).name;
-    for (const citation of parseRetrievalToolContent(toolName, message.content)) {
+    for (const citation of parseRetrievalToolContent(
+      toolName,
+      message.content,
+    )) {
       const existing = byChunkId.get(citation.chunk_id);
       if (existing) {
         if (citation.citation_nos) {
@@ -118,10 +146,15 @@ export function sourcesForAssistantMessage(
   // order at the end.
   return sources
     .map((source, index) => ({ source, index }))
-    .sort((a, b) => minCitationNo(a.source) - minCitationNo(b.source) || a.index - b.index)
+    .sort(
+      (a, b) =>
+        minCitationNo(a.source) - minCitationNo(b.source) || a.index - b.index,
+    )
     .map((entry) => entry.source);
 }
 
 function minCitationNo(source: KnowledgeCitation): number {
-  return source.citation_nos?.length ? Math.min(...source.citation_nos) : Number.POSITIVE_INFINITY;
+  return source.citation_nos?.length
+    ? Math.min(...source.citation_nos)
+    : Number.POSITIVE_INFINITY;
 }

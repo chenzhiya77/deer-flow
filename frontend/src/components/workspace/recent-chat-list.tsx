@@ -452,7 +452,12 @@ export function RecentChatList() {
   // the global recent-chat list excludes them so one conversation has exactly one home
   // (its own per-kb history popover lists it instead).
   const threadListModel = useMemo(
-    () => buildThreadListModel((infiniteThreads?.pages ?? []).map((page) => excludeKnowledgeThreads(page))),
+    () =>
+      buildThreadListModel(
+        (infiniteThreads?.pages ?? []).map((page) =>
+          excludeKnowledgeThreads(page),
+        ),
+      ),
     [infiniteThreads?.pages],
   );
   const { threads } = threadListModel;

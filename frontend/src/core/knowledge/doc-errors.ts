@@ -16,7 +16,9 @@ export type DocErrorKind =
   | "unknown";
 
 /** Pattern-ordered classification; case-insensitive substring match. */
-export function classifyDocError(error: string | null | undefined): DocErrorKind {
+export function classifyDocError(
+  error: string | null | undefined,
+): DocErrorKind {
   const text = (error ?? "").toLowerCase();
   // 索引完整性=终态结论文（RFC §5.2 表行 4，worker 最后追加）：与既有腿标记
   // （如 caption 降级串里的 "timeout"）共存时终态原因赢——它才是 failed 的直接解释。

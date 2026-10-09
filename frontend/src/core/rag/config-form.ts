@@ -87,7 +87,11 @@ export const EMBEDDING_PROVIDER_OPTIONS = [
   "volcengine-ark",
   "openai-compatible",
 ] as const;
-export const EMBEDDING_SPARSE_SOURCE_OPTIONS = ["provider", "external", "bm25"] as const;
+export const EMBEDDING_SPARSE_SOURCE_OPTIONS = [
+  "provider",
+  "external",
+  "bm25",
+] as const;
 /** The sparse service's id set: one verified shape (TEI's `/embed_sparse`), spec §4.2. */
 export const SPARSE_PROVIDER_OPTIONS = ["", "tei-sparse"] as const;
 export const RERANK_PROVIDER_OPTIONS = [
@@ -184,8 +188,15 @@ function asText(value: unknown): string {
 }
 
 /** Narrow a wire value onto one of a select's options, falling back when it is absent or unknown. */
-function asEnum<T extends string>(value: unknown, options: readonly T[], fallback: T): T {
-  return typeof value === "string" && (options as readonly string[]).includes(value) ? (value as T) : fallback;
+function asEnum<T extends string>(
+  value: unknown,
+  options: readonly T[],
+  fallback: T,
+): T {
+  return typeof value === "string" &&
+    (options as readonly string[]).includes(value)
+    ? (value as T)
+    : fallback;
 }
 
 /** Effective view → form values; a stored secret stays masked so the input shows it as set. */
@@ -201,21 +212,48 @@ export function formValuesFromConfig(view: RagConfigView): RagConfigFormValues {
     default_model: asText(config.default_model),
     vlm_thinking: Boolean(config.vlm_thinking),
     mineru_api_token: asText(config.mineru_api_token),
-    embedding_provider: asEnum(config.embedding_provider, EMBEDDING_PROVIDER_OPTIONS, "dashscope"),
+    embedding_provider: asEnum(
+      config.embedding_provider,
+      EMBEDDING_PROVIDER_OPTIONS,
+      "dashscope",
+    ),
     embedding_base_url: asText(config.embedding_base_url),
-    embedding_dimension: config.embedding_dimension == null ? "" : String(config.embedding_dimension),
-    embedding_sparse_source: asEnum(config.embedding_sparse_source, EMBEDDING_SPARSE_SOURCE_OPTIONS, "provider"),
-    sparse_provider: asEnum(config.sparse_provider, SPARSE_PROVIDER_OPTIONS, ""),
+    embedding_dimension:
+      config.embedding_dimension == null
+        ? ""
+        : String(config.embedding_dimension),
+    embedding_sparse_source: asEnum(
+      config.embedding_sparse_source,
+      EMBEDDING_SPARSE_SOURCE_OPTIONS,
+      "provider",
+    ),
+    sparse_provider: asEnum(
+      config.sparse_provider,
+      SPARSE_PROVIDER_OPTIONS,
+      "",
+    ),
     sparse_base_url: asText(config.sparse_base_url),
     sparse_model: asText(config.sparse_model),
     sparse_api_key: asText(config.sparse_api_key),
-    rerank_provider: asEnum(config.rerank_provider, RERANK_PROVIDER_OPTIONS, "dashscope"),
+    rerank_provider: asEnum(
+      config.rerank_provider,
+      RERANK_PROVIDER_OPTIONS,
+      "dashscope",
+    ),
     rerank_base_url: asText(config.rerank_base_url),
-    parse_provider: asEnum(config.parse_provider, PARSE_PROVIDER_OPTIONS, "mineru-cloud"),
+    parse_provider: asEnum(
+      config.parse_provider,
+      PARSE_PROVIDER_OPTIONS,
+      "mineru-cloud",
+    ),
     parse_base_url: asText(config.parse_base_url),
     parse_tier: asEnum(config.parse_tier, PARSE_TIER_OPTIONS, ""),
     parse_language: asEnum(config.parse_language, PARSE_LANGUAGE_OPTIONS, ""),
-    parse_model_version: asEnum(config.parse_model_version, PARSE_MODEL_VERSION_OPTIONS, ""),
+    parse_model_version: asEnum(
+      config.parse_model_version,
+      PARSE_MODEL_VERSION_OPTIONS,
+      "",
+    ),
   };
 }
 
@@ -311,7 +349,8 @@ export function buildRagConfigInput(
     }
     // A cleared select must be *said* as `null`: `""` fails the Literal on the PUT body (422),
     // so an empty option used to leave the override unremovable (spec 2026-09-29 §6.2 末条).
-    if (next !== "" || owned(view, key)) writeField(input, key, next === "" ? null : next);
+    if (next !== "" || owned(view, key))
+      writeField(input, key, next === "" ? null : next);
   }
 
   for (const key of THINKING_FIELDS) {
@@ -557,7 +596,9 @@ export function dimensionProbeKey(values: RagConfigFormValues): string {
 }
 
 /** The connectivity probe's verdict (D5-5); same "verdict carries its key" contract. */
-export type ConnectivityProbeVerdict = RagConnectivityProbeResponse & { key: string };
+export type ConnectivityProbeVerdict = RagConnectivityProbeResponse & {
+  key: string;
+};
 
 /**
  * The coordinates one leg's dot is about. The embedding leg includes the width in force: asking
@@ -576,7 +617,11 @@ export function connectivityProbeKey(
           values.embedding_base_url.trim(),
           values.embedding_dimension.trim(),
         ]
-      : [values.rerank_provider, values.rerank_model.trim(), values.rerank_base_url.trim()];
+      : [
+          values.rerank_provider,
+          values.rerank_model.trim(),
+          values.rerank_base_url.trim(),
+        ];
   return [leg, ...coordinates, hasKey ? "key" : "nokey"].join("|");
 }
 
@@ -612,7 +657,10 @@ export function modelReferenceOptions(
   for (const model of models) {
     const display = model.display_name?.trim();
     const hasDisplay = display !== undefined && display.length > 0;
-    options.push({ value: model.name, label: hasDisplay ? display : model.name });
+    options.push({
+      value: model.name,
+      label: hasDisplay ? display : model.name,
+    });
   }
   if (current && !models.some((model) => model.name === current)) {
     options.push({ value: current, label: current });
@@ -671,5 +719,9 @@ export function visionReferenceOptions(
   current: string,
   noneLabel: string,
 ): ModelReferenceOption[] {
-  return modelReferenceOptions(models.filter(isCaptionCapable), current, noneLabel);
+  return modelReferenceOptions(
+    models.filter(isCaptionCapable),
+    current,
+    noneLabel,
+  );
 }

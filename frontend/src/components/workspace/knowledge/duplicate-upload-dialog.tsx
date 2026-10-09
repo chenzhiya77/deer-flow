@@ -42,13 +42,18 @@ export function DuplicateUploadDialog({
   const tk = t.knowledge.duplicateUpload;
 
   return (
-    <Dialog open={pending !== null} onOpenChange={(open) => !open && onResolve("cancel")}>
+    <Dialog
+      open={pending !== null}
+      onOpenChange={(open) => !open && onResolve("cancel")}
+    >
       <DialogContent className="sm:max-w-[425px]">
         {pending?.kind === "identical" && (
           <>
             <DialogHeader>
               <DialogTitle>{tk.identicalTitle}</DialogTitle>
-              <DialogDescription>{tk.identicalDescription(pending.fileName)}</DialogDescription>
+              <DialogDescription>
+                {tk.identicalDescription(pending.fileName)}
+              </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => onResolve("copy")}>
@@ -66,7 +71,9 @@ export function DuplicateUploadDialog({
               <DialogTitle>{tk.conflictTitle}</DialogTitle>
               <DialogDescription>
                 {tk.conflictDescription(pending.fileName)}
-                {pending.copyName ? ` ${tk.copyNamePreview(pending.copyName)}` : ""}
+                {pending.copyName
+                  ? ` ${tk.copyNamePreview(pending.copyName)}`
+                  : ""}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -76,7 +83,10 @@ export function DuplicateUploadDialog({
               <Button variant="secondary" onClick={() => onResolve("copy")}>
                 {tk.keepBoth}
               </Button>
-              <Button variant="destructive" onClick={() => onResolve("replace")}>
+              <Button
+                variant="destructive"
+                onClick={() => onResolve("replace")}
+              >
                 {tk.replaceOld}
               </Button>
             </DialogFooter>

@@ -26,7 +26,10 @@ export function KbAssistantContent({
   sources: KnowledgeCitation[];
   messageId: string;
 }) {
-  const supRenderer = useMemo(() => createCitationSupRenderer(sources, messageId), [sources, messageId]);
+  const supRenderer = useMemo(
+    () => createCitationSupRenderer(sources, messageId),
+    [sources, messageId],
+  );
   return (
     <MarkdownContent
       components={{ sup: supRenderer }}

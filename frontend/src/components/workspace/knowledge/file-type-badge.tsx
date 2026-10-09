@@ -405,7 +405,16 @@ const MIME_SPECS: MimeSpec[] = [
       "text/javascript",
       "application/sql",
     ],
-    suffixes: [".md", ".markdown", ".json", ".yaml", ".xml", ".py", ".js", ".sql"],
+    suffixes: [
+      ".md",
+      ".markdown",
+      ".json",
+      ".yaml",
+      ".xml",
+      ".py",
+      ".js",
+      ".sql",
+    ],
   },
   {
     kind: "archive",
@@ -473,7 +482,8 @@ export function probeDraggedItems(
       if (item.kind !== "file") continue;
       const spec = specForMime(item.type);
       const accepted =
-        spec?.suffixes.some((suffix) => supportedSuffixes.includes(suffix)) ?? false;
+        spec?.suffixes.some((suffix) => supportedSuffixes.includes(suffix)) ??
+        false;
       if (accepted && spec) {
         lit.add(spec.kind);
         anyAccepted = true;

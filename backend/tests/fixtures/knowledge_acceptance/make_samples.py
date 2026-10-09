@@ -42,12 +42,7 @@ MARKERS = {
 
 def _text(kind: str, label: str | None = None) -> str:
     label = label or kind
-    return (
-        f"# 知识库验收样例（{label}）\n\n"
-        f"本文件是 15 后缀验收的 {label} 样例，用于验证上传、解析与索引路径。\n"
-        f"本文件的验收标记是 ACCEPT8-{MARKERS[kind]}，检索时以该标记为准。\n"
-        f"样例正文到此结束。\n"
-    )
+    return f"# 知识库验收样例（{label}）\n\n本文件是 15 后缀验收的 {label} 样例，用于验证上传、解析与索引路径。\n本文件的验收标记是 ACCEPT8-{MARKERS[kind]}，检索时以该标记为准。\n样例正文到此结束。\n"
 
 
 def _font(size: int):
@@ -59,7 +54,7 @@ def _font(size: int):
     return ImageFont.load_default(size)
 
 
-def _image(label: str, marker: str) -> "object":
+def _image(label: str, marker: str) -> object:
     from PIL import Image, ImageDraw
 
     img = Image.new("RGB", (900, 500), "white")
@@ -81,11 +76,9 @@ def main(out_dir: Path) -> None:
     (out_dir / "sample.txt").write_text(_text("txt", "纯文本"), encoding="utf-8")
 
     # delimited tables ------------------------------------------------------
-    csv_lines = "区域,产品,季度,销售额\n" f"华东,样例甲,一季度,ACCEPT8-{MARKERS['csv']}\n" "华北,样例乙,二季度,88213\n"
+    csv_lines = f"区域,产品,季度,销售额\n华东,样例甲,一季度,ACCEPT8-{MARKERS['csv']}\n华北,样例乙,二季度,88213\n"
     (out_dir / "sample.csv").write_text(csv_lines, encoding="utf-8")
-    tsv_lines = (
-        "区域\t产品\t季度\t销售额\n" f"华南\t样例丙\t三季度\tACCEPT8-{MARKERS['tsv']}\n" "西北\t样例丁\t四季度\t93107\n"
-    )
+    tsv_lines = f"区域\t产品\t季度\t销售额\n华南\t样例丙\t三季度\tACCEPT8-{MARKERS['tsv']}\n西北\t样例丁\t四季度\t93107\n"
     (out_dir / "sample.tsv").write_text(tsv_lines, encoding="utf-8")
 
     # workbooks -------------------------------------------------------------
@@ -144,7 +137,7 @@ def main(out_dir: Path) -> None:
     doc.save(str(out_dir / "sample.docx"))
 
     from pptx import Presentation
-    from pptx.util import Inches, Pt
+    from pptx.util import Inches
 
     prs = Presentation()
     slide = prs.slides.add_slide(prs.slide_layouts[5])

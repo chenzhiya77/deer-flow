@@ -14,8 +14,12 @@ import { afterEach, describe, expect, it, rs } from "@rstest/core";
 const fetchMock = rs.hoisted(() => ({ fetch: rs.fn() }));
 rs.mock("@/core/api/fetcher", () => ({ fetch: fetchMock.fetch }));
 
-const { MASKED_RAG_SECRET, loadRagConfig, RagConfigRequestError, saveRagConfig } =
-  await import("@/core/rag/api");
+const {
+  MASKED_RAG_SECRET,
+  loadRagConfig,
+  RagConfigRequestError,
+  saveRagConfig,
+} = await import("@/core/rag/api");
 import {
   buildRagConfigInput,
   changesEmbeddingDimension,
@@ -146,7 +150,9 @@ describe("buildRagConfigInput", () => {
   it("submits nothing when nothing changed and the file owns nothing", () => {
     const current = view();
 
-    expect(buildRagConfigInput(formValuesFromConfig(current), current)).toEqual({});
+    expect(buildRagConfigInput(formValuesFromConfig(current), current)).toEqual(
+      {},
+    );
   });
 
   it("carries the file's own override forward so a partial edit cannot drop it", () => {
@@ -154,7 +160,9 @@ describe("buildRagConfigInput", () => {
     const values = formValuesFromConfig(current);
     values.default_model = ""; // operator-owned: clearing it changes nothing
 
-    expect(buildRagConfigInput(values, current)).toEqual({ rerank_model: "qwen3-rerank" });
+    expect(buildRagConfigInput(values, current)).toEqual({
+      rerank_model: "qwen3-rerank",
+    });
   });
 
   it("clears a file-owned field explicitly", () => {
@@ -191,7 +199,9 @@ describe("buildRagConfigInput", () => {
     const values = formValuesFromConfig(current);
     values.embedding_api_key = "";
 
-    expect(buildRagConfigInput(values, current)).toEqual({ embedding_api_key: "" });
+    expect(buildRagConfigInput(values, current)).toEqual({
+      embedding_api_key: "",
+    });
   });
 
   it("submits a rotated secret value", () => {
@@ -199,7 +209,9 @@ describe("buildRagConfigInput", () => {
     const values = formValuesFromConfig(current);
     values.embedding_api_key = "sk-rotated";
 
-    expect(buildRagConfigInput(values, current)).toEqual({ embedding_api_key: "sk-rotated" });
+    expect(buildRagConfigInput(values, current)).toEqual({
+      embedding_api_key: "sk-rotated",
+    });
   });
 
   it("leaves env-backed and unset secrets alone until they are typed into", () => {
@@ -208,7 +220,9 @@ describe("buildRagConfigInput", () => {
     expect(buildRagConfigInput(values, current)).toEqual({});
 
     values.rerank_api_key = "sk-env-override";
-    expect(buildRagConfigInput(values, current)).toEqual({ rerank_api_key: "sk-env-override" });
+    expect(buildRagConfigInput(values, current)).toEqual({
+      rerank_api_key: "sk-env-override",
+    });
   });
 
   it("trims what it submits", () => {
@@ -216,7 +230,9 @@ describe("buildRagConfigInput", () => {
     const values = formValuesFromConfig(current);
     values.vlm_model = "  Qwen/Qwen3-VL-8B  ";
 
-    expect(buildRagConfigInput(values, current).vlm_model).toBe("Qwen/Qwen3-VL-8B");
+    expect(buildRagConfigInput(values, current).vlm_model).toBe(
+      "Qwen/Qwen3-VL-8B",
+    );
   });
 });
 
@@ -270,8 +286,12 @@ describe("rag config client", () => {
       json: async () => ({ detail: "Admin privileges required" }),
     } as unknown as Response);
 
-    await expect(saveRagConfig({})).rejects.toBeInstanceOf(RagConfigRequestError);
-    await expect(saveRagConfig({})).rejects.toMatchObject({ isAdminRequired: true });
+    await expect(saveRagConfig({})).rejects.toBeInstanceOf(
+      RagConfigRequestError,
+    );
+    await expect(saveRagConfig({})).rejects.toMatchObject({
+      isAdminRequired: true,
+    });
   });
 });
 
@@ -292,12 +312,17 @@ describe("modelReferenceOptions", () => {
   it("keeps a stored value whose model was deleted", () => {
     const options = modelReferenceOptions(MODELS, "gone-model", "(未配置)");
 
-    expect(options.at(-1)).toEqual({ value: "gone-model", label: "gone-model" });
+    expect(options.at(-1)).toEqual({
+      value: "gone-model",
+      label: "gone-model",
+    });
   });
 
   it("does not duplicate a configured current value", () => {
     expect(
-      modelReferenceOptions(MODELS, "deepseek-chat", "(未配置)").map((option) => option.value),
+      modelReferenceOptions(MODELS, "deepseek-chat", "(未配置)").map(
+        (option) => option.value,
+      ),
     ).toEqual([MODEL_REFERENCE_NONE, "deepseek-chat", "qwen-max"]);
   });
 });
@@ -445,16 +470,19 @@ describe("thinking follow-chat toggles (spec 2026-10-03 D1=甲)", () => {
     expect(buildRagConfigInput(values, current)).toEqual({ [field]: true });
   });
 
-  it.each(FIELDS)("%s is submitted as false when it is switched off", (field) => {
-    const current = view(over(field, true));
-    const values = {
-      ...formValuesFromConfig(current),
-      [field]: false,
-    };
+  it.each(FIELDS)(
+    "%s is submitted as false when it is switched off",
+    (field) => {
+      const current = view(over(field, true));
+      const values = {
+        ...formValuesFromConfig(current),
+        [field]: false,
+      };
 
-    expect(hasFormChanges(values, current)).toBe(true);
-    expect(buildRagConfigInput(values, current)).toEqual({ [field]: false });
-  });
+      expect(hasFormChanges(values, current)).toBe(true);
+      expect(buildRagConfigInput(values, current)).toEqual({ [field]: false });
+    },
+  );
 
   it.each(FIELDS)(
     "%s counts as a change when toggled, and not once reverted",
@@ -541,14 +569,42 @@ describe("hasFormChanges", () => {
   });
 });
 
-
 describe("caption model picker", () => {
   const MODELS = [
-    { name: "gpt-5", model: "gpt-5", display_name: "GPT-5", supports_vision: true, provider: "openai-compatible" },
-    { name: "vl", model: "Qwen/Qwen3-VL-30B", display_name: "", supports_vision: true, provider: "openai-compatible" },
-    { name: "claude", model: "claude-x", display_name: "Claude X", supports_vision: true, provider: "anthropic" },
-    { name: "text-only", model: "deepseek-chat", display_name: "DeepSeek", supports_vision: false, provider: "openai-compatible" },
-    { name: "legacy", model: "m", display_name: "Legacy", supports_vision: true },
+    {
+      name: "gpt-5",
+      model: "gpt-5",
+      display_name: "GPT-5",
+      supports_vision: true,
+      provider: "openai-compatible",
+    },
+    {
+      name: "vl",
+      model: "Qwen/Qwen3-VL-30B",
+      display_name: "",
+      supports_vision: true,
+      provider: "openai-compatible",
+    },
+    {
+      name: "claude",
+      model: "claude-x",
+      display_name: "Claude X",
+      supports_vision: true,
+      provider: "anthropic",
+    },
+    {
+      name: "text-only",
+      model: "deepseek-chat",
+      display_name: "DeepSeek",
+      supports_vision: false,
+      provider: "openai-compatible",
+    },
+    {
+      name: "legacy",
+      model: "m",
+      display_name: "Legacy",
+      supports_vision: true,
+    },
   ];
 
   it("lists every vision-capable entry after the default entry", () => {
@@ -563,14 +619,18 @@ describe("caption model picker", () => {
   });
 
   it("keeps an Anthropic entry — the caption client speaks its protocol too — and drops non-vision entries", () => {
-    const values = visionReferenceOptions(MODELS, "", "(默认)").map((option) => option.value);
+    const values = visionReferenceOptions(MODELS, "", "(默认)").map(
+      (option) => option.value,
+    );
 
     expect(values).toContain("claude");
     expect(values).not.toContain("text-only");
   });
 
   it("keeps a stored value that names no entry, so a save cannot silently drop it", () => {
-    expect(visionReferenceOptions(MODELS, "qwen3.7-flash", "(默认)").at(-1)).toEqual({
+    expect(
+      visionReferenceOptions(MODELS, "qwen3.7-flash", "(默认)").at(-1),
+    ).toEqual({
       value: "qwen3.7-flash",
       label: "qwen3.7-flash",
     });
@@ -581,7 +641,9 @@ describe("caption model picker", () => {
     const textOnly = { ...anthropic, supports_vision: false };
     const openaiVision = { ...anthropic, provider: "openai-compatible" };
 
-    expect(isCaptionCapable({ ...anthropic, provider: "anthropic" })).toBe(true);
+    expect(isCaptionCapable({ ...anthropic, provider: "anthropic" })).toBe(
+      true,
+    );
     // Dropping the provider test turns nothing loose: no vision still means no candidacy.
     expect(isCaptionCapable(textOnly)).toBe(false);
     expect(isCaptionCapable({ name: "b", model: "b" })).toBe(false);
@@ -642,19 +704,38 @@ describe("provider dimension (spec 2026-09-14 §4.1)", () => {
   });
 
   it("carries the file's own provider override forward", () => {
-    const owned = view({ embedding_provider: "openai-compatible" }, { embedding_provider: "ui" });
+    const owned = view(
+      { embedding_provider: "openai-compatible" },
+      { embedding_provider: "ui" },
+    );
 
-    expect(buildRagConfigInput(formValuesFromConfig(owned), owned).embedding_provider).toBe("openai-compatible");
+    expect(
+      buildRagConfigInput(formValuesFromConfig(owned), owned)
+        .embedding_provider,
+    ).toBe("openai-compatible");
   });
 
   it("treats sparse_api_key as a secret", () => {
-    const owned = view({ sparse_api_key: MASKED_RAG_SECRET }, { sparse_api_key: "ui" });
-
-    expect(buildRagConfigInput(formValuesFromConfig(owned), owned).sparse_api_key).toBe(MASKED_RAG_SECRET);
-    expect(buildRagConfigInput({ ...formValuesFromConfig(owned), sparse_api_key: "" }, owned).sparse_api_key).toBe("");
-    expect(buildRagConfigInput({ ...formValuesFromConfig(owned), sparse_api_key: "sk-new" }, owned).sparse_api_key).toBe(
-      "sk-new",
+    const owned = view(
+      { sparse_api_key: MASKED_RAG_SECRET },
+      { sparse_api_key: "ui" },
     );
+
+    expect(
+      buildRagConfigInput(formValuesFromConfig(owned), owned).sparse_api_key,
+    ).toBe(MASKED_RAG_SECRET);
+    expect(
+      buildRagConfigInput(
+        { ...formValuesFromConfig(owned), sparse_api_key: "" },
+        owned,
+      ).sparse_api_key,
+    ).toBe("");
+    expect(
+      buildRagConfigInput(
+        { ...formValuesFromConfig(owned), sparse_api_key: "sk-new" },
+        owned,
+      ).sparse_api_key,
+    ).toBe("sk-new");
   });
 });
 
@@ -710,9 +791,21 @@ describe("isEmbeddingChange covers the whole provider dimension", () => {
     const base = formValuesFromConfig(view());
 
     expect(isEmbeddingChange(base, view())).toBe(false);
-    expect(isEmbeddingChange({ ...base, embedding_provider: "openai-compatible" }, view())).toBe(true);
-    expect(isEmbeddingChange({ ...base, embedding_base_url: "http://localhost:8080/v1" }, view())).toBe(true);
-    expect(isEmbeddingChange({ ...base, embedding_sparse_source: "bm25" }, view())).toBe(true);
+    expect(
+      isEmbeddingChange(
+        { ...base, embedding_provider: "openai-compatible" },
+        view(),
+      ),
+    ).toBe(true);
+    expect(
+      isEmbeddingChange(
+        { ...base, embedding_base_url: "http://localhost:8080/v1" },
+        view(),
+      ),
+    ).toBe(true);
+    expect(
+      isEmbeddingChange({ ...base, embedding_sparse_source: "bm25" }, view()),
+    ).toBe(true);
   });
 });
 
@@ -721,8 +814,12 @@ describe("hasFormChanges covers the provider fields", () => {
     const base = formValuesFromConfig(view());
 
     expect(hasFormChanges(base, view())).toBe(false);
-    expect(hasFormChanges({ ...base, parse_provider: "mineru-local" }, view())).toBe(true);
-    expect(hasFormChanges({ ...base, embedding_base_url: "http://x" }, view())).toBe(true);
+    expect(
+      hasFormChanges({ ...base, parse_provider: "mineru-local" }, view()),
+    ).toBe(true);
+    expect(
+      hasFormChanges({ ...base, embedding_base_url: "http://x" }, view()),
+    ).toBe(true);
   });
 });
 
@@ -1170,7 +1267,10 @@ describe("rerank placeholder reads its own capability block", () => {
 
 describe("dimension field round-trip (spec 2026-09-26 §3 维度字段的往返)", () => {
   it("seeds the stored width as text and submits it as a number", () => {
-    const current = view({ embedding_dimension: 1536 }, { embedding_dimension: "ui" });
+    const current = view(
+      { embedding_dimension: 1536 },
+      { embedding_dimension: "ui" },
+    );
     const values = formValuesFromConfig(current);
     expect(values.embedding_dimension).toBe("1536");
 
@@ -1183,11 +1283,16 @@ describe("dimension field round-trip (spec 2026-09-26 §3 维度字段的往返)
   });
 
   it("clears a file-owned width with an empty input", () => {
-    const current = view({ embedding_dimension: 1536 }, { embedding_dimension: "ui" });
+    const current = view(
+      { embedding_dimension: 1536 },
+      { embedding_dimension: "ui" },
+    );
     const values = formValuesFromConfig(current);
 
     values.embedding_dimension = "";
-    expect(buildRagConfigInput(values, current)).toEqual({ embedding_dimension: null });
+    expect(buildRagConfigInput(values, current)).toEqual({
+      embedding_dimension: null,
+    });
   });
 
   it("does not freeze an operator-owned width into the file", () => {
@@ -1209,7 +1314,10 @@ describe("dimension field round-trip (spec 2026-09-26 §3 维度字段的往返)
   });
 
   it("counts the width as a change, and knows when it is back to the seeded value", () => {
-    const current = view({ embedding_dimension: 1024 }, { embedding_dimension: "ui" });
+    const current = view(
+      { embedding_dimension: 1024 },
+      { embedding_dimension: "ui" },
+    );
     const values = formValuesFromConfig(current);
     expect(hasFormChanges(values, current)).toBe(false);
     expect(isEmbeddingChange(values, current)).toBe(false);
@@ -1232,7 +1340,9 @@ describe("probe keys for the dimension row and the leg dots (spec 2026-09-26 §3
 
     const other = { ...values, embedding_dimension: "1536" };
     expect(dimensionProbeKey(other)).toBe(base);
-    expect(dimensionProbeKey({ ...values, embedding_model: "bge-m3" })).not.toBe(base);
+    expect(
+      dimensionProbeKey({ ...values, embedding_model: "bge-m3" }),
+    ).not.toBe(base);
   });
 
   it("binds a leg dot to its own leg's coordinates, the width in force, and key presence", () => {
@@ -1242,20 +1352,30 @@ describe("probe keys for the dimension row and the leg dots (spec 2026-09-26 §3
     const embedding = connectivityProbeKey("embedding", withWidth, true);
     expect(embedding).toContain("1024");
     expect(embedding).toContain("key");
-    expect(connectivityProbeKey("embedding", withWidth, false)).not.toBe(embedding);
+    expect(connectivityProbeKey("embedding", withWidth, false)).not.toBe(
+      embedding,
+    );
     expect(
-      connectivityProbeKey("embedding", { ...withWidth, embedding_dimension: "1536" }, true),
+      connectivityProbeKey(
+        "embedding",
+        { ...withWidth, embedding_dimension: "1536" },
+        true,
+      ),
     ).not.toBe(embedding);
     // 重排腿没有维度这一问（spec §3）。
-    expect(connectivityProbeKey("rerank", withWidth, true)).not.toContain("embedding");
+    expect(connectivityProbeKey("rerank", withWidth, true)).not.toContain(
+      "embedding",
+    );
   });
 });
-
 
 describe("改宽度 = 迁移的那一次保存 (spec 2026-09-26 D5-7)", () => {
   it("compares the effective widths, so a blank declaration equals 1024", () => {
     const live = view({ embedding_dimension: null });
-    const values = { ...formValuesFromConfig(live), embedding_dimension: "1024" };
+    const values = {
+      ...formValuesFromConfig(live),
+      embedding_dimension: "1024",
+    };
 
     expect(changesEmbeddingDimension(values, live)).toBe(false);
   });
@@ -1281,7 +1401,8 @@ describe("改宽度 = 迁移的那一次保存 (spec 2026-09-26 D5-7)", () => {
   it("treats an untouched width as no change at all", () => {
     const live = view({ embedding_dimension: 1536 });
 
-    expect(changesEmbeddingDimension(formValuesFromConfig(live), live)).toBe(false);
+    expect(changesEmbeddingDimension(formValuesFromConfig(live), live)).toBe(
+      false,
+    );
   });
 });
-

@@ -15,7 +15,11 @@ rs.mock("@/core/agents", () => ({
 }));
 
 rs.mock("@/core/features", () => ({
-  useKnowledgeBaseEnabled: () => ({ enabled: true, scopeSelectionEnabled: false, isLoading: false }),
+  useKnowledgeBaseEnabled: () => ({
+    enabled: true,
+    scopeSelectionEnabled: false,
+    isLoading: false,
+  }),
 }));
 
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -25,7 +29,9 @@ import { enUS } from "@/core/i18n/locales/en-US";
 
 function renderNav() {
   return render(
-    <I18nContext.Provider value={{ locale: "en-US", setLocale: () => undefined, t: enUS }}>
+    <I18nContext.Provider
+      value={{ locale: "en-US", setLocale: () => undefined, t: enUS }}
+    >
       <SidebarProvider>
         <WorkspaceNavChatList />
       </SidebarProvider>
@@ -50,6 +56,8 @@ describe("workspace nav knowledge entry", () => {
     renderNav();
 
     const link = screen.getByRole("link", { name: enUS.sidebar.knowledge });
-    expect(link.closest("[data-active]")?.getAttribute("data-active")).toBe("true");
+    expect(link.closest("[data-active]")?.getAttribute("data-active")).toBe(
+      "true",
+    );
   });
 });

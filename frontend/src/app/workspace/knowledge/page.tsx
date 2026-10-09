@@ -36,13 +36,19 @@ import {
   useUpdateKnowledgeBase,
   useUploadDocument,
 } from "@/core/knowledge/hooks";
-import { readLastKbId, useKbLocalOrder, writeLastKbId } from "@/core/knowledge/kb-order";
+import {
+  readLastKbId,
+  useKbLocalOrder,
+  writeLastKbId,
+} from "@/core/knowledge/kb-order";
 import { FALLBACK_SUPPORTED_SUFFIXES } from "@/core/knowledge/supported-formats";
 import type { KnowledgeDocument } from "@/core/knowledge/types";
 import { useDocFailureNotifier } from "@/core/knowledge/use-doc-failure-notifier";
 
 function showMutationError(error: unknown, fallback: string) {
-  toast.error(error instanceof Error && error.message ? error.message : fallback);
+  toast.error(
+    error instanceof Error && error.message ? error.message : fallback,
+  );
 }
 
 export default function KnowledgePage() {
@@ -106,12 +112,17 @@ export default function KnowledgePage() {
         setSelectedKbId(kb.id);
       }
       // After applying, clear the thread param but keep kb param visible.
-      router.replace(`${window.location.pathname}?kb=${encodeURIComponent(deepLinkKb)}`);
+      router.replace(
+        `${window.location.pathname}?kb=${encodeURIComponent(deepLinkKb)}`,
+      );
     }
   }, [deepLinkKb, kbs, selectedKbId, router]);
 
   const documentsQuery = useDocuments(knowledgeEnabled ? selectedKbId : null);
-  const documents = useMemo(() => documentsQuery.data ?? [], [documentsQuery.data]);
+  const documents = useMemo(
+    () => documentsQuery.data ?? [],
+    [documentsQuery.data],
+  );
   // 错误产品化（2026-08-31 定案）：全局 sonner toast 退出文档错误链路（视口级，
   // 出 tab），失败条目由本层状态承接，渲染在文档 tab 内右下角面板。
   const docFailures = useDocFailureNotifier(documents);
@@ -119,7 +130,8 @@ export default function KnowledgePage() {
   // Task 6 upload allowlist: endpoint is the source of truth, with a local
   // mirror as fallback until the query resolves (spec §6).
   const supportedFormatsQuery = useSupportedFormats(knowledgeEnabled);
-  const supportedSuffixes = supportedFormatsQuery.data?.suffixes ?? FALLBACK_SUPPORTED_SUFFIXES;
+  const supportedSuffixes =
+    supportedFormatsQuery.data?.suffixes ?? FALLBACK_SUPPORTED_SUFFIXES;
 
   const createKb = useCreateKnowledgeBase();
   const updateKb = useUpdateKnowledgeBase();
@@ -150,7 +162,10 @@ export default function KnowledgePage() {
     try {
       await uploadDocument.mutateAsync(file);
     } catch (error) {
-      docFailures.report(file.name, docErrorText(error, tk.errors.uploadFailed));
+      docFailures.report(
+        file.name,
+        docErrorText(error, tk.errors.uploadFailed),
+      );
     }
   };
 
@@ -167,12 +182,18 @@ export default function KnowledgePage() {
           continue;
         }
         const currentDocs = documentsRef.current;
-        const verdict = verdictForDuplicate(findDuplicateByName(file.name, currentDocs), hash);
+        const verdict = verdictForDuplicate(
+          findDuplicateByName(file.name, currentDocs),
+          hash,
+        );
         if (verdict.kind === "clean") {
           await doUpload(file);
           continue;
         }
-        const copyName = nextCopyName(file.name, new Set(currentDocs.map((d) => d.name)));
+        const copyName = nextCopyName(
+          file.name,
+          new Set(currentDocs.map((d) => d.name)),
+        );
         const action = await new Promise<DuplicateAction>((resolve) => {
           setPendingDuplicate({
             fileName: file.name,
@@ -202,7 +223,10 @@ export default function KnowledgePage() {
             toast.success(tk.duplicateUpload.replacedDocument(file.name));
           }
         } catch (error) {
-          docFailures.report(file.name, docErrorText(error, tk.errors.uploadFailed));
+          docFailures.report(
+            file.name,
+            docErrorText(error, tk.errors.uploadFailed),
+          );
         }
       }
     })();
@@ -231,7 +255,10 @@ export default function KnowledgePage() {
             onReorder={commitMove}
             onCreate={async (name, description) => {
               try {
-                const created = await createKb.mutateAsync({ name, description });
+                const created = await createKb.mutateAsync({
+                  name,
+                  description,
+                });
                 setSelectedKbId(created.id);
               } catch (error) {
                 showMutationError(error, tk.errors.createFailed);
@@ -249,7 +276,10 @@ export default function KnowledgePage() {
               listToggle={listToggle}
               onRenameKb={async (name) => {
                 try {
-                  await updateKb.mutateAsync({ kbId: selectedKb.id, patch: { name } });
+                  await updateKb.mutateAsync({
+                    kbId: selectedKb.id,
+                    patch: { name },
+                  });
                 } catch (error) {
                   showMutationError(error, tk.errors.renameFailed);
                 }
@@ -286,7 +316,9 @@ export default function KnowledgePage() {
                     });
                   }}
                   onOpenChunks={setDrawerDoc}
-                  onDownload={(doc) => downloadDocumentSource(selectedKb.id, doc.id)}
+                  onDownload={(doc) =>
+                    downloadDocumentSource(selectedKb.id, doc.id)
+                  }
                   failures={docFailures.failures}
                   onDismissFailure={docFailures.dismissOne}
                   onDismissAllFailures={docFailures.dismissAll}
@@ -299,7 +331,9 @@ export default function KnowledgePage() {
                   strip to carry the restore button, and drag-to-edge can still
                   fold the list — this is the only way back. */}
               {listToggle && (
-                <div className="flex items-center gap-2 border-b px-4 py-3">{listToggle}</div>
+                <div className="flex items-center gap-2 border-b px-4 py-3">
+                  {listToggle}
+                </div>
               )}
               <div className="text-muted-foreground flex flex-1 items-center justify-center text-sm">
                 {tk.selectKbHint}

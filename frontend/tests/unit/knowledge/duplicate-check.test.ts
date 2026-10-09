@@ -12,7 +12,10 @@ import {
 } from "@/core/knowledge/duplicate-check";
 import type { KnowledgeDocument } from "@/core/knowledge/types";
 
-function doc(name: string, contentHash: string | null = null): KnowledgeDocument {
+function doc(
+  name: string,
+  contentHash: string | null = null,
+): KnowledgeDocument {
   return {
     id: `id-${name}`,
     kb_id: "kb-1",
@@ -33,12 +36,16 @@ function doc(name: string, contentHash: string | null = null): KnowledgeDocument
 describe("findDuplicateByName", () => {
   it("matches same base name + same extension", () => {
     const documents = [doc("report.pdf"), doc("notes.txt")];
-    expect(findDuplicateByName("report.pdf", documents)?.name).toBe("report.pdf");
+    expect(findDuplicateByName("report.pdf", documents)?.name).toBe(
+      "report.pdf",
+    );
   });
 
   it("is case-insensitive on the extension only (base name stays exact)", () => {
     const documents = [doc("report.PDF")];
-    expect(findDuplicateByName("report.pdf", documents)?.name).toBe("report.PDF");
+    expect(findDuplicateByName("report.pdf", documents)?.name).toBe(
+      "report.PDF",
+    );
     expect(findDuplicateByName("Report.pdf", documents)).toBeUndefined();
   });
 
@@ -61,23 +68,34 @@ describe("verdictForDuplicate", () => {
 
   it("returns identical when the hashes match", () => {
     const existing = doc("a.txt", "hash-1");
-    expect(verdictForDuplicate(existing, "hash-1")).toEqual({ kind: "identical", doc: existing });
+    expect(verdictForDuplicate(existing, "hash-1")).toEqual({
+      kind: "identical",
+      doc: existing,
+    });
   });
 
   it("returns conflict when the hashes differ", () => {
     const existing = doc("a.txt", "hash-1");
-    expect(verdictForDuplicate(existing, "hash-2")).toEqual({ kind: "conflict", doc: existing });
+    expect(verdictForDuplicate(existing, "hash-2")).toEqual({
+      kind: "conflict",
+      doc: existing,
+    });
   });
 
   it("returns conflict when the stored hash is unknown (legacy NULL row)", () => {
     const existing = doc("a.txt", null);
-    expect(verdictForDuplicate(existing, "hash-2")).toEqual({ kind: "conflict", doc: existing });
+    expect(verdictForDuplicate(existing, "hash-2")).toEqual({
+      kind: "conflict",
+      doc: existing,
+    });
   });
 });
 
 describe("nextCopyName", () => {
   it("appends (2) before the extension", () => {
-    expect(nextCopyName("report.pdf", new Set(["report.pdf"]))).toBe("report (2).pdf");
+    expect(nextCopyName("report.pdf", new Set(["report.pdf"]))).toBe(
+      "report (2).pdf",
+    );
   });
 
   it("increments until the name is free", () => {
@@ -90,6 +108,8 @@ describe("nextCopyName", () => {
   });
 
   it("keeps multi-dot names' last extension", () => {
-    expect(nextCopyName("archive.tar.gz", new Set(["archive.tar.gz"]))).toBe("archive.tar (2).gz");
+    expect(nextCopyName("archive.tar.gz", new Set(["archive.tar.gz"]))).toBe(
+      "archive.tar (2).gz",
+    );
   });
 });

@@ -7,7 +7,10 @@
 import { afterEach, describe, expect, it, rs } from "@rstest/core";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 
-import { DuplicateUploadDialog, type PendingDuplicate } from "@/components/workspace/knowledge/duplicate-upload-dialog";
+import {
+  DuplicateUploadDialog,
+  type PendingDuplicate,
+} from "@/components/workspace/knowledge/duplicate-upload-dialog";
 import { I18nContext } from "@/core/i18n/context";
 import { zhCN } from "@/core/i18n/locales/zh-CN";
 import type { KnowledgeDocument } from "@/core/knowledge/types";
@@ -33,7 +36,9 @@ function doc(name: string, contentHash: string | null): KnowledgeDocument {
 function renderDialog(pending: PendingDuplicate | null) {
   const onResolve = rs.fn();
   render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <DuplicateUploadDialog pending={pending} onResolve={onResolve} />
     </I18nContext.Provider>,
   );

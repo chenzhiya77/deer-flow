@@ -35,12 +35,21 @@ function formatErrorDetail(detail: unknown): string | null {
   return null;
 }
 
-function buildResponseError(response: Response, detail: unknown, fallbackMessage: string): Error {
+function buildResponseError(
+  response: Response,
+  detail: unknown,
+  fallbackMessage: string,
+): Error {
   const detailMessage = formatErrorDetail(detail);
-  return new Error(detailMessage ?? `${fallbackMessage}: ${response.statusText}`);
+  return new Error(
+    detailMessage ?? `${fallbackMessage}: ${response.statusText}`,
+  );
 }
 
-async function readResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
+async function readResponse<T>(
+  response: Response,
+  fallbackMessage: string,
+): Promise<T> {
   if (!response.ok) {
     const errorData = (await response.json().catch(() => ({}))) as {
       detail?: unknown;
@@ -50,7 +59,10 @@ async function readResponse<T>(response: Response, fallbackMessage: string): Pro
   return response.json() as Promise<T>;
 }
 
-async function readEmptyResponse(response: Response, fallbackMessage: string): Promise<void> {
+async function readEmptyResponse(
+  response: Response,
+  fallbackMessage: string,
+): Promise<void> {
   if (!response.ok) {
     const errorData = (await response.json().catch(() => ({}))) as {
       detail?: unknown;
@@ -70,17 +82,27 @@ export function listKnowledgeBases(): Promise<KnowledgeBase[]> {
 }
 
 export function getSupportedFormats(): Promise<{ suffixes: string[] }> {
-  return fetch(`${getBackendBaseURL()}/api/knowledge-bases/supported-formats`).then(
-    (response) => readResponse<{ suffixes: string[] }>(response, "Failed to load supported formats"),
+  return fetch(
+    `${getBackendBaseURL()}/api/knowledge-bases/supported-formats`,
+  ).then((response) =>
+    readResponse<{ suffixes: string[] }>(
+      response,
+      "Failed to load supported formats",
+    ),
   );
 }
 
-export function createKnowledgeBase(input: { name: string; description?: string }): Promise<KnowledgeBase> {
+export function createKnowledgeBase(input: {
+  name: string;
+  description?: string;
+}): Promise<KnowledgeBase> {
   return fetch(`${getBackendBaseURL()}/api/knowledge-bases`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
-  }).then((response) => readResponse<KnowledgeBase>(response, "Failed to create knowledge base"));
+  }).then((response) =>
+    readResponse<KnowledgeBase>(response, "Failed to create knowledge base"),
+  );
 }
 
 export function getKnowledgeBase(kbId: string): Promise<KnowledgeBase> {
@@ -97,7 +119,9 @@ export function updateKnowledgeBase(
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(patch),
-  }).then((response) => readResponse<KnowledgeBase>(response, "Failed to update knowledge base"));
+  }).then((response) =>
+    readResponse<KnowledgeBase>(response, "Failed to update knowledge base"),
+  );
 }
 
 export async function deleteKnowledgeBase(kbId: string): Promise<void> {
@@ -111,26 +135,42 @@ export function listDocuments(kbId: string): Promise<KnowledgeDocument[]> {
   );
 }
 
-export function uploadDocument(kbId: string, file: File): Promise<KnowledgeDocument> {
+export function uploadDocument(
+  kbId: string,
+  file: File,
+): Promise<KnowledgeDocument> {
   const form = new FormData();
   form.append("file", file);
   return fetch(kbUrl(kbId, "/documents"), {
     method: "POST",
     body: form,
-  }).then((response) => readResponse<KnowledgeDocument>(response, "Failed to upload document"));
+  }).then((response) =>
+    readResponse<KnowledgeDocument>(response, "Failed to upload document"),
+  );
 }
 
-export async function deleteDocument(kbId: string, docId: string): Promise<void> {
-  const response = await fetch(kbUrl(kbId, `/documents/${encodeURIComponent(docId)}`), {
-    method: "DELETE",
-  });
+export async function deleteDocument(
+  kbId: string,
+  docId: string,
+): Promise<void> {
+  const response = await fetch(
+    kbUrl(kbId, `/documents/${encodeURIComponent(docId)}`),
+    {
+      method: "DELETE",
+    },
+  );
   await readEmptyResponse(response, "Failed to delete document");
 }
 
-export function retryDocument(kbId: string, docId: string): Promise<KnowledgeDocument> {
+export function retryDocument(
+  kbId: string,
+  docId: string,
+): Promise<KnowledgeDocument> {
   return fetch(kbUrl(kbId, `/documents/${encodeURIComponent(docId)}/retry`), {
     method: "POST",
-  }).then((response) => readResponse<KnowledgeDocument>(response, "Failed to retry document"));
+  }).then((response) =>
+    readResponse<KnowledgeDocument>(response, "Failed to retry document"),
+  );
 }
 
 export function listDocumentChunks(
@@ -143,13 +183,23 @@ export function listDocumentChunks(
   if (options.limit != null) query.set("limit", String(options.limit));
   const suffix = `/documents/${encodeURIComponent(docId)}/chunks${query.size ? `?${query}` : ""}`;
   return fetch(kbUrl(kbId, suffix)).then((response) =>
-    readResponse<KnowledgeChunkPage>(response, "Failed to list document chunks"),
+    readResponse<KnowledgeChunkPage>(
+      response,
+      "Failed to list document chunks",
+    ),
   );
 }
 
-export function documentFileUrl(kbId: string, docId: string, ref: string): string {
+export function documentFileUrl(
+  kbId: string,
+  docId: string,
+  ref: string,
+): string {
   const encodedRef = ref.split("/").map(encodeURIComponent).join("/");
-  return kbUrl(kbId, `/documents/${encodeURIComponent(docId)}/files/${encodedRef}`);
+  return kbUrl(
+    kbId,
+    `/documents/${encodeURIComponent(docId)}/files/${encodedRef}`,
+  );
 }
 
 export function documentSourceUrl(kbId: string, docId: string): string {

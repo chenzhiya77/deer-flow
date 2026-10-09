@@ -22,7 +22,10 @@ const scope = (options?: ExternalToast): ExternalToast => ({
   toasterId: KB_TOASTER_ID,
 });
 
-export const toast: Pick<typeof globalToast, "error" | "info" | "success" | "warning"> = {
+export const toast: Pick<
+  typeof globalToast,
+  "error" | "info" | "success" | "warning"
+> = {
   error: (message, options) => globalToast.error(message, scope(options)),
   info: (message, options) => globalToast.info(message, scope(options)),
   success: (message, options) => globalToast.success(message, scope(options)),

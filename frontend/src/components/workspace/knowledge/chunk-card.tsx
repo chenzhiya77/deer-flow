@@ -28,10 +28,18 @@ export function ChunkImage({
   unavailableLabel,
   node: _node,
   ...props
-}: ComponentProps<"img"> & { kbId?: string; docId?: string; unavailableLabel: string; node?: unknown }) {
+}: ComponentProps<"img"> & {
+  kbId?: string;
+  docId?: string;
+  unavailableLabel: string;
+  node?: unknown;
+}) {
   const [failed, setFailed] = useState(false);
   if (typeof src !== "string" || !src) return null;
-  const resolved = kbId && docId && !/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(src) ? documentFileUrl(kbId, docId, src) : src;
+  const resolved =
+    kbId && docId && !/^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(src)
+      ? documentFileUrl(kbId, docId, src)
+      : src;
   if (failed) {
     return (
       <span className="text-muted-foreground my-1.5 flex items-start gap-1.5 rounded-md border border-dashed px-2.5 py-1.5 text-xs">
@@ -96,13 +104,21 @@ export function ChunkCard({
   const [entitiesExpanded, setEntitiesExpanded] = useState(false);
   const components = useMemo(
     () => ({
-      img: (props: ComponentProps<"img">) => <ChunkImage docId={docId} kbId={kbId} unavailableLabel={tc.imageUnavailable} {...props} />,
+      img: (props: ComponentProps<"img">) => (
+        <ChunkImage
+          docId={docId}
+          kbId={kbId}
+          unavailableLabel={tc.imageUnavailable}
+          {...props}
+        />
+      ),
     }),
     [docId, kbId, tc.imageUnavailable],
   );
 
   const hasHeader =
-    index != null || Boolean(docName ?? (headingPath && headingPath.length > 0));
+    index != null ||
+    Boolean(docName ?? (headingPath && headingPath.length > 0));
   const visibleEntities = entities
     ? entitiesExpanded
       ? entities
@@ -120,10 +136,14 @@ export function ChunkCard({
         {hasHeader ? (
           <div className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs">
             {index != null && (
-              <span className="font-mono tabular-nums opacity-80">#{index + 1}</span>
+              <span className="font-mono tabular-nums opacity-80">
+                #{index + 1}
+              </span>
             )}
             {docName && <span className="font-medium">{docName}</span>}
-            {headingPath && headingPath.length > 0 && <span>{headingPath.join(" / ")}</span>}
+            {headingPath && headingPath.length > 0 && (
+              <span>{headingPath.join(" / ")}</span>
+            )}
           </div>
         ) : (
           <span />
@@ -140,10 +160,18 @@ export function ChunkCard({
             }
           }}
         >
-          <ToggleGroupItem aria-label={tc.viewRendered} className="h-7 px-2" value="rendered">
+          <ToggleGroupItem
+            aria-label={tc.viewRendered}
+            className="h-7 px-2"
+            value="rendered"
+          >
             <Eye className="size-3.5" />
           </ToggleGroupItem>
-          <ToggleGroupItem aria-label={tc.viewRaw} className="h-7 px-2" value="raw">
+          <ToggleGroupItem
+            aria-label={tc.viewRaw}
+            className="h-7 px-2"
+            value="raw"
+          >
             <Code2 className="size-3.5" />
           </ToggleGroupItem>
         </ToggleGroup>
@@ -183,7 +211,7 @@ export function ChunkCard({
       {/* 页脚栏（2026-09-05 卡片重设计）：border-t 把度量与正文分层；
           tokens/页码不再夹在正文与按钮之间。 */}
       {hasFooterMeta && (
-        <div className="flex flex-col gap-1 border-t border-border/60 pt-1.5">
+        <div className="border-border/60 flex flex-col gap-1 border-t pt-1.5">
           <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
             <span className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
               {page != null && (

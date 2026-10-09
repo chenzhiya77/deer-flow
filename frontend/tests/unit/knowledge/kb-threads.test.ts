@@ -17,9 +17,18 @@ interface FakeThread {
   metadata?: Record<string, unknown> | null;
 }
 
-const kbThread: FakeThread = { thread_id: "t-kb", metadata: { kb_id: "kb-1", agent_name: "rag" } };
-const kbThread2: FakeThread = { thread_id: "t-kb2", metadata: { kb_id: "kb-2" } };
-const plainThread: FakeThread = { thread_id: "t-plain", metadata: { agent_name: "researcher" } };
+const kbThread: FakeThread = {
+  thread_id: "t-kb",
+  metadata: { kb_id: "kb-1", agent_name: "rag" },
+};
+const kbThread2: FakeThread = {
+  thread_id: "t-kb2",
+  metadata: { kb_id: "kb-2" },
+};
+const plainThread: FakeThread = {
+  thread_id: "t-plain",
+  metadata: { agent_name: "researcher" },
+};
 const noMetaThread: FakeThread = { thread_id: "t-none", metadata: null };
 
 describe("isKnowledgeThread", () => {
@@ -35,14 +44,22 @@ describe("isKnowledgeThread", () => {
 
 describe("excludeKnowledgeThreads", () => {
   test("drops every kb-bound thread, keeps order of the rest", () => {
-    const result = excludeKnowledgeThreads([plainThread, kbThread, noMetaThread, kbThread2]);
+    const result = excludeKnowledgeThreads([
+      plainThread,
+      kbThread,
+      noMetaThread,
+      kbThread2,
+    ]);
     expect(result.map((t) => t.thread_id)).toEqual(["t-plain", "t-none"]);
   });
 });
 
 describe("threadsForKb", () => {
   test("keeps only threads bound to the given kb", () => {
-    const result = threadsForKb([kbThread, kbThread2, plainThread, noMetaThread], "kb-1");
+    const result = threadsForKb(
+      [kbThread, kbThread2, plainThread, noMetaThread],
+      "kb-1",
+    );
     expect(result.map((t) => t.thread_id)).toEqual(["t-kb"]);
   });
 

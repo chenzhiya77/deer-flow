@@ -45,7 +45,7 @@ jobs:
 
     env:
       QDRANT_URL: http://127.0.0.1:6333
-      DEER_FLOW_HOME: ${{ runner.temp }}/rag-eval-nocloud-home
+      DEER_FLOW_HOME: ${{ github.workspace }}/rag-eval-nocloud-home
       DEER_FLOW_CONFIG_PATH: ${{ github.workspace }}/backend/tests/fixtures/rag_eval/ci/config.ci.yaml
       DEER_FLOW_RAG_CONFIG_PATH: ${{ github.workspace }}/backend/tests/fixtures/rag_eval/ci/rag_config.ci.json
 

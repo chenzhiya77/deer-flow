@@ -14,29 +14,49 @@ describe("classifyDocError", () => {
   });
 
   it("maps MinerU's exhausted-retry verdict — the original 户号.pptx failure", () => {
-    expect(classifyDocError("retry limit reached (5 attempts), please try again later")).toBe("retryLimit");
+    expect(
+      classifyDocError(
+        "retry limit reached (5 attempts), please try again later",
+      ),
+    ).toBe("retryLimit");
   });
 
   it("maps the missing-token config error", () => {
-    expect(classifyDocError("MINERU_API_TOKEN is not set; add it to .env (see .env.example)")).toBe("serviceUnconfigured");
+    expect(
+      classifyDocError(
+        "MINERU_API_TOKEN is not set; add it to .env (see .env.example)",
+      ),
+    ).toBe("serviceUnconfigured");
   });
 
   it("maps parse timeouts", () => {
-    expect(classifyDocError("MinerU parse timed out after 1800s (batch 123)")).toBe("timeout");
+    expect(
+      classifyDocError("MinerU parse timed out after 1800s (batch 123)"),
+    ).toBe("timeout");
   });
 
   it("maps unsupported-type rejections", () => {
-    expect(classifyDocError("unsupported file type '.exe'; supported formats: .csv, .doc")).toBe("unsupported");
+    expect(
+      classifyDocError(
+        "unsupported file type '.exe'; supported formats: .csv, .doc",
+      ),
+    ).toBe("unsupported");
   });
 
   it("classifies case-insensitively", () => {
     expect(classifyDocError("FILE IS EMPTY: x.PDF")).toBe("empty");
-    expect(classifyDocError("Retry Limit Reached (5 attempts)")).toBe("retryLimit");
+    expect(classifyDocError("Retry Limit Reached (5 attempts)")).toBe(
+      "retryLimit",
+    );
   });
 
   it("maps the index-integrity verdicts (RFC §5.2 表行 4，2026-10-04)", () => {
-    expect(classifyDocError("向量索引不完整：3/50 切片未入库")).toBe("indexIncomplete");
-    expect(classifyDocError("无可索引内容：文档未产生任何可索引切片")).toBe("noIndexableContent");
+    expect(classifyDocError("向量索引不完整：3/50 切片未入库")).toBe(
+      "indexIncomplete",
+    );
+    expect(classifyDocError("无可索引内容：文档未产生任何可索引切片")).toBe(
+      "noIndexableContent",
+    );
   });
 
   it("terminal index verdict wins over earlier leg markers in a stacked error", () => {

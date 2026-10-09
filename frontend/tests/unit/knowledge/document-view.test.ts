@@ -5,10 +5,7 @@
  */
 import { describe, expect, it } from "@rstest/core";
 
-import {
-  filterDocuments,
-  sortDocuments,
-} from "@/core/knowledge/document-view";
+import { filterDocuments, sortDocuments } from "@/core/knowledge/document-view";
 import type { KnowledgeDocument } from "@/core/knowledge/types";
 
 function doc(partial: Partial<KnowledgeDocument>): KnowledgeDocument {
@@ -55,21 +52,57 @@ describe("filterDocuments", () => {
 
 describe("sortDocuments", () => {
   const docs = [
-    doc({ id: "a", name: "乙.pdf", size_bytes: 4096, created_at: "2026-08-08T10:00:00Z" }),
-    doc({ id: "b", name: "甲.pdf", size_bytes: 1024, created_at: "2026-08-09T09:00:00Z" }),
-    doc({ id: "c", name: "丙.pdf", size_bytes: 2048, chunk_count: null, created_at: "2026-08-09T10:00:00Z" }),
+    doc({
+      id: "a",
+      name: "乙.pdf",
+      size_bytes: 4096,
+      created_at: "2026-08-08T10:00:00Z",
+    }),
+    doc({
+      id: "b",
+      name: "甲.pdf",
+      size_bytes: 1024,
+      created_at: "2026-08-09T09:00:00Z",
+    }),
+    doc({
+      id: "c",
+      name: "丙.pdf",
+      size_bytes: 2048,
+      chunk_count: null,
+      created_at: "2026-08-09T10:00:00Z",
+    }),
   ];
 
   it("sorts by created_at descending by default semantics", () => {
-    expect(sortDocuments(docs, "created_at", "desc").map((d) => d.id)).toEqual(["c", "b", "a"]);
-    expect(sortDocuments(docs, "created_at", "asc").map((d) => d.id)).toEqual(["a", "b", "c"]);
+    expect(sortDocuments(docs, "created_at", "desc").map((d) => d.id)).toEqual([
+      "c",
+      "b",
+      "a",
+    ]);
+    expect(sortDocuments(docs, "created_at", "asc").map((d) => d.id)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
   });
 
   it("sorts by name and by numeric size in both directions", () => {
     // localeCompare orders Chinese names by pinyin (丙 bǐng < 甲 jiǎ < 乙 yǐ)
-    expect(sortDocuments(docs, "name", "asc").map((d) => d.name)).toEqual(["丙.pdf", "甲.pdf", "乙.pdf"]);
-    expect(sortDocuments(docs, "size_bytes", "asc").map((d) => d.id)).toEqual(["b", "c", "a"]);
-    expect(sortDocuments(docs, "size_bytes", "desc").map((d) => d.id)).toEqual(["a", "c", "b"]);
+    expect(sortDocuments(docs, "name", "asc").map((d) => d.name)).toEqual([
+      "丙.pdf",
+      "甲.pdf",
+      "乙.pdf",
+    ]);
+    expect(sortDocuments(docs, "size_bytes", "asc").map((d) => d.id)).toEqual([
+      "b",
+      "c",
+      "a",
+    ]);
+    expect(sortDocuments(docs, "size_bytes", "desc").map((d) => d.id)).toEqual([
+      "a",
+      "c",
+      "b",
+    ]);
   });
 
   it("sinks null chunk counts to the bottom in both directions", () => {
@@ -78,12 +111,19 @@ describe("sortDocuments", () => {
       doc({ id: "y", chunk_count: null }),
       doc({ id: "z", chunk_count: 8 }),
     ];
-    expect(sortDocuments(withCounts, "chunk_count", "asc").map((d) => d.id)).toEqual(["x", "z", "y"]);
-    expect(sortDocuments(withCounts, "chunk_count", "desc").map((d) => d.id)).toEqual(["z", "x", "y"]);
+    expect(
+      sortDocuments(withCounts, "chunk_count", "asc").map((d) => d.id),
+    ).toEqual(["x", "z", "y"]);
+    expect(
+      sortDocuments(withCounts, "chunk_count", "desc").map((d) => d.id),
+    ).toEqual(["z", "x", "y"]);
   });
 
   it("does not mutate the input array", () => {
-    const input = [doc({ id: "a", size_bytes: 2 }), doc({ id: "b", size_bytes: 1 })];
+    const input = [
+      doc({ id: "a", size_bytes: 2 }),
+      doc({ id: "b", size_bytes: 1 }),
+    ];
     sortDocuments(input, "size_bytes", "asc");
     expect(input.map((d) => d.id)).toEqual(["a", "b"]);
   });

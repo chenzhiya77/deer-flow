@@ -5,7 +5,13 @@
  * deep-retrieval toggle, citation footers, and an expand-to-full-page entry.
  */
 import { afterEach, beforeEach, describe, expect, it, rs } from "@rstest/core";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 
 const mockUseThreadStream = rs.fn();
 const mockUseInfiniteThreads = rs.fn();
@@ -122,7 +128,9 @@ function renderPanel(
   props?: Partial<Parameters<typeof KnowledgeChatPanel>[0]>,
 ) {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <KnowledgeChatPanel kb={kb} {...props} />
     </I18nContext.Provider>,
   );
@@ -134,7 +142,9 @@ function rerenderPanel(
   props?: Partial<Parameters<typeof KnowledgeChatPanel>[0]>,
 ) {
   view.rerender(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <KnowledgeChatPanel kb={kb} {...props} />
     </I18nContext.Provider>,
   );
@@ -161,7 +171,12 @@ beforeEach(() => {
   mockUseInfiniteThreads.mockReturnValue({
     data: { pages: [[KB_THREAD, OTHER_KB_THREAD, PLAIN_THREAD]] },
   });
-  mockUseModels.mockReturnValue({ models: MODELS, tokenUsageEnabled: false, isLoading: false, error: null });
+  mockUseModels.mockReturnValue({
+    models: MODELS,
+    tokenUsageEnabled: false,
+    isLoading: false,
+    error: null,
+  });
   mockUseAgentsApiEnabled.mockReturnValue({ enabled: true, isLoading: false });
   localStorage.clear();
 });
@@ -187,7 +202,10 @@ describe("KnowledgeChatPanel", () => {
     expect(screen.getByText("请先在左侧选择要检索的知识库")).toBeTruthy();
     const textarea = screen.getByPlaceholderText("向当前知识库提问…");
     expect(textarea).toHaveProperty("disabled", true);
-    expect(screen.getByRole("button", { name: "发送" })).toHaveProperty("disabled", true);
+    expect(screen.getByRole("button", { name: "发送" })).toHaveProperty(
+      "disabled",
+      true,
+    );
   });
 
   it("binds the current kb through stream context (agent_name + kb_id)", () => {
@@ -258,14 +276,18 @@ describe("KnowledgeChatPanel", () => {
 
   it("loads the selected conversation from the history popover", () => {
     renderPanel();
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     fireEvent.click(screen.getByText("如何上传文档"));
     expect(latestStreamOptions().threadId).toBe("thread-kb1-a");
   });
 
   it("deletes a history conversation via its delete button WITHOUT selecting it", () => {
     renderPanel();
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     // Only the current-kb thread is listed, so exactly one delete button.
     const deleteButton = screen.getByRole("button", { name: "删除会话" });
     fireEvent.click(deleteButton);
@@ -283,10 +305,14 @@ describe("KnowledgeChatPanel", () => {
 
   it("resets to a fresh conversation when the OPEN conversation is deleted", () => {
     renderPanel();
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     fireEvent.click(screen.getByText("如何上传文档"));
     expect(latestStreamOptions().threadId).toBe("thread-kb1-a");
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     fireEvent.click(screen.getByRole("button", { name: "删除会话" }));
     const args = mockDeleteThread.mock.calls[0]![0] as {
       threadId: string;
@@ -300,7 +326,9 @@ describe("KnowledgeChatPanel", () => {
 
   it("resets to a fresh thread via the new-chat button after picking history", () => {
     renderPanel();
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     fireEvent.click(screen.getByText("如何上传文档"));
     expect(latestStreamOptions().threadId).toBe("thread-kb1-a");
     fireEvent.click(screen.getByRole("button", { name: "新建会话" }));
@@ -310,7 +338,9 @@ describe("KnowledgeChatPanel", () => {
   // 2026-10-06 缺陷批：切库即新对话（还原 `2711a35a2` 的重置，`52b0dd76d` 重构时误删）。
   it("starts a fresh conversation when the knowledge base is switched", () => {
     const view = renderPanel();
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     fireEvent.click(screen.getByText("如何上传文档"));
     expect(latestStreamOptions().threadId).toBe("thread-kb1-a");
     rerenderPanel(view, KB2);
@@ -334,18 +364,29 @@ describe("KnowledgeChatPanel", () => {
   it("expands the active conversation to the full rag chat page", () => {
     renderPanel();
     expect(
-      screen.getByRole("link", { name: "在完整页面中打开" }).getAttribute("aria-disabled"),
+      screen
+        .getByRole("link", { name: "在完整页面中打开" })
+        .getAttribute("aria-disabled"),
     ).toBe("true");
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     fireEvent.click(screen.getByText("如何上传文档"));
     const link = screen.getByRole("link", { name: "在完整页面中打开" });
-    expect(link.getAttribute("href")).toBe("/workspace/agents/rag/chats/thread-kb1-a");
+    expect(link.getAttribute("href")).toBe(
+      "/workspace/agents/rag/chats/thread-kb1-a",
+    );
   });
 
   it("keeps the expand link disabled when the agents feature is off, even for a persisted thread", () => {
-    mockUseAgentsApiEnabled.mockReturnValue({ enabled: false, isLoading: false });
+    mockUseAgentsApiEnabled.mockReturnValue({
+      enabled: false,
+      isLoading: false,
+    });
     renderPanel();
-    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("button", { name: "历史会话" }), {
+      key: "ArrowDown",
+    });
     fireEvent.click(screen.getByText("如何上传文档"));
     const link = screen.getByRole("link", { name: "在完整页面中打开" });
     expect(link.getAttribute("aria-disabled")).toBe("true");
@@ -370,7 +411,11 @@ describe("KnowledgeChatPanel", () => {
         ],
       }),
     };
-    const aiMessage = { id: "ai-1", type: "ai", content: "支持 PDF 与 Markdown [1]" };
+    const aiMessage = {
+      id: "ai-1",
+      type: "ai",
+      content: "支持 PDF 与 Markdown [1]",
+    };
     mockUseThreadStream.mockImplementation(() => ({
       thread: makeThreadState([
         { id: "human-1", type: "human", content: "支持哪些格式？" },
@@ -386,7 +431,9 @@ describe("KnowledgeChatPanel", () => {
     ) => React.ReactNode;
     cleanup();
     render(
-      <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+      <I18nContext.Provider
+        value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+      >
         {renderFooter(aiMessage)}
       </I18nContext.Provider>,
     );
@@ -400,8 +447,7 @@ describe("KnowledgeChatPanel", () => {
   it("wires onSubmitHumanInput so clarification cards stay interactive", async () => {
     renderPanel();
     expect(capturedMessageListProps).not.toBeNull();
-    const onSubmitHumanInput = capturedMessageListProps!
-      .onSubmitHumanInput as (
+    const onSubmitHumanInput = capturedMessageListProps!.onSubmitHumanInput as (
       request: unknown,
       response: unknown,
     ) => Promise<unknown>;
@@ -429,7 +475,8 @@ describe("KnowledgeChatPanel", () => {
     });
     expect(result).toBe(true);
     expect(mockSendMessage).toHaveBeenCalledTimes(1);
-    const [, message, extraContext, options] = mockSendMessage.mock.calls[0] as [
+    const [, message, extraContext, options] = mockSendMessage.mock
+      .calls[0] as [
       string,
       { text: string; files: unknown[] },
       Record<string, unknown>,
@@ -450,7 +497,9 @@ describe("KnowledgeChatPanel model selector", () => {
     renderPanel();
     // 未显式选择时：触发器显示后端默认（models[0]），context 保持 undefined
     // 让后端走 request → agent 配置 → 全局默认的解析链。
-    expect(screen.getByRole("button", { name: "选择模型" }).textContent).toContain("DeepSeek V4 Flash");
+    expect(
+      screen.getByRole("button", { name: "选择模型" }).textContent,
+    ).toContain("DeepSeek V4 Flash");
     expect(latestStreamOptions().context.model_name).toBeUndefined();
   });
 
@@ -463,26 +512,36 @@ describe("KnowledgeChatPanel model selector", () => {
     expect(localStorage.getItem("rag-chat-model:kb-1")).toBe("qwen-plus");
     // 选择后弹层关闭、触发器显示新选择
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(screen.getByRole("button", { name: "选择模型" }).textContent).toContain("Qwen Plus");
+    expect(
+      screen.getByRole("button", { name: "选择模型" }).textContent,
+    ).toContain("Qwen Plus");
   });
 
   it("restores the remembered model per kb and falls back to default when switching to an unremembered kb", () => {
     localStorage.setItem("rag-chat-model:kb-1", "qwen-plus");
     const utils = render(
-      <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+      <I18nContext.Provider
+        value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+      >
         <KnowledgeChatPanel kb={KB} />
       </I18nContext.Provider>,
     );
     expect(latestStreamOptions().context.model_name).toBe("qwen-plus");
-    expect(screen.getByRole("button", { name: "选择模型" }).textContent).toContain("Qwen Plus");
+    expect(
+      screen.getByRole("button", { name: "选择模型" }).textContent,
+    ).toContain("Qwen Plus");
 
     utils.rerender(
-      <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+      <I18nContext.Provider
+        value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+      >
         <KnowledgeChatPanel kb={{ ...KB, id: "kb-2", name: "第二库" }} />
       </I18nContext.Provider>,
     );
     // kb-2 没有记忆 → 回落默认显示，context 恢复 undefined
     expect(latestStreamOptions().context.model_name).toBeUndefined();
-    expect(screen.getByRole("button", { name: "选择模型" }).textContent).toContain("DeepSeek V4 Flash");
+    expect(
+      screen.getByRole("button", { name: "选择模型" }).textContent,
+    ).toContain("DeepSeek V4 Flash");
   });
 });

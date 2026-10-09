@@ -7,7 +7,13 @@
  * 承接，工具栏搜索/排序常驻不切换。
  */
 import { afterEach, describe, expect, it, rs } from "@rstest/core";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 
 import { DocumentPanel } from "@/components/workspace/knowledge/document-panel";
 import { I18nContext } from "@/core/i18n/context";
@@ -50,8 +56,16 @@ function renderPanel(props?: Partial<Parameters<typeof DocumentPanel>[0]>) {
     onOpenChunks: rs.fn(),
   };
   render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
-      <DocumentPanel kb={KB} documents={[doc({})]} supportedSuffixes={[".md", ".pdf", ".txt"]} {...handlers} {...props} />
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
+      <DocumentPanel
+        kb={KB}
+        documents={[doc({})]}
+        supportedSuffixes={[".md", ".pdf", ".txt"]}
+        {...handlers}
+        {...props}
+      />
     </I18nContext.Provider>,
   );
   return handlers;
@@ -81,15 +95,29 @@ function rows(): HTMLElement[] {
 describe("DocumentPanel selection", () => {
   it("selects rows via checkboxes; the batch bar is retired（2026-09-02）", () => {
     renderPanel({ documents: DOCS });
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: 产品手册.pdf" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: 研发规范.docx" }));
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: 产品手册.pdf" }),
+    );
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: 研发规范.docx" }),
+    );
     // 批量栏不再出现；选中态由行复选框自身承载。
     expect(screen.queryByTestId("document-batch-bar")).toBeNull();
-    expect(screen.getByRole("checkbox", { name: "选择文档: 产品手册.pdf" }).getAttribute("aria-checked")).toBe("true");
+    expect(
+      screen
+        .getByRole("checkbox", { name: "选择文档: 产品手册.pdf" })
+        .getAttribute("aria-checked"),
+    ).toBe("true");
     // 工具栏不再随选中切换：搜索/排序常驻。
     expect(screen.getByPlaceholderText("搜索文档…")).toBeTruthy();
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: 研发规范.docx" }));
-    expect(screen.getByRole("checkbox", { name: "选择文档: 研发规范.docx" }).getAttribute("aria-checked")).toBe("false");
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: 研发规范.docx" }),
+    );
+    expect(
+      screen
+        .getByRole("checkbox", { name: "选择文档: 研发规范.docx" })
+        .getAttribute("aria-checked"),
+    ).toBe("false");
   });
 
   it("selects all rows via the header checkbox and reports an indeterminate state", () => {
@@ -97,7 +125,9 @@ describe("DocumentPanel selection", () => {
     const selectAll = screen.getByRole("checkbox", { name: "全选" });
     fireEvent.click(selectAll);
     expect(selectAll.getAttribute("aria-checked")).toBe("true");
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: Roadmap.md" }));
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: Roadmap.md" }),
+    );
     expect(selectAll.getAttribute("aria-checked")).toBe("mixed");
     fireEvent.click(screen.getByRole("checkbox", { name: "全选" }));
     expect(selectAll.getAttribute("aria-checked")).toBe("true");
@@ -105,13 +135,26 @@ describe("DocumentPanel selection", () => {
 
   it("batch-deletes the selected documents via the context menu after confirm", async () => {
     const handlers = renderPanel({ documents: DOCS });
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: 产品手册.pdf" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: Roadmap.md" }));
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: 产品手册.pdf" }),
+    );
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: Roadmap.md" }),
+    );
     // 批量栏退役后，批量删除唯一入口是右键菜单（runAfterMenuClose 延迟到菜单退场）。
     fireEvent.contextMenu(rows()[0]!);
     fireEvent.click(await screen.findByRole("menuitem", { name: "删除所选" }));
-    fireEvent.click(await screen.findByRole("button", { name: "确认删除" }, { timeout: 3000 }));
-    await waitFor(() => expect(handlers.onDeleteDocument).toHaveBeenCalledTimes(2), { timeout: 2000 });
+    fireEvent.click(
+      await screen.findByRole(
+        "button",
+        { name: "确认删除" },
+        { timeout: 3000 },
+      ),
+    );
+    await waitFor(
+      () => expect(handlers.onDeleteDocument).toHaveBeenCalledTimes(2),
+      { timeout: 2000 },
+    );
     const deleted = handlers.onDeleteDocument.mock.calls.map((call) => call[0]);
     expect(deleted).toContain("a");
     expect(deleted).toContain("b");
@@ -134,23 +177,34 @@ describe("DocumentPanel context menu", () => {
   it("offers single-row actions on an unselected row and routes them", async () => {
     const handlers = renderPanel({ documents: DOCS });
     fireEvent.contextMenu(rows()[1]!);
-    expect(await screen.findByRole("menuitem", { name: "查看切片" })).toBeTruthy();
+    expect(
+      await screen.findByRole("menuitem", { name: "查看切片" }),
+    ).toBeTruthy();
     // 措辞对齐（2026-09-02）：右键即选中，单选菜单也用「删除所选」。
     expect(screen.getByRole("menuitem", { name: "删除所选" })).toBeTruthy();
     fireEvent.click(screen.getByRole("menuitem", { name: "查看切片" }));
     // onOpenChunks is deferred until the menu's dismissal layer fully tears
     // down (runAfterMenuClose), so it arrives asynchronously.
-    await waitFor(() => expect(handlers.onOpenChunks).toHaveBeenCalledWith(DOCS[1]), { timeout: 2000 });
+    await waitFor(
+      () => expect(handlers.onOpenChunks).toHaveBeenCalledWith(DOCS[1]),
+      { timeout: 2000 },
+    );
     await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
     await new Promise((resolve) => setTimeout(resolve, 400));
   });
 
   it("offers batch actions when right-clicking inside a multi-selection", async () => {
     renderPanel({ documents: DOCS });
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: 产品手册.pdf" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "选择文档: Roadmap.md" }));
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: 产品手册.pdf" }),
+    );
+    fireEvent.click(
+      screen.getByRole("checkbox", { name: "选择文档: Roadmap.md" }),
+    );
     fireEvent.contextMenu(rows()[0]!);
-    expect(await screen.findByRole("menuitem", { name: "删除所选" })).toBeTruthy();
+    expect(
+      await screen.findByRole("menuitem", { name: "删除所选" }),
+    ).toBeTruthy();
     // 批量栏退役后，计数反馈唯一载体是菜单标签。
     expect(screen.getAllByText("已选 2 项").length).toBeGreaterThan(0);
     await settleMenu();

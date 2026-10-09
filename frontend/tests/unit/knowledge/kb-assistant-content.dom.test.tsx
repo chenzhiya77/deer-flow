@@ -24,8 +24,15 @@ const CHUNK: KnowledgeCitation = {
 
 function renderContent(isLoading: boolean) {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
-      <KbAssistantContent content="依据文档 [1] 可知" isLoading={isLoading} messageId="m1" sources={[CHUNK]} />
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
+      <KbAssistantContent
+        content="依据文档 [1] 可知"
+        isLoading={isLoading}
+        messageId="m1"
+        sources={[CHUNK]}
+      />
     </I18nContext.Provider>,
   );
 }
@@ -35,12 +42,16 @@ afterEach(cleanup);
 describe("KbAssistantContent real pipeline", () => {
   it("renders [1] as a superscript citation mark after streaming ends", () => {
     renderContent(false);
-    expect(screen.getByRole("button", { name: "引用 1：手册.pdf" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "引用 1：手册.pdf" }),
+    ).toBeTruthy();
   });
 
   it("keeps [1] as plain text while streaming (deferred rendering)", () => {
     renderContent(true);
-    expect(screen.queryByRole("button", { name: "引用 1：手册.pdf" })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "引用 1：手册.pdf" }),
+    ).toBeNull();
     expect(screen.getByText(/\[1\]/)).toBeTruthy();
   });
 
@@ -59,11 +70,20 @@ describe("KbAssistantContent real pipeline", () => {
     };
     const chunk: KnowledgeCitation = { ...CHUNK, citation_nos: [5, 9] };
     render(
-      <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
-        <KbAssistantContent content="依据文档 [9] 可知" isLoading={false} messageId="m1" sources={[wiki, chunk]} />
+      <I18nContext.Provider
+        value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+      >
+        <KbAssistantContent
+          content="依据文档 [9] 可知"
+          isLoading={false}
+          messageId="m1"
+          sources={[wiki, chunk]}
+        />
       </I18nContext.Provider>,
     );
-    expect(screen.getByRole("button", { name: "引用 2：手册.pdf" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "引用 2：手册.pdf" }),
+    ).toBeTruthy();
     expect(screen.queryByRole("button", { name: /引用 9/ })).toBeNull();
   });
 });

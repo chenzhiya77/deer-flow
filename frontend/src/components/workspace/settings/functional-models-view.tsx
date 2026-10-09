@@ -157,9 +157,7 @@ function OptionSelect({
   return (
     <Select
       value={value || AUTO_OPTION_VALUE}
-      onValueChange={(next) =>
-        onChange(next === AUTO_OPTION_VALUE ? "" : next)
-      }
+      onValueChange={(next) => onChange(next === AUTO_OPTION_VALUE ? "" : next)}
     >
       <SelectTrigger className="w-full min-w-0" aria-label={label}>
         <SelectValue />
@@ -628,13 +626,20 @@ export function FunctionalModelsView() {
     dimensionProbe.isPending && dimensionProbe.variables?.key === dimensionKey;
 
   /** 框内状态点：只在不"绿"时才出现，理由走它自己的提示气泡（dark Tooltip，与两条腿同族）。 */
-  const dimensionState: { state: "probing" | "unprobed" | "no-tiers"; reason: string } | null = dimensionProbing
+  const dimensionState: {
+    state: "probing" | "unprobed" | "no-tiers";
+    reason: string;
+  } | null = dimensionProbing
     ? { state: "probing", reason: F.dimensionProbing }
     : dimensionVerdict === null
       ? null
       : dimensionVerdict.status === "unreachable"
-        ? { state: "unprobed", reason: `${F.dimensionUnprobed}：${dimensionVerdict.detail}` }
-        : dimensionVerdict.type === "tiered" && dimensionVerdict.values.length === 0
+        ? {
+            state: "unprobed",
+            reason: `${F.dimensionUnprobed}：${dimensionVerdict.detail}`,
+          }
+        : dimensionVerdict.type === "tiered" &&
+            dimensionVerdict.values.length === 0
           ? { state: "no-tiers", reason: F.dimensionNoTiers }
           : null;
   const dimensionApplies =
@@ -664,7 +669,8 @@ export function FunctionalModelsView() {
   useEffect(() => {
     // ③ 型（不吃参数）只有唯一一个可取值 ⇒ 行是只读的，那就必须把那个值**填进去**，不能只当占位提示：
     // 留空 = 1024，而一个原生 768 的固定型模型于是永远保存不过（保存期探针会拒），用户还没有输入口。
-    if (dimensionVerdict?.type !== "fixed" || dimensionVerdict.native === null) return;
+    if (dimensionVerdict?.type !== "fixed" || dimensionVerdict.native === null)
+      return;
     const native = String(dimensionVerdict.native);
     setValues((prev) =>
       prev && prev.embedding_dimension !== native
@@ -688,8 +694,7 @@ export function FunctionalModelsView() {
     const probe =
       leg === "embedding" ? embeddingConnectivity : rerankConnectivity;
     const key = connectivityProbeKey(leg, form, hasKey);
-    const verdict =
-      probe.data && probe.data.key === key ? probe.data : null;
+    const verdict = probe.data && probe.data.key === key ? probe.data : null;
     const probing = probe.isPending && probe.variables?.key === key;
     const status: LegDotState = probing
       ? "probing"
@@ -723,7 +728,9 @@ export function FunctionalModelsView() {
           base_url: baseUrl || null,
           api_key: null,
           embedding_dimension:
-            leg === "embedding" && rawDimension !== "" ? Number(rawDimension) : null,
+            leg === "embedding" && rawDimension !== ""
+              ? Number(rawDimension)
+              : null,
         });
       },
     };
@@ -736,16 +743,22 @@ export function FunctionalModelsView() {
     // ① 型 = 探到的有效档；② 型 = ≤ 原生的候选（静态提示）；③ 型没有档位。
     if (verdict.type === "tiered") return verdict.values;
     if (verdict.type === "range" && verdict.native !== null) {
-      return verdict.candidates.filter((width) => width <= (verdict.native ?? 0));
+      return verdict.candidates.filter(
+        (width) => width <= (verdict.native ?? 0),
+      );
     }
     return [] as number[];
   })();
 
   if (isLoading) {
-    return <div className="text-muted-foreground text-sm">{t.common.loading}</div>;
+    return (
+      <div className="text-muted-foreground text-sm">{t.common.loading}</div>
+    );
   }
   if (error instanceof RagConfigRequestError && error.isAdminRequired) {
-    return <div className="text-muted-foreground text-sm">{M.adminRequired}</div>;
+    return (
+      <div className="text-muted-foreground text-sm">{M.adminRequired}</div>
+    );
   }
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -837,7 +850,10 @@ export function FunctionalModelsView() {
         if (pending?.state === "running") {
           setValues((prev) =>
             prev
-              ? { ...prev, embedding_dimension: String(pending.target_dimension) }
+              ? {
+                  ...prev,
+                  embedding_dimension: String(pending.target_dimension),
+                }
               : prev,
           );
         }
@@ -852,7 +868,10 @@ export function FunctionalModelsView() {
 
   const libraries = knowledgeBases ?? [];
   const selectedKb = libraries.find((kb) => kb.id === reindexKbId);
-  const reindexRunning = isReindexRunning(reindexStatus.data, reindex.isPending);
+  const reindexRunning = isReindexRunning(
+    reindexStatus.data,
+    reindex.isPending,
+  );
   const reindexProgress = reindexStatus.data?.progress;
 
   function handleReindexConfirm() {
@@ -874,9 +893,7 @@ export function FunctionalModelsView() {
   // model shared by two roles is two independent rows. Each row shows the model its slot
   // currently points at, so the menu reads as "which role, on what".
   const thinkingRows = (
-    [
-      ["vlm_thinking", F.captionModel, "vlm_model", F.vlmModelDefault],
-    ] as const
+    [["vlm_thinking", F.captionModel, "vlm_model", F.vlmModelDefault]] as const
   ).map(([key, label, modelField, noneLabel]) => {
     const modelValue = values[modelField];
     return {
@@ -928,7 +945,7 @@ export function FunctionalModelsView() {
               type="button"
               variant="outline"
               aria-label={F.thinkingMenuLabel}
-              className="mt-4 w-full justify-between border-input bg-transparent font-normal"
+              className="border-input mt-4 w-full justify-between bg-transparent font-normal"
             >
               {F.thinkingMenuState(thinkingCount)}
               <ChevronDown className="size-4 opacity-50" />
@@ -964,7 +981,10 @@ export function FunctionalModelsView() {
         <Rows stacked>
           <div className={`${ROW_PAIR} pt-0 pb-2 max-md:hidden`}>
             <span />
-            <LegHeading label={F.embeddingModel} {...legProps(values, "embedding")} />
+            <LegHeading
+              label={F.embeddingModel}
+              {...legProps(values, "embedding")}
+            />
             <LegHeading label={F.rerankModel} {...legProps(values, "rerank")} />
           </div>
 
@@ -975,7 +995,7 @@ export function FunctionalModelsView() {
           <div className="order-1 text-sm font-semibold md:hidden">
             {F.embeddingModel}
           </div>
-          <div className="order-6 my-1 border-t border-border md:hidden" />
+          <div className="border-border order-6 my-1 border-t md:hidden" />
           <div className="order-7 text-sm font-semibold md:hidden">
             {F.rerankModel}
           </div>
@@ -1117,7 +1137,8 @@ export function FunctionalModelsView() {
                     F.dimensionHint,
                     F.dimensionProbeHint,
                     // ③ 型只读：说明为什么改不了（档位菜单在 ③ 不存在，这句只能挂在这里）。
-                    dimensionVerdict?.type === "fixed" && dimensionVerdict.native !== null
+                    dimensionVerdict?.type === "fixed" &&
+                    dimensionVerdict.native !== null
                       ? F.dimensionFixedHint(dimensionVerdict.native)
                       : null,
                   ]
@@ -1137,7 +1158,9 @@ export function FunctionalModelsView() {
                     value={values.embedding_dimension}
                     readOnly={dimensionVerdict?.type === "fixed"}
                     placeholder={
-                      dimensionVerdict?.native ? String(dimensionVerdict.native) : undefined
+                      dimensionVerdict?.native
+                        ? String(dimensionVerdict.native)
+                        : undefined
                     }
                     onChange={(event) =>
                       update("embedding_dimension", event.target.value)
@@ -1195,7 +1218,9 @@ export function FunctionalModelsView() {
                         <DropdownMenuItem
                           key={width}
                           data-slot="dimension-tier"
-                          onSelect={() => update("embedding_dimension", String(width))}
+                          onSelect={() =>
+                            update("embedding_dimension", String(width))
+                          }
                         >
                           {width}
                         </DropdownMenuItem>
@@ -1382,7 +1407,6 @@ export function FunctionalModelsView() {
               )}
             </div>
           </div>
-
         </Rows>
       </Group>
 

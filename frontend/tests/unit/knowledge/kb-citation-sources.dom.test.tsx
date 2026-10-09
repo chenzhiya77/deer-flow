@@ -33,7 +33,9 @@ const SOURCES: KnowledgeCitation[] = [
 
 function renderWithI18n(node: React.ReactNode) {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       {node}
     </I18nContext.Provider>,
   );
@@ -65,7 +67,9 @@ describe("KbCitationSources", () => {
   });
 
   it("renders nothing when there are no sources", () => {
-    const { container } = renderWithI18n(<KbCitationSources messageId="m1" sources={[]} />);
+    const { container } = renderWithI18n(
+      <KbCitationSources messageId="m1" sources={[]} />,
+    );
     expect(container.innerHTML).toBe("");
   });
 

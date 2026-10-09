@@ -26,7 +26,9 @@ export interface DocFailureEntry {
   retryable: boolean;
 }
 
-export function useDocFailureNotifier(documents: KnowledgeDocument[] | undefined) {
+export function useDocFailureNotifier(
+  documents: KnowledgeDocument[] | undefined,
+) {
   const { t } = useI18n();
   const [failures, setFailures] = useState<DocFailureEntry[]>([]);
   // Failure episodes already announced; a doc leaving ``failed`` clears its
@@ -41,7 +43,11 @@ export function useDocFailureNotifier(documents: KnowledgeDocument[] | undefined
     const byId = new Map(documents.map((doc) => [doc.id, doc]));
     // 文档离开 failed（重试/删除）即撤条——界面只剩状态本身。
     setFailures((prev) =>
-      prev.filter((entry) => entry.key.startsWith("rejection-") || byId.get(entry.key)?.status === "failed"),
+      prev.filter(
+        (entry) =>
+          entry.key.startsWith("rejection-") ||
+          byId.get(entry.key)?.status === "failed",
+      ),
     );
     for (const doc of documents) {
       if (doc.status !== "failed") notified.current.delete(doc.id);
@@ -54,12 +60,19 @@ export function useDocFailureNotifier(documents: KnowledgeDocument[] | undefined
       initialized.current = true;
       return;
     }
-    const fresh = documents.filter((doc) => doc.status === "failed" && !notified.current.has(doc.id));
+    const fresh = documents.filter(
+      (doc) => doc.status === "failed" && !notified.current.has(doc.id),
+    );
     if (fresh.length === 0) return;
     for (const doc of fresh) notified.current.add(doc.id);
     setFailures((prev) => [
       ...prev,
-      ...fresh.map((doc) => ({ key: doc.id, name: doc.name, reason: tk[classifyDocError(doc.error)], retryable: true })),
+      ...fresh.map((doc) => ({
+        key: doc.id,
+        name: doc.name,
+        reason: tk[classifyDocError(doc.error)],
+        retryable: true,
+      })),
     ]);
   }, [documents, t]);
 

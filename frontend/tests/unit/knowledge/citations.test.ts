@@ -31,34 +31,77 @@ function ai(id: string): Message {
 
 const HYBRID = {
   results: [
-    { chunk_id: "c1", doc_name: "手册.pdf", page: 3, heading_path: ["第一章"], text: "切片一", score: 0.9 },
-    { chunk_id: "c2", doc_name: "白皮书.md", page: null, heading_path: [], text: "切片二", score: 0.8 },
+    {
+      chunk_id: "c1",
+      doc_name: "手册.pdf",
+      page: 3,
+      heading_path: ["第一章"],
+      text: "切片一",
+      score: 0.9,
+    },
+    {
+      chunk_id: "c2",
+      doc_name: "白皮书.md",
+      page: null,
+      heading_path: [],
+      text: "切片二",
+      score: 0.8,
+    },
   ],
   message: "检索到 2 条相关切片。",
 };
 
 describe("parseRetrievalToolContent", () => {
   test("parses knowledge_search results into chunk citations", () => {
-    const citations = parseRetrievalToolContent("knowledge_search", JSON.stringify(HYBRID));
+    const citations = parseRetrievalToolContent(
+      "knowledge_search",
+      JSON.stringify(HYBRID),
+    );
     expect(citations).toHaveLength(2);
-    expect(citations[0]).toMatchObject({ chunk_id: "c1", doc_name: "手册.pdf", page: 3, text: "切片一" });
+    expect(citations[0]).toMatchObject({
+      chunk_id: "c1",
+      doc_name: "手册.pdf",
+      page: 3,
+      text: "切片一",
+    });
   });
 
   test("stamps source_type chunk for the retrieval tool", () => {
-    expect(parseRetrievalToolContent("knowledge_search", JSON.stringify(HYBRID))[0]?.source_type).toBe("chunk");
+    expect(
+      parseRetrievalToolContent("knowledge_search", JSON.stringify(HYBRID))[0]
+        ?.source_type,
+    ).toBe("chunk");
   });
 
   test("tolerates malformed JSON and unknown tools by returning nothing", () => {
-    expect(parseRetrievalToolContent("knowledge_search", "not-json")).toEqual([]);
-    expect(parseRetrievalToolContent("web_search", JSON.stringify(HYBRID))).toEqual([]);
-    expect(parseRetrievalToolContent("knowledge_search", JSON.stringify({ results: [], message: "空" }))).toEqual([]);
+    expect(parseRetrievalToolContent("knowledge_search", "not-json")).toEqual(
+      [],
+    );
+    expect(
+      parseRetrievalToolContent("web_search", JSON.stringify(HYBRID)),
+    ).toEqual([]);
+    expect(
+      parseRetrievalToolContent(
+        "knowledge_search",
+        JSON.stringify({ results: [], message: "空" }),
+      ),
+    ).toEqual([]);
   });
 });
 
 describe("sourcesForAssistantMessage", () => {
   test("merges retrieval results between the previous human message and the answer, deduped by chunk_id", () => {
     const second = {
-      results: [{ chunk_id: "c3", doc_name: "手册.pdf", page: 5, heading_path: ["第二章"], text: "切片三", score: 0.7 }],
+      results: [
+        {
+          chunk_id: "c3",
+          doc_name: "手册.pdf",
+          page: 5,
+          heading_path: ["第二章"],
+          text: "切片三",
+          score: 0.7,
+        },
+      ],
     };
     const messages = [
       human("h1"),
@@ -72,7 +115,16 @@ describe("sourcesForAssistantMessage", () => {
 
   test("scopes to the message's own turn (earlier turns are invisible)", () => {
     const second = {
-      results: [{ chunk_id: "c3", doc_name: "手册.pdf", page: 5, heading_path: [], text: "切片三", score: 0.7 }],
+      results: [
+        {
+          chunk_id: "c3",
+          doc_name: "手册.pdf",
+          page: 5,
+          heading_path: [],
+          text: "切片三",
+          score: 0.7,
+        },
+      ],
     };
     const messages = [
       human("h1"),
@@ -82,15 +134,32 @@ describe("sourcesForAssistantMessage", () => {
       toolMessage("knowledge_search", second, "t2"),
       ai("a2"),
     ];
-    expect(sourcesForAssistantMessage(messages, "a2").map((s) => s.chunk_id)).toEqual(["c3"]);
-    expect(sourcesForAssistantMessage(messages, "a1").map((s) => s.chunk_id)).toEqual(["c1", "c2"]);
+    expect(
+      sourcesForAssistantMessage(messages, "a2").map((s) => s.chunk_id),
+    ).toEqual(["c3"]);
+    expect(
+      sourcesForAssistantMessage(messages, "a1").map((s) => s.chunk_id),
+    ).toEqual(["c1", "c2"]);
   });
 
   test("carries the backend citation_no through parsing", () => {
     const hybrid = {
-      results: [{ chunk_id: "c1", doc_name: "手册.pdf", page: 3, heading_path: [], text: "切片", score: 0.9, citation_no: 4 }],
+      results: [
+        {
+          chunk_id: "c1",
+          doc_name: "手册.pdf",
+          page: 3,
+          heading_path: [],
+          text: "切片",
+          score: 0.9,
+          citation_no: 4,
+        },
+      ],
     };
-    expect(parseRetrievalToolContent("knowledge_search", JSON.stringify(hybrid))[0]?.citation_nos).toEqual([4]);
+    expect(
+      parseRetrievalToolContent("knowledge_search", JSON.stringify(hybrid))[0]
+        ?.citation_nos,
+    ).toEqual([4]);
   });
 
   test("dedupe merges citation numbers of every call onto one source (production overlap repro)", () => {
@@ -100,19 +169,91 @@ describe("sourcesForAssistantMessage", () => {
     // otherwise the model's [9]-[12] marks dangle.
     const first5 = {
       results: [
-        { chunk_id: "cA", doc_name: "a.md", page: null, heading_path: [], text: "切片A", score: 0.9, citation_no: 4 },
-        { chunk_id: "cB", doc_name: "b.md", page: null, heading_path: [], text: "切片B", score: 0.8, citation_no: 5 },
-        { chunk_id: "cD", doc_name: "d.md", page: null, heading_path: [], text: "切片D", score: 0.7, citation_no: 6 },
-        { chunk_id: "cC", doc_name: "c.md", page: null, heading_path: [], text: "切片C", score: 0.6, citation_no: 7 },
-        { chunk_id: "cE", doc_name: "e.md", page: null, heading_path: [], text: "切片E", score: 0.5, citation_no: 8 },
+        {
+          chunk_id: "cA",
+          doc_name: "a.md",
+          page: null,
+          heading_path: [],
+          text: "切片A",
+          score: 0.9,
+          citation_no: 4,
+        },
+        {
+          chunk_id: "cB",
+          doc_name: "b.md",
+          page: null,
+          heading_path: [],
+          text: "切片B",
+          score: 0.8,
+          citation_no: 5,
+        },
+        {
+          chunk_id: "cD",
+          doc_name: "d.md",
+          page: null,
+          heading_path: [],
+          text: "切片D",
+          score: 0.7,
+          citation_no: 6,
+        },
+        {
+          chunk_id: "cC",
+          doc_name: "c.md",
+          page: null,
+          heading_path: [],
+          text: "切片C",
+          score: 0.6,
+          citation_no: 7,
+        },
+        {
+          chunk_id: "cE",
+          doc_name: "e.md",
+          page: null,
+          heading_path: [],
+          text: "切片E",
+          score: 0.5,
+          citation_no: 8,
+        },
       ],
     };
     const second4 = {
       results: [
-        { chunk_id: "cA", doc_name: "a.md", page: null, heading_path: [], text: "证据A", score: 0.7, citation_no: 9 },
-        { chunk_id: "cB", doc_name: "b.md", page: null, heading_path: [], text: "证据B", score: 0.6, citation_no: 10 },
-        { chunk_id: "cC", doc_name: "c.md", page: null, heading_path: [], text: "证据C", score: 0.5, citation_no: 11 },
-        { chunk_id: "cD", doc_name: "d.md", page: null, heading_path: [], text: "证据D", score: 0.4, citation_no: 12 },
+        {
+          chunk_id: "cA",
+          doc_name: "a.md",
+          page: null,
+          heading_path: [],
+          text: "证据A",
+          score: 0.7,
+          citation_no: 9,
+        },
+        {
+          chunk_id: "cB",
+          doc_name: "b.md",
+          page: null,
+          heading_path: [],
+          text: "证据B",
+          score: 0.6,
+          citation_no: 10,
+        },
+        {
+          chunk_id: "cC",
+          doc_name: "c.md",
+          page: null,
+          heading_path: [],
+          text: "证据C",
+          score: 0.5,
+          citation_no: 11,
+        },
+        {
+          chunk_id: "cD",
+          doc_name: "d.md",
+          page: null,
+          heading_path: [],
+          text: "证据D",
+          score: 0.4,
+          citation_no: 12,
+        },
       ],
     };
     const messages = [
@@ -126,7 +267,13 @@ describe("sourcesForAssistantMessage", () => {
     expect(sources).toHaveLength(5);
     // Sorted by each card's smallest citation_no (NOT tool-completion order),
     // so the array position is the stable display number.
-    expect(sources.map((s) => s.chunk_id)).toEqual(["cA", "cB", "cD", "cC", "cE"]);
+    expect(sources.map((s) => s.chunk_id)).toEqual([
+      "cA",
+      "cB",
+      "cD",
+      "cC",
+      "cE",
+    ]);
     const byId = new Map(sources.map((s) => [s.chunk_id, s]));
     expect(byId.get("cA")?.citation_nos).toEqual([4, 9]);
     expect(byId.get("cB")?.citation_nos).toEqual([5, 10]);
@@ -141,10 +288,30 @@ describe("sourcesForAssistantMessage", () => {
 
   test("sorts cards by their smallest citation_no regardless of tool-completion order", () => {
     const first = {
-      results: [{ chunk_id: "cB", doc_name: "b.md", page: null, heading_path: [], text: "切片", score: 0.9, citation_no: 3 }],
+      results: [
+        {
+          chunk_id: "cB",
+          doc_name: "b.md",
+          page: null,
+          heading_path: [],
+          text: "切片",
+          score: 0.9,
+          citation_no: 3,
+        },
+      ],
     };
     const second = {
-      results: [{ chunk_id: "cA", doc_name: "a.md", page: null, heading_path: [], text: "证据", score: 0.5, citation_no: 4 }],
+      results: [
+        {
+          chunk_id: "cA",
+          doc_name: "a.md",
+          page: null,
+          heading_path: [],
+          text: "证据",
+          score: 0.5,
+          citation_no: 4,
+        },
+      ],
     };
     const messages = [
       human("h1"),
@@ -152,7 +319,9 @@ describe("sourcesForAssistantMessage", () => {
       toolMessage("knowledge_search", first, "t2"),
       ai("a1"),
     ];
-    expect(sourcesForAssistantMessage(messages, "a1").map((s) => s.chunk_id)).toEqual(["cB", "cA"]);
+    expect(
+      sourcesForAssistantMessage(messages, "a1").map((s) => s.chunk_id),
+    ).toEqual(["cB", "cA"]);
   });
 
   test("returns nothing for an answer without retrieval", () => {

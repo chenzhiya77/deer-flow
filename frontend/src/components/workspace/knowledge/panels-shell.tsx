@@ -1,7 +1,15 @@
 "use client";
 
 import { PanelLeftOpenIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import type { Layout, PanelImperativeHandle } from "react-resizable-panels";
 import { Toaster } from "sonner";
 
@@ -91,7 +99,9 @@ export function KnowledgePanelsShell({
   // Intent-driven fold phase: "folding" from the click until the CSS
   // transition itself reports done (or the drag settles), never from
   // per-frame measurement.
-  const [phase, setPhase] = useState<"expanded" | "folding" | "collapsed">("expanded");
+  const [phase, setPhase] = useState<"expanded" | "folding" | "collapsed">(
+    "expanded",
+  );
   // The direction of the current programmatic fold; picks the content fade
   // curve. Width phases alone cannot tell the two mid-fades apart.
   const [collapsing, setCollapsing] = useState(false);
@@ -181,7 +191,9 @@ export function KnowledgePanelsShell({
 
   const collapseLeft = useCallback(() => {
     if (asideRef.current) {
-      setFrozenWidth(asideRef.current.offsetWidth || lastWidthRef.current || null);
+      setFrozenWidth(
+        asideRef.current.offsetWidth || lastWidthRef.current || null,
+      );
     }
     setCollapsing(true);
     setPhase("folding");
@@ -278,99 +290,107 @@ export function KnowledgePanelsShell({
         scrollHideDelay={2000}
         type="scroll"
       >
-      <ResizablePanelGroup
-        className="size-full min-w-[52rem] min-h-0"
-        orientation="horizontal"
-        onLayoutChanged={handleLayoutChanged}
-      >
-        <ResizablePanel
-          className="min-h-0"
-          collapsible
-          collapsedSize={0}
-          defaultSize={224}
-          id={LEFT_PANEL_ID}
-          maxSize={360}
-          minSize={176}
-          panelRef={leftPanelRef}
+        <ResizablePanelGroup
+          className="size-full min-h-0 min-w-[52rem]"
+          orientation="horizontal"
+          onLayoutChanged={handleLayoutChanged}
         >
-          <aside
-            aria-hidden={collapsedEnough}
-            className={cn(
-              "size-full overflow-hidden border-r",
-              collapsedEnough && "pointer-events-none opacity-0",
-              // Collapsing: stay legible for most of the fold, then fade out
-              // over its second half. The opacity-0 TARGET is armed here too —
-              // arming it only at the settle snapped it in one frame (the
-              // transition class leaves at the same time) — the collapse's
-              // end jitter. Expanding: fade in over the full curve.
-              foldAnimating &&
-                collapsing &&
-                "transition-opacity duration-100 delay-100 ease-[cubic-bezier(0.4,0,1,1)] opacity-0",
-              foldAnimating && !collapsing && "transition-opacity duration-200 ease-linear",
-            )}
-            ref={asideRef}
+          <ResizablePanel
+            className="min-h-0"
+            collapsible
+            collapsedSize={0}
+            defaultSize={224}
+            id={LEFT_PANEL_ID}
+            maxSize={360}
+            minSize={176}
+            panelRef={leftPanelRef}
           >
-            {/* Frozen at the fold's start so the column clips the content
-                instead of squeezing it into per-character wrapping. */}
-            <div
-              className="h-full"
-              style={frozenWidth !== null ? { width: frozenWidth } : undefined}
+            <aside
+              aria-hidden={collapsedEnough}
+              className={cn(
+                "size-full overflow-hidden border-r",
+                collapsedEnough && "pointer-events-none opacity-0",
+                // Collapsing: stay legible for most of the fold, then fade out
+                // over its second half. The opacity-0 TARGET is armed here too —
+                // arming it only at the settle snapped it in one frame (the
+                // transition class leaves at the same time) — the collapse's
+                // end jitter. Expanding: fade in over the full curve.
+                foldAnimating &&
+                  collapsing &&
+                  "opacity-0 transition-opacity delay-100 duration-100 ease-[cubic-bezier(0.4,0,1,1)]",
+                foldAnimating &&
+                  !collapsing &&
+                  "transition-opacity duration-200 ease-linear",
+              )}
+              ref={asideRef}
             >
-              {leftNode}
-            </div>
-          </aside>
-        </ResizablePanel>
-        <ResizableHandle
-          className={cn(
-            "hover:bg-accent w-0.5 transition-colors",
-            // Collapsed: interactivity off, paint ON (2026-09-03). Fading this
-            // gutter out left its 2px layout slot as a strip of bare
-            // bg-background between the app sidebar's border-r and the middle
-            // column, so the document table's left edge — and with it the
-            // header hairline and a selected row's background — began 2px
-            // short of the divider, while the right gutter (section border-r +
-            // a painted handle) sat flush against its own. Painting it also
-            // makes the collapsed divider the same 2.67px bar the expanded
-            // state already drew (aside border-r + handle), so the fold's last
-            // frame has nothing to snap back: the fade this replaced needed a
-            // matching in-flight transition to hide a vanish that no longer
-            // happens.
-            collapsedEnough && "pointer-events-none",
-          )}
-          disabled={collapsedEnough}
-        />
-        <ResizablePanel className="min-h-0 min-w-0" id="documents" minSize={320}>
-          <section className="relative size-full border-r">
-            {middleNode}
-            {/* 知识库中栏专属通知面（2026-09-08）：sonner 全局 Toaster 是视口 fixed
+              {/* Frozen at the fold's start so the column clips the content
+                instead of squeezing it into per-character wrapping. */}
+              <div
+                className="h-full"
+                style={
+                  frozenWidth !== null ? { width: frozenWidth } : undefined
+                }
+              >
+                {leftNode}
+              </div>
+            </aside>
+          </ResizablePanel>
+          <ResizableHandle
+            className={cn(
+              "hover:bg-accent w-0.5 transition-colors",
+              // Collapsed: interactivity off, paint ON (2026-09-03). Fading this
+              // gutter out left its 2px layout slot as a strip of bare
+              // bg-background between the app sidebar's border-r and the middle
+              // column, so the document table's left edge — and with it the
+              // header hairline and a selected row's background — began 2px
+              // short of the divider, while the right gutter (section border-r +
+              // a painted handle) sat flush against its own. Painting it also
+              // makes the collapsed divider the same 2.67px bar the expanded
+              // state already drew (aside border-r + handle), so the fold's last
+              // frame has nothing to snap back: the fade this replaced needed a
+              // matching in-flight transition to hide a vanish that no longer
+              // happens.
+              collapsedEnough && "pointer-events-none",
+            )}
+            disabled={collapsedEnough}
+          />
+          <ResizablePanel
+            className="min-h-0 min-w-0"
+            id="documents"
+            minSize={320}
+          >
+            <section className="relative size-full border-r">
+              {middleNode}
+              {/* 知识库中栏专属通知面（2026-09-08）：sonner 全局 Toaster 是视口 fixed
                 右下角，在本页正好压住会话栏输入框；改在中栏内挂 absolute 的 scoped
                 Toaster（sonner 2.x 按 toasterId 分流，与全局侧互不重复），通知落在
                 「知识库详情这栏」的右下角。宽度随栏收（中栏最窄 320 < toast 默认
                 356），绝不溢出到会话栏。 */}
-            <Toaster
-              closeButton
-              id={KB_TOASTER_ID}
-              position="bottom-right"
-              style={
-                {
-                  position: "absolute",
-                  "--width": "min(356px, calc(100% - 32px))",
-                } as CSSProperties
-              }
-            />
-          </section>
-        </ResizablePanel>
-        <ResizableHandle className="hover:bg-accent w-0.5 transition-colors" />
-        <ResizablePanel
-          className="min-h-0"
-          defaultSize={352}
-          id="chat"
-          maxSize={560}
-          minSize={320}
-        >
-          <aside className="size-full">{right}</aside>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+              <Toaster
+                closeButton
+                id={KB_TOASTER_ID}
+                position="bottom-right"
+                style={
+                  {
+                    position: "absolute",
+                    "--width": "min(356px, calc(100% - 32px))",
+                  } as CSSProperties
+                }
+              />
+            </section>
+          </ResizablePanel>
+          <ResizableHandle className="hover:bg-accent w-0.5 transition-colors" />
+          <ResizablePanel
+            className="min-h-0"
+            defaultSize={352}
+            id="chat"
+            maxSize={560}
+            minSize={320}
+          >
+            <aside className="size-full">{right}</aside>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </ScrollArea>
     </div>
   );

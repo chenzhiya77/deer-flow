@@ -90,7 +90,10 @@ export function WorkspaceNavChatList() {
               isActive={pathname.startsWith("/workspace/knowledge")}
               asChild
             >
-              <Link className="text-muted-foreground" href="/workspace/knowledge">
+              <Link
+                className="text-muted-foreground"
+                href="/workspace/knowledge"
+              >
                 <LibraryBig />
                 <span>{t.sidebar.knowledge}</span>
               </Link>

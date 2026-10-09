@@ -50,7 +50,11 @@ import {
   type HumanInputResponse,
 } from "@/core/messages/human-input";
 import { useModels } from "@/core/models/hooks";
-import { useDeleteThread, useInfiniteThreads, useThreadStream } from "@/core/threads/hooks";
+import {
+  useDeleteThread,
+  useInfiniteThreads,
+  useThreadStream,
+} from "@/core/threads/hooks";
 import { uuid } from "@/core/utils/uuid";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +93,7 @@ export function KnowledgeChatPanel({
 
   const [threadId, setThreadId] = useState(() => uuid());
   const [isNewThread, setIsNewThread] = useState(true);
-    const expandDisabled = isNewThread || !agentsApiEnabled;
+  const expandDisabled = isNewThread || !agentsApiEnabled;
   const [draft, setDraft] = useState("");
 
   // 切库即新对话（还原 `2711a35a2` 的重置，`52b0dd76d` 重构时误删）：
@@ -134,7 +138,8 @@ export function KnowledgeChatPanel({
 
   // The trigger shows the effective model: the pick (remembered or made here),
   // else the backend's global default (models[0]).
-  const activeModel = models.find((m) => m.name === selectedModelName) ?? models[0];
+  const activeModel =
+    models.find((m) => m.name === selectedModelName) ?? models[0];
 
   const handleModelSelect = useCallback(
     (name: string) => {
@@ -217,7 +222,7 @@ export function KnowledgeChatPanel({
     setIsNewThread(true);
     setDraft("");
   }, []);
-const handleSelectThread = useCallback((nextThreadId: string) => {
+  const handleSelectThread = useCallback((nextThreadId: string) => {
     setThreadId(nextThreadId);
     setIsNewThread(false);
   }, []);
@@ -225,7 +230,8 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
   // Apply KB-thread deep link from URL query params (applied ONCE like a popover selection; does not override user-initiated new-chat).
   const appliedThreadRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!requestedThreadId || requestedThreadId === appliedThreadRef.current) return;
+    if (!requestedThreadId || requestedThreadId === appliedThreadRef.current)
+      return;
     appliedThreadRef.current = requestedThreadId;
     handleSelectThread(requestedThreadId);
   }, [requestedThreadId, handleSelectThread]);
@@ -258,11 +264,20 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
       { text, files: [] },
       undefined,
       knowledgeScopeSnapshot
-        ? { additionalKwargs: { [KNOWLEDGE_SCOPE_KEY]: knowledgeScopeSnapshot } }
+        ? {
+            additionalKwargs: { [KNOWLEDGE_SCOPE_KEY]: knowledgeScopeSnapshot },
+          }
         : undefined,
     );
     setDraft("");
-  }, [draft, kbId, knowledgeScopeSnapshot, sendMessage, thread.isLoading, threadId]);
+  }, [
+    draft,
+    kbId,
+    knowledgeScopeSnapshot,
+    sendMessage,
+    thread.isLoading,
+    threadId,
+  ]);
 
   const renderMessageFooter = useCallback(
     (message: Message) => {
@@ -332,7 +347,10 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col" data-testid="knowledge-chat-panel">
+    <div
+      className="flex h-full min-h-0 flex-col"
+      data-testid="knowledge-chat-panel"
+    >
       <header className="flex h-12 shrink-0 items-center gap-1 border-b px-3">
         <div className="min-w-0 flex-1 truncate text-sm font-medium">
           {kb?.name ?? ""}
@@ -388,7 +406,7 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
                               be cleaned up in one go. */}
                           <button
                             aria-label={tc.deleteChat}
-                            className="text-muted-foreground hover:text-foreground ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded opacity-0 transition-opacity focus-visible:opacity-100 group-hover/history-item:opacity-100"
+                            className="text-muted-foreground hover:text-foreground ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded opacity-0 transition-opacity group-hover/history-item:opacity-100 focus-visible:opacity-100"
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation();
@@ -407,7 +425,11 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-        <Tooltip content={agentsApiEnabled ? tc.expandToFullPage : tc.expandDisabledAgentsOff}>
+        <Tooltip
+          content={
+            agentsApiEnabled ? tc.expandToFullPage : tc.expandDisabledAgentsOff
+          }
+        >
           {/* The span stays hoverable so the tooltip still shows while the
               link itself is pointer-events-none (disabled). */}
           <span className="inline-flex">
@@ -418,7 +440,9 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
                 "hover:bg-accent hover:text-accent-foreground inline-flex size-8 items-center justify-center rounded-md",
                 expandDisabled && "pointer-events-none opacity-50",
               )}
-              href={expandDisabled ? "#" : `/workspace/agents/rag/chats/${threadId}`}
+              href={
+                expandDisabled ? "#" : `/workspace/agents/rag/chats/${threadId}`
+              }
             >
               <ArrowUpRightIcon className="size-4" />
             </Link>
@@ -441,7 +465,9 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
           />
         ) : (
           <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
-            <div className="text-sm font-medium">{t.knowledge.selectKbTitle}</div>
+            <div className="text-sm font-medium">
+              {t.knowledge.selectKbTitle}
+            </div>
             <div className="text-xs">{t.knowledge.selectKbHint}</div>
           </div>
         )}
@@ -450,7 +476,7 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
       {/* Composer styled after the home-page InputBox: one rounded container
           holds the textarea, the deep-retrieval toggle, and the send button. */}
       <div className="shrink-0 border-t p-3">
-        <div className="focus-within:border-ring focus-within:ring-ring/50 rounded-xl border bg-white/80 shadow-xs transition-colors focus-within:ring-[3px] dark:bg-background/80">
+        <div className="focus-within:border-ring focus-within:ring-ring/50 dark:bg-background/80 rounded-xl border bg-white/80 shadow-xs transition-colors focus-within:ring-[3px]">
           <Textarea
             className="max-h-32 min-h-14 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
             disabled={!kb || thread.isLoading}
@@ -458,7 +484,11 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+              if (
+                event.key === "Enter" &&
+                !event.shiftKey &&
+                !event.nativeEvent.isComposing
+              ) {
                 event.preventDefault();
                 handleSubmit();
               }
@@ -466,15 +496,22 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
           />
           <div className="flex items-center justify-between gap-2 px-2 pb-2">
             <div className="flex min-w-0 items-center gap-2">
-              <ModelSelector open={modelDialogOpen} onOpenChange={setModelDialogOpen}>
+              <ModelSelector
+                open={modelDialogOpen}
+                onOpenChange={setModelDialogOpen}
+              >
                 <ModelSelectorTrigger asChild>
                   <button
                     aria-label={tc.selectModel}
-                    className="text-muted-foreground hover:text-foreground flex min-w-0 max-w-40 items-center gap-1 rounded-md px-1.5 py-1 text-xs transition-colors disabled:pointer-events-none disabled:opacity-50"
+                    className="text-muted-foreground hover:text-foreground flex max-w-40 min-w-0 items-center gap-1 rounded-md px-1.5 py-1 text-xs transition-colors disabled:pointer-events-none disabled:opacity-50"
                     disabled={!kb || models.length === 0}
                     type="button"
                   >
-                    <span className="truncate">{activeModel?.display_name ?? activeModel?.name ?? tc.selectModel}</span>
+                    <span className="truncate">
+                      {activeModel?.display_name ??
+                        activeModel?.name ??
+                        tc.selectModel}
+                    </span>
                     <ChevronDownIcon className="size-3 shrink-0" />
                   </button>
                 </ModelSelectorTrigger>
@@ -488,8 +525,12 @@ const handleSelectThread = useCallback((nextThreadId: string) => {
                         onSelect={() => handleModelSelect(m.name)}
                       >
                         <div className="flex min-w-0 flex-1 flex-col">
-                          <ModelSelectorName>{m.display_name ?? m.name}</ModelSelectorName>
-                          <span className="text-muted-foreground truncate text-[10px]">{m.model}</span>
+                          <ModelSelectorName>
+                            {m.display_name ?? m.name}
+                          </ModelSelectorName>
+                          <span className="text-muted-foreground truncate text-[10px]">
+                            {m.model}
+                          </span>
                         </div>
                         {m.name === selectedModelName ? (
                           <CheckIcon className="ml-auto size-4" />

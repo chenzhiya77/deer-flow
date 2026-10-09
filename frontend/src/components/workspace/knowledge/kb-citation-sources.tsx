@@ -9,7 +9,10 @@ import type { KnowledgeCitation } from "@/core/knowledge/types";
 import { cn } from "@/lib/utils";
 
 import { ChunkCard } from "./chunk-card";
-import { KB_CITATION_JUMP_EVENT, type CitationJumpDetail } from "./citation-mark";
+import {
+  KB_CITATION_JUMP_EVENT,
+  type CitationJumpDetail,
+} from "./citation-mark";
 
 /**
  * Citation cards under an assistant answer (spec §4.6/§3.6, phase-2 batch-1
@@ -88,7 +91,9 @@ export function KbCitationSources({
       window.setTimeout(() => {
         // Scoped to this strip — a document-wide selector could scroll to a
         // highlight left over in ANOTHER message's sources.
-        rootRef.current?.querySelector(`[data-citation-highlight="true"]`)?.scrollIntoView?.({ block: "nearest" });
+        rootRef.current
+          ?.querySelector(`[data-citation-highlight="true"]`)
+          ?.scrollIntoView?.({ block: "nearest" });
       }, 0);
       window.setTimeout(() => setHighlightNumbers([]), HIGHLIGHT_MS);
     };
@@ -102,10 +107,17 @@ export function KbCitationSources({
 
   const visibleGroups = showAll ? groups : groups.slice(0, COLLAPSED_LIMIT);
   const expandedSource =
-    groups.flatMap((group) => group.items).find((item) => item.citation.chunk_id === expandedChunkId)?.citation ?? null;
+    groups
+      .flatMap((group) => group.items)
+      .find((item) => item.citation.chunk_id === expandedChunkId)?.citation ??
+    null;
 
   return (
-    <div ref={rootRef} className="mt-3 flex flex-col gap-1.5" data-testid="kb-citation-sources">
+    <div
+      ref={rootRef}
+      className="mt-3 flex flex-col gap-1.5"
+      data-testid="kb-citation-sources"
+    >
       <button
         aria-expanded={expanded}
         className="text-muted-foreground hover:bg-muted/60 flex w-fit items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors"
@@ -114,8 +126,14 @@ export function KbCitationSources({
       >
         <BookOpenIcon className="size-3.5" />
         <span>{tc.sourcesTitle(sources.length)}</span>
-        <span className="text-muted-foreground/80">· {tc.chunkSources(sources.length)}</span>
-        {expanded ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
+        <span className="text-muted-foreground/80">
+          · {tc.chunkSources(sources.length)}
+        </span>
+        {expanded ? (
+          <ChevronDown className="size-3.5" />
+        ) : (
+          <ChevronRight className="size-3.5" />
+        )}
       </button>
 
       {expanded && (
@@ -129,48 +147,65 @@ export function KbCitationSources({
             // position (the raw backend citation_nos are internal handles and
             // never shown), so the visible number space stays 1..N continuous
             // and one card carries exactly one number per merged slice.
-            const numbers = group.items.map((item) => `[${item.number}]`).join("·");
+            const numbers = group.items
+              .map((item) => `[${item.number}]`)
+              .join("·");
             return (
               <li key={group.key}>
                 <button
                   className={cn(
                     "hover:bg-muted/60 flex w-full flex-col gap-0.5 rounded-md border px-2.5 py-1.5 text-left transition-colors",
-                    isHighlighted && "bg-muted/60 ring-1 ring-primary/40",
+                    isHighlighted && "bg-muted/60 ring-primary/40 ring-1",
                   )}
                   data-citation-highlight={isHighlighted ? "true" : undefined}
                   data-testid={`citation-card-chunk-${first.citation.chunk_id}`}
                   type="button"
                   onClick={() => {
-                    setExpandedChunkId((current) => (current === first.citation.chunk_id ? null : first.citation.chunk_id));
+                    setExpandedChunkId((current) =>
+                      current === first.citation.chunk_id
+                        ? null
+                        : first.citation.chunk_id,
+                    );
                   }}
                 >
                   <span className="flex w-full items-center gap-2 text-xs">
-                    <span className="text-muted-foreground shrink-0 font-mono">{numbers}</span>
+                    <span className="text-muted-foreground shrink-0 font-mono">
+                      {numbers}
+                    </span>
                     <Badge className="shrink-0 text-[10px]" variant="secondary">
                       {tc.sourceTypeChunk}
                     </Badge>
-                    <span className="min-w-0 flex-1 truncate font-medium">{group.docName}</span>
+                    <span className="min-w-0 flex-1 truncate font-medium">
+                      {group.docName}
+                    </span>
                     {first.citation.page != null && (
-                      <span className="text-muted-foreground shrink-0">{tc.pageLabel(first.citation.page)}</span>
+                      <span className="text-muted-foreground shrink-0">
+                        {tc.pageLabel(first.citation.page)}
+                      </span>
                     )}
                   </span>
                   {first.citation.heading_path.length > 0 && (
-                    <span className="text-muted-foreground w-full truncate text-xs">{first.citation.heading_path.join(" / ")}</span>
+                    <span className="text-muted-foreground w-full truncate text-xs">
+                      {first.citation.heading_path.join(" / ")}
+                    </span>
                   )}
-                  <span className="text-muted-foreground line-clamp-2 w-full text-xs">{first.citation.text.slice(0, 120)}</span>
+                  <span className="text-muted-foreground line-clamp-2 w-full text-xs">
+                    {first.citation.text.slice(0, 120)}
+                  </span>
                 </button>
-                {expandedChunkId === first.citation.chunk_id && expandedSource && (
-                  <div className="mt-1 mb-1.5 ml-6">
-                    {/* chunk_id 形如 `{doc_id}#0001`，前段即 doc_id */}
-                    <ChunkCard
-                      docId={expandedSource.chunk_id.split("#")[0]}
-                      docName={expandedSource.doc_name}
-                      kbId={kbId}
-                      page={expandedSource.page}
-                      text={expandedSource.text}
-                    />
-                  </div>
-                )}
+                {expandedChunkId === first.citation.chunk_id &&
+                  expandedSource && (
+                    <div className="mt-1 mb-1.5 ml-6">
+                      {/* chunk_id 形如 `{doc_id}#0001`，前段即 doc_id */}
+                      <ChunkCard
+                        docId={expandedSource.chunk_id.split("#")[0]}
+                        docName={expandedSource.doc_name}
+                        kbId={kbId}
+                        page={expandedSource.page}
+                        text={expandedSource.text}
+                      />
+                    </div>
+                  )}
               </li>
             );
           })}

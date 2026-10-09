@@ -7,16 +7,29 @@
  * and highlights the matching card.
  */
 import { afterEach, describe, expect, it, rs } from "@rstest/core";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 
 rs.mock("@/components/workspace/messages/markdown-content", () => ({
   // 渲染 content 而不是 null：ChunkCard 查看态改走 MarkdownContent 后
   // （2026-08-22 展示增强），展开断言依赖全文真实出现在 DOM 里；
   // rs.fn 保留调用记录供 KbAssistantContent 断言 props。
-  MarkdownContent: rs.fn(({ content }: { content: string }) => <div data-testid="mock-markdown-content">{content}</div>),
+  MarkdownContent: rs.fn(({ content }: { content: string }) => (
+    <div data-testid="mock-markdown-content">{content}</div>
+  )),
 }));
 
-import { CitationMark, CitationPreviewCard, createCitationSupRenderer, KB_CITATION_JUMP_EVENT } from "@/components/workspace/knowledge/citation-mark";
+import {
+  CitationMark,
+  CitationPreviewCard,
+  createCitationSupRenderer,
+  KB_CITATION_JUMP_EVENT,
+} from "@/components/workspace/knowledge/citation-mark";
 import { KbAssistantContent } from "@/components/workspace/knowledge/kb-assistant-content";
 import { KbCitationSources } from "@/components/workspace/knowledge/kb-citation-sources";
 import { MarkdownContent } from "@/components/workspace/messages/markdown-content";
@@ -54,7 +67,9 @@ const SECOND_1: KnowledgeCitation = {
 
 function renderWithI18n(node: React.ReactNode) {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       {node}
     </I18nContext.Provider>,
   );
@@ -97,10 +112,18 @@ describe("CitationMark", () => {
     const listener = rs.fn();
     window.addEventListener(KB_CITATION_JUMP_EVENT, listener);
     try {
-      renderWithI18n(<CitationMark items={[{ citation: SECOND_1, index: 2 }]} messageId="m1" />);
+      renderWithI18n(
+        <CitationMark
+          items={[{ citation: SECOND_1, index: 2 }]}
+          messageId="m1"
+        />,
+      );
       fireEvent.click(screen.getByRole("button"));
       expect(listener).toHaveBeenCalled();
-      expect(listener.mock.calls[0]![0].detail).toEqual({ messageId: "m1", indices: [2] });
+      expect(listener.mock.calls[0]![0].detail).toEqual({
+        messageId: "m1",
+        indices: [2],
+      });
     } finally {
       window.removeEventListener(KB_CITATION_JUMP_EVENT, listener);
     }
@@ -121,7 +144,10 @@ describe("CitationMark", () => {
       const mark = screen.getByRole("button", { name: "引用 2：手册.pdf" });
       expect(mark.textContent).toBe("2");
       fireEvent.click(mark);
-      expect(listener.mock.calls[0]![0].detail).toEqual({ messageId: "m1", indices: [2] });
+      expect(listener.mock.calls[0]![0].detail).toEqual({
+        messageId: "m1",
+        indices: [2],
+      });
     } finally {
       window.removeEventListener(KB_CITATION_JUMP_EVENT, listener);
     }
@@ -139,9 +165,14 @@ describe("CitationMark", () => {
       const mark = screen.getByRole("button");
       // raw 9 → display 2, raw 5 → display 1 ⇒ sorted "1,2" (never "2,1" or "2,1,2")
       expect(mark.textContent).toBe("1,2");
-      expect(mark.getAttribute("aria-label")).toBe("引用 1：DeerFlow; 引用 2：手册.pdf");
+      expect(mark.getAttribute("aria-label")).toBe(
+        "引用 1：DeerFlow; 引用 2：手册.pdf",
+      );
       fireEvent.click(mark);
-      expect(listener.mock.calls[0]![0].detail).toEqual({ messageId: "m1", indices: [1, 2] });
+      expect(listener.mock.calls[0]![0].detail).toEqual({
+        messageId: "m1",
+        indices: [1, 2],
+      });
     } finally {
       window.removeEventListener(KB_CITATION_JUMP_EVENT, listener);
     }
@@ -150,7 +181,9 @@ describe("CitationMark", () => {
   it("keeps the pill for resolvable numbers and plain sups for stale ones (mixed group)", () => {
     const chunk: KnowledgeCitation = { ...CHUNK_1, citation_nos: [9] };
     const Sup = createCitationSupRenderer([chunk], "m1");
-    const { container } = renderWithI18n(<Sup data-citation-indices="9 7">9 7</Sup>);
+    const { container } = renderWithI18n(
+      <Sup data-citation-indices="9 7">9 7</Sup>,
+    );
     const mark = screen.getByRole("button");
     expect(mark.textContent).toBe("1");
     const plain = container.querySelectorAll("sup");
@@ -161,17 +194,32 @@ describe("CitationMark", () => {
 
 describe("KbAssistantContent (deferred superscripts)", () => {
   function markdownProps() {
-    return (MarkdownContent as unknown as ReturnType<typeof rs.fn>).mock.calls[0]?.[0];
+    return (MarkdownContent as unknown as ReturnType<typeof rs.fn>).mock
+      .calls[0]?.[0];
   }
 
   it("enables the citation plugin only after streaming ends", () => {
-    renderWithI18n(<KbAssistantContent content="回答 [1]" isLoading={true} messageId="m1" sources={[CHUNK_1]} />);
+    renderWithI18n(
+      <KbAssistantContent
+        content="回答 [1]"
+        isLoading={true}
+        messageId="m1"
+        sources={[CHUNK_1]}
+      />,
+    );
     expect(markdownProps().rehypePlugins ?? []).toHaveLength(0);
 
     cleanup();
     rs.clearAllMocks();
 
-    renderWithI18n(<KbAssistantContent content="回答 [1]" isLoading={false} messageId="m1" sources={[CHUNK_1]} />);
+    renderWithI18n(
+      <KbAssistantContent
+        content="回答 [1]"
+        isLoading={false}
+        messageId="m1"
+        sources={[CHUNK_1]}
+      />,
+    );
     const props = markdownProps();
     expect(props.rehypePlugins).toHaveLength(1);
     expect(props.components.sup).toBeTypeOf("function");
@@ -180,7 +228,9 @@ describe("KbAssistantContent (deferred superscripts)", () => {
 
 describe("KbCitationSources (collapsed by default)", () => {
   it("renders a one-line collapsed entry with the chunk count", () => {
-    renderWithI18n(<KbCitationSources messageId="m1" sources={[CHUNK_1, SECOND_1]} />);
+    renderWithI18n(
+      <KbCitationSources messageId="m1" sources={[CHUNK_1, SECOND_1]} />,
+    );
     expect(screen.getByText(/参考来源 · 2/)).toBeTruthy();
     expect(screen.getByText(/文档×2/)).toBeTruthy();
     // collapsed: no source cards yet
@@ -189,7 +239,12 @@ describe("KbCitationSources (collapsed by default)", () => {
   });
 
   it("expands into merged cards (same document combined, numbers shown together)", () => {
-    renderWithI18n(<KbCitationSources messageId="m1" sources={[CHUNK_1, CHUNK_2_SAME_DOC, SECOND_1]} />);
+    renderWithI18n(
+      <KbCitationSources
+        messageId="m1"
+        sources={[CHUNK_1, CHUNK_2_SAME_DOC, SECOND_1]}
+      />,
+    );
     fireEvent.click(screen.getByText(/参考来源 · 3/));
     // two cards: 手册.pdf merges [1]+[2]; DeerFlow is [3]
     const cards = screen.getAllByRole("listitem");
@@ -200,7 +255,9 @@ describe("KbCitationSources (collapsed by default)", () => {
     expect(cards[1]!.textContent).toContain("DeerFlow");
     expect(cards[1]!.textContent).toContain("文档");
     // excerpt truncated to ~120 chars
-    expect(cards[0]!.textContent?.length ?? 0).toBeLessThan(CHUNK_1.text.length + 60);
+    expect(cards[0]!.textContent?.length ?? 0).toBeLessThan(
+      CHUNK_1.text.length + 60,
+    );
   });
 
   it("caps at 5 cards and reveals the rest via 查看全部", () => {
@@ -229,7 +286,11 @@ describe("KbCitationSources (collapsed by default)", () => {
     renderWithI18n(<KbCitationSources messageId="m1" sources={[CHUNK_1]} />);
     expect(screen.queryByRole("list")).toBeNull();
     act(() => {
-      window.dispatchEvent(new CustomEvent(KB_CITATION_JUMP_EVENT, { detail: { messageId: "m1", indices: [1] } }));
+      window.dispatchEvent(
+        new CustomEvent(KB_CITATION_JUMP_EVENT, {
+          detail: { messageId: "m1", indices: [1] },
+        }),
+      );
     });
     const highlighted = screen.getByTestId("citation-card-chunk-c1");
     expect(highlighted.getAttribute("data-citation-highlight")).toBe("true");
@@ -238,12 +299,26 @@ describe("KbCitationSources (collapsed by default)", () => {
   });
 
   it("highlights every matching card for a merged mark (裁定②)", () => {
-    renderWithI18n(<KbCitationSources messageId="m1" sources={[CHUNK_1, SECOND_1]} />);
+    renderWithI18n(
+      <KbCitationSources messageId="m1" sources={[CHUNK_1, SECOND_1]} />,
+    );
     act(() => {
-      window.dispatchEvent(new CustomEvent(KB_CITATION_JUMP_EVENT, { detail: { messageId: "m1", indices: [1, 2] } }));
+      window.dispatchEvent(
+        new CustomEvent(KB_CITATION_JUMP_EVENT, {
+          detail: { messageId: "m1", indices: [1, 2] },
+        }),
+      );
     });
-    expect(screen.getByTestId("citation-card-chunk-c1").getAttribute("data-citation-highlight")).toBe("true");
-    expect(screen.getByTestId("citation-card-chunk-e1").getAttribute("data-citation-highlight")).toBe("true");
+    expect(
+      screen
+        .getByTestId("citation-card-chunk-c1")
+        .getAttribute("data-citation-highlight"),
+    ).toBe("true");
+    expect(
+      screen
+        .getByTestId("citation-card-chunk-e1")
+        .getAttribute("data-citation-highlight"),
+    ).toBe("true");
   });
 
   it("shows display numbers (sorted positions) even when citations carry backend citation_nos", () => {
@@ -261,7 +336,11 @@ describe("KbCitationSources (collapsed by default)", () => {
   it("ignores jump events for other messages", () => {
     renderWithI18n(<KbCitationSources messageId="m1" sources={[CHUNK_1]} />);
     act(() => {
-      window.dispatchEvent(new CustomEvent(KB_CITATION_JUMP_EVENT, { detail: { messageId: "other", indices: [1] } }));
+      window.dispatchEvent(
+        new CustomEvent(KB_CITATION_JUMP_EVENT, {
+          detail: { messageId: "other", indices: [1] },
+        }),
+      );
     });
     expect(screen.queryByRole("list")).toBeNull();
   });

@@ -59,7 +59,10 @@ const managementMock = rs.hoisted(() => ({
 }));
 const authMock = rs.hoisted(() => ({ useAuth: rs.fn() }));
 rs.mock("@/core/rag/hooks", () => ragHooksMock);
-rs.mock("@/core/models/hooks", () => ({ ...modelHooksMock, MODELS_QUERY_KEY: ["models"] }));
+rs.mock("@/core/models/hooks", () => ({
+  ...modelHooksMock,
+  MODELS_QUERY_KEY: ["models"],
+}));
 rs.mock("@/core/models/management", () => managementMock);
 rs.mock("@/core/auth/AuthProvider", () => authMock);
 rs.mock("@/core/knowledge/hooks", () => knowledgeHooksMock);
@@ -68,9 +71,8 @@ rs.mock("sonner", () => ({
 }));
 
 const { RagConfigRequestError } = await import("@/core/rag/api");
-const { ModelSettingsPage } = await import(
-  "@/components/workspace/settings/model-settings-page"
-);
+const { ModelSettingsPage } =
+  await import("@/components/workspace/settings/model-settings-page");
 
 const M = zhCN.settings.models;
 const F = zhCN.settings.functionalModels;
@@ -129,7 +131,10 @@ const ASR_PROVIDERS = [
   { provider_id: "funasr", default_endpoint: null },
   { provider_id: "whisper", default_endpoint: null },
   { provider_id: "openai-audio", default_endpoint: null },
-  { provider_id: "dashscope", default_endpoint: "https://dashscope.aliyuncs.com" },
+  {
+    provider_id: "dashscope",
+    default_endpoint: "https://dashscope.aliyuncs.com",
+  },
 ];
 
 /** The rerank allowlist's own block: the same rule, its own shape — no `emits_sparse` there. */
@@ -229,7 +234,10 @@ function setRag(
     isLoading: opts.loading ?? false,
     error: opts.error ?? null,
   });
-  ragHooksMock.useSaveRagConfig.mockReturnValue({ mutate: saveMock, isPending: false });
+  ragHooksMock.useSaveRagConfig.mockReturnValue({
+    mutate: saveMock,
+    isPending: false,
+  });
   setMigration();
   // 维度探测与两腿连通点：这些用例不碰它们，保持空闲（结论由各自的行渲染）。
   ragHooksMock.useProbeDimensions.mockReturnValue({
@@ -350,7 +358,13 @@ function setProbe(
 }
 
 /** 重建入口的默认桩：一个库、空闲、未在提交。 */
-function setKnowledge(over: { libraries?: Array<{ id: string; name: string }>; status?: unknown; pending?: boolean } = {}) {
+function setKnowledge(
+  over: {
+    libraries?: Array<{ id: string; name: string }>;
+    status?: unknown;
+    pending?: boolean;
+  } = {},
+) {
   knowledgeHooksMock.useKnowledgeBases.mockReturnValue({
     data: over.libraries ?? [{ id: "kb-1", name: "产品资料" }],
     isLoading: false,
@@ -410,8 +424,18 @@ function renderPage(
 ) {
   modelHooksMock.useModels.mockReturnValue({
     models: [
-      { id: "deepseek-chat", name: "deepseek-chat", model: "deepseek-chat", display_name: "DeepSeek Chat" },
-      { id: "qwen-max", name: "qwen-max", model: "qwen-max", display_name: "Qwen Max" },
+      {
+        id: "deepseek-chat",
+        name: "deepseek-chat",
+        model: "deepseek-chat",
+        display_name: "DeepSeek Chat",
+      },
+      {
+        id: "qwen-max",
+        name: "qwen-max",
+        model: "qwen-max",
+        display_name: "Qwen Max",
+      },
     ],
     tokenUsageEnabled: false,
     isLoading: false,
@@ -421,7 +445,11 @@ function renderPage(
   const managed = models.map((m, index) => ({
     name: String((m.name as string | undefined) ?? `m-${index}`),
     display_name: (m.display_name as string | undefined) ?? null,
-    model: String((m.model as string | undefined) ?? (m.name as string | undefined) ?? `m-${index}`),
+    model: String(
+      (m.model as string | undefined) ??
+        (m.name as string | undefined) ??
+        `m-${index}`,
+    ),
     supports_vision: Boolean(m.supports_vision),
     source: "config",
     enabled: true,
@@ -429,21 +457,26 @@ function renderPage(
     conflict: null,
   }));
   managementMock.loadManagedModels.mockResolvedValue({ models: managed });
-  authMock.useAuth.mockReturnValue({ user: { id: "test-user", system_role: "admin" } });
+  authMock.useAuth.mockReturnValue({
+    user: { id: "test-user", system_role: "admin" },
+  });
 
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   // Seed the shared catalogue query synchronously (same key as the page and the
   // view): the pickers must resolve on first paint, not one microtask later.
   client.setQueryData(["managed-models", "test-user"], { models: managed });
   return render(
     <QueryClientProvider client={client}>
-      <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+      <I18nContext.Provider
+        value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+      >
         <ModelSettingsPage />
       </I18nContext.Provider>
     </QueryClientProvider>,
   );
 }
-
 
 beforeEach(() => {
   saveMock.mockReset();
@@ -467,7 +500,10 @@ describe("functional-model form", () => {
       "value",
       "qwen3.7-text-embedding",
     );
-    expect(screen.getByLabelText(F.embeddingApiKey)).toHaveProperty("value", MASKED);
+    expect(screen.getByLabelText(F.embeddingApiKey)).toHaveProperty(
+      "value",
+      MASKED,
+    );
     expect(screen.getByLabelText(F.rerankApiKey)).toHaveProperty("value", "");
     expect(screen.getByText(F.secretFromEnvBadge)).toBeTruthy();
   });
@@ -480,7 +516,9 @@ describe("functional-model form", () => {
     // trigger carries the resolved model name; the option list itself is pinned by
     // visionReferenceOptions in the node suite. The Anthropic entry resolves by its display
     // name like any other caption-capable row.
-    expect(screen.getByLabelText(F.captionModel).textContent).toContain("Claude X");
+    expect(screen.getByLabelText(F.captionModel).textContent).toContain(
+      "Claude X",
+    );
   });
 
   it("keeps Save disabled until something changes", () => {
@@ -492,7 +530,9 @@ describe("functional-model form", () => {
     fireEvent.change(screen.getByLabelText(F.embeddingModel), {
       target: { value: "qwen3.7-text-embedding-v2" },
     });
-    expect(screen.getByRole("button", { name: zhCN.common.save })).toHaveProperty("disabled", false);
+    expect(
+      screen.getByRole("button", { name: zhCN.common.save }),
+    ).toHaveProperty("disabled", false);
   });
 
   it("warns about re-indexing only after the embedding model changes", () => {
@@ -589,10 +629,7 @@ describe("RAG default row", () => {
   });
 
   it("carries the file's own default into the RAG payload, never a model catalogue", async () => {
-    setRag(
-      { default_model: "qwen-max" },
-      { sources: { default_model: "ui" } },
-    );
+    setRag({ default_model: "qwen-max" }, { sources: { default_model: "ui" } });
     renderPage();
 
     // The row itself is untouched; editing another field is what makes the save reachable.
@@ -905,7 +942,12 @@ describe("functional-model layout", () => {
   it("labels every input, including the ones that used to be bare boxes", () => {
     renderPage();
 
-    for (const label of [F.apiKeyLabel, F.modelLabel, F.qdrantUrl, F.mineruToken]) {
+    for (const label of [
+      F.apiKeyLabel,
+      F.modelLabel,
+      F.qdrantUrl,
+      F.mineruToken,
+    ]) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0);
     }
     expect(screen.getByLabelText(F.embeddingApiKey)).toBeTruthy();
@@ -916,7 +958,9 @@ describe("functional-model layout", () => {
 
     const captionRow = screen.getByLabelText(F.captionModel).closest("div");
 
-    expect(screen.getByLabelText(F.captionModel).textContent).toContain("Qwen3 VL");
+    expect(screen.getByLabelText(F.captionModel).textContent).toContain(
+      "Qwen3 VL",
+    );
     // The endpoint and the key come from that entry, so the row has no inputs at all.
     expect(captionRow?.querySelector("input")).toBeNull();
     expect(screen.getByLabelText(F.captionModelHint)).toBeTruthy();
@@ -971,8 +1015,7 @@ describe("functional-model layout", () => {
 describe("embedding address row", () => {
   const saveButton = () =>
     screen.getByRole<HTMLButtonElement>("button", { name: zhCN.common.save });
-  const resetButton = () =>
-    screen.queryByRole("button", { name: "恢复默认" });
+  const resetButton = () => screen.queryByRole("button", { name: "恢复默认" });
 
   it("offers the Ark dialect and saves it without a dense-only complaint", () => {
     setRag({
@@ -1017,9 +1060,7 @@ describe("embedding address row", () => {
     renderPage();
 
     const input = screen.getByLabelText<HTMLInputElement>(F.embeddingBaseUrl);
-    expect(input.value).toBe(
-      "https://ws-example.cn-beijing.maas.aliyuncs.com",
-    );
+    expect(input.value).toBe("https://ws-example.cn-beijing.maas.aliyuncs.com");
     expect(resetButton()).toBeNull();
   });
 
@@ -1031,7 +1072,9 @@ describe("embedding address row", () => {
     renderPage();
 
     expect(screen.getByLabelText(F.embeddingBaseUrl)).toBeTruthy();
-    expect(screen.getByPlaceholderText("https://api.example.com/v1")).toBeTruthy();
+    expect(
+      screen.getByPlaceholderText("https://api.example.com/v1"),
+    ).toBeTruthy();
     expect(resetButton()).toBeNull();
   });
 
@@ -1059,8 +1102,7 @@ describe("embedding address row", () => {
  * 无「恢复默认」、默认端点只作灰字占位。存量 `rerank_base_url` 在运行期仍然优先。
  */
 describe("rerank address row", () => {
-  const resetButton = () =>
-    screen.queryByRole("button", { name: "恢复默认" });
+  const resetButton = () => screen.queryByRole("button", { name: "恢复默认" });
 
   it("keeps the row editable and hints the vendor default", () => {
     setRag({ rerank_provider: "dashscope", rerank_base_url: "" });
@@ -1583,7 +1625,10 @@ describe("rebuild entry", () => {
     renderPage();
 
     expect(screen.getByText(F.reindexNoKb)).toBeTruthy();
-    expect(screen.getByRole<HTMLButtonElement>("button", { name: F.reindexAction }).disabled).toBe(true);
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: F.reindexAction })
+        .disabled,
+    ).toBe(true);
   });
 
   it("renders live counters while a rebuild runs and disables the action", () => {
@@ -1604,7 +1649,10 @@ describe("rebuild entry", () => {
     const status = screen.getByRole("status");
     expect(status.textContent).toContain("3/7");
     expect(status.textContent).toContain("42");
-    expect(screen.getByRole<HTMLButtonElement>("button", { name: F.reindexAction }).disabled).toBe(true);
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: F.reindexAction })
+        .disabled,
+    ).toBe(true);
   });
 
   it("counts the chunk vectors in the running line", () => {
@@ -1643,22 +1691,27 @@ describe("rebuild entry", () => {
 
   it("reports the previous run's verdict when idle", () => {
     setRag();
-    setKnowledge({ status: { in_progress: false, last_run: "failed", progress: null } });
+    setKnowledge({
+      status: { in_progress: false, last_run: "failed", progress: null },
+    });
     renderPage();
 
-    expect(screen.getByRole("alert").textContent).toContain(F.reindexLastFailed);
+    expect(screen.getByRole("alert").textContent).toContain(
+      F.reindexLastFailed,
+    );
   });
 });
 
 /** 确认弹窗单独测：不驱动 Radix，直接渲染它自己的契约（点名目标 + 确认/禁用）。 */
 describe("ReindexDialog", () => {
   it("names the target library and confirms", async () => {
-    const { ReindexDialog } = await import(
-      "@/components/workspace/settings/reindex-dialog"
-    );
+    const { ReindexDialog } =
+      await import("@/components/workspace/settings/reindex-dialog");
     const onConfirm = rs.fn();
     render(
-      <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+      <I18nContext.Provider
+        value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+      >
         <ReindexDialog
           open
           onOpenChange={() => undefined}
@@ -1675,16 +1728,19 @@ describe("ReindexDialog", () => {
     // 范围也要点名（spec 2026-09-24 §4.3）：换的是四类向量，不只是切片。
     expect(screen.getByText(REINDEX_CONFIRM_ZH)).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: F.reindexConfirmAction }));
+    fireEvent.click(
+      screen.getByRole("button", { name: F.reindexConfirmAction }),
+    );
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 
   it("blocks a second confirm while the request is in flight", async () => {
-    const { ReindexDialog } = await import(
-      "@/components/workspace/settings/reindex-dialog"
-    );
+    const { ReindexDialog } =
+      await import("@/components/workspace/settings/reindex-dialog");
     render(
-      <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+      <I18nContext.Provider
+        value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+      >
         <ReindexDialog
           open
           onOpenChange={() => undefined}
@@ -1707,7 +1763,12 @@ describe("ReindexDialog", () => {
 function setConnectivityProbe(
   over: {
     leg?: "embedding" | "rerank";
-    status?: "ok" | "refused" | "unreachable" | "dimension_unavailable" | "half_missing";
+    status?:
+      | "ok"
+      | "refused"
+      | "unreachable"
+      | "dimension_unavailable"
+      | "half_missing";
     detail?: string;
   } = {},
 ) {
@@ -1717,7 +1778,11 @@ function setConnectivityProbe(
       over.status === undefined
         ? undefined
         : {
-            key: connectivityProbeKey(over.leg ?? "embedding", formValuesFromConfig(view()), true),
+            key: connectivityProbeKey(
+              over.leg ?? "embedding",
+              formValuesFromConfig(view()),
+              true,
+            ),
             status: over.status,
             detail: over.detail ?? "probe detail",
             measured_dimension: null,
@@ -1761,20 +1826,32 @@ function setDimensionProbe(
 
 describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
   /** 高级设置默认收起；探测行就在里面。 */
-  const openAdvanced = () => fireEvent.click(screen.getByRole("button", { name: /^高级设置/ }));
+  const openAdvanced = () =>
+    fireEvent.click(screen.getByRole("button", { name: /^高级设置/ }));
 
   it("keeps the in-field chevron to the page's own select style", () => {
     // 标准 SelectTrigger 的箭头是 `size-4 opacity-50`，距右 12px（触发器的 px-3）。框内那处
     // （维度行）曾经是 `size-3.5` + `pr-1.5` ⇒ 视觉上小一号、也贴得更靠边（2026-09-29 他报的
     // 缺陷）。ASR 模型行已随视频腿裁掉，只剩维度行一处。几何只能在真浏览器量，这里钉住规格本身。
-    setDimensionProbe({ status: "ok", type: "tiered", native: 1024, values: [256, 1024] });
+    setDimensionProbe({
+      status: "ok",
+      type: "tiered",
+      native: 1024,
+      values: [256, 1024],
+    });
     renderPage();
     openAdvanced();
 
-    const button = document.querySelector<HTMLElement>('[data-slot="dimension-tiers-trigger"]');
+    const button = document.querySelector<HTMLElement>(
+      '[data-slot="dimension-tiers-trigger"]',
+    );
     expect(button, "dimension-tiers-trigger").toBeTruthy();
-    expect(button!.querySelector("svg")!.getAttribute("class")).toContain("size-4");
-    expect(button!.querySelector("svg")!.getAttribute("class")).toContain("opacity-50");
+    expect(button!.querySelector("svg")!.getAttribute("class")).toContain(
+      "size-4",
+    );
+    expect(button!.querySelector("svg")!.getAttribute("class")).toContain(
+      "opacity-50",
+    );
     // 12px 的右内边距 = 标准触发器的 px-3。
     expect(button!.parentElement!.className).toContain("pr-3");
   });
@@ -1783,11 +1860,15 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
     renderPage();
     openAdvanced();
 
-    const row = document.querySelector<HTMLElement>('[data-slot="dimension-row"]')!;
+    const row = document.querySelector<HTMLElement>(
+      '[data-slot="dimension-row"]',
+    )!;
     expect(row).toBeTruthy();
     expect(row.parentElement!.firstElementChild).toBe(row);
 
-    const input = within(row).getByLabelText<HTMLInputElement>(F.dimensionLabel);
+    const input = within(row).getByLabelText<HTMLInputElement>(
+      F.dimensionLabel,
+    );
     expect(input.readOnly).toBe(false);
     // 没有「探测」按钮：探测是自动的，档位（有结论时）才是芯片。行内唯一的按钮是 ⓘ
     // （它的 aria-label 就是那句提示，见 D5-4）。
@@ -1803,26 +1884,42 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
 
   it("keeps the detected tiers in an in-field dropdown and fills the input from one", async () => {
     // 档位不再平铺在行里（那会让这一项变成两行）：收进输入框右侧的小箭头，点开是下拉菜单。
-    setDimensionProbe({ status: "ok", type: "tiered", native: 1024, values: [256, 1024] });
+    setDimensionProbe({
+      status: "ok",
+      type: "tiered",
+      native: 1024,
+      values: [256, 1024],
+    });
     renderPage();
     openAdvanced();
 
-    const control = document.querySelector<HTMLElement>('[data-slot="dimension-control"]')!;
+    const control = document.querySelector<HTMLElement>(
+      '[data-slot="dimension-control"]',
+    )!;
     expect(control.querySelector('[data-slot="dimension-chips"]')).toBeNull();
 
-    fireEvent.pointerDown(within(control).getByRole("button", { name: F.dimensionTierHint }));
+    fireEvent.pointerDown(
+      within(control).getByRole("button", { name: F.dimensionTierHint }),
+    );
     const items = await screen.findAllByRole("menuitem");
     expect(items.map((item) => item.textContent)).toEqual(["256", "1024"]);
     expect(screen.getByText(F.dimensionNativeHint(1024))).toBeTruthy();
 
     fireEvent.click(items[0]!);
-    expect(screen.getByLabelText<HTMLInputElement>(F.dimensionLabel).value).toBe("256");
+    expect(
+      screen.getByLabelText<HTMLInputElement>(F.dimensionLabel).value,
+    ).toBe("256");
   });
 
   it("shows the single value of a fixed-width model in the read-only first line", () => {
     // ③ 型不吃参数：只有一个可取值。行必须把它**填进去**（不是只当占位提示）——
     // 否则留空=1024，一个原生 768 的模型永远保存不过，而用户没有输入口。
-    setDimensionProbe({ status: "ok", type: "fixed", native: 768, values: [768] });
+    setDimensionProbe({
+      status: "ok",
+      type: "fixed",
+      native: 768,
+      values: [768],
+    });
     renderPage();
     openAdvanced();
 
@@ -1830,24 +1927,39 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
     expect(input.readOnly).toBe(true);
     expect(input.value).toBe("768");
     // 没有可选项 ⇒ 没有下拉箭头；为什么只读由行内的 ⓘ 说明（"不接受维度参数"那句）。
-    expect(document.querySelector('[data-slot="dimension-tiers-trigger"]')).toBeNull();
+    expect(
+      document.querySelector('[data-slot="dimension-tiers-trigger"]'),
+    ).toBeNull();
     const info = screen.getByRole<HTMLButtonElement>("button", {
       name: new RegExp(F.dimensionHint),
     });
-    expect(info.getAttribute("aria-label")).toContain(F.dimensionFixedHint(768));
+    expect(info.getAttribute("aria-label")).toContain(
+      F.dimensionFixedHint(768),
+    );
   });
 
   it("reports the no-tier case through the in-field status dot, never an empty list", () => {
-    setDimensionProbe({ status: "ok", type: "tiered", native: 768, values: [] });
+    setDimensionProbe({
+      status: "ok",
+      type: "tiered",
+      native: 768,
+      values: [],
+    });
     renderPage();
     openAdvanced();
 
-    const dot = document.querySelector<HTMLElement>('[data-slot="dimension-status"]')!;
+    const dot = document.querySelector<HTMLElement>(
+      '[data-slot="dimension-status"]',
+    )!;
     expect(dot.getAttribute("data-state")).toBe("no-tiers");
     expect(dot.getAttribute("aria-label")).toBe(F.dimensionNoTiers);
     // 没有档位就没有下拉箭头（不渲染空列表），手填照旧。
-    expect(document.querySelector('[data-slot="dimension-tiers-trigger"]')).toBeNull();
-    expect(screen.getByLabelText<HTMLInputElement>(F.dimensionLabel).readOnly).toBe(false);
+    expect(
+      document.querySelector('[data-slot="dimension-tiers-trigger"]'),
+    ).toBeNull();
+    expect(
+      screen.getByLabelText<HTMLInputElement>(F.dimensionLabel).readOnly,
+    ).toBe(false);
   });
 
   it("offers the candidate widths below the native one for a range model", async () => {
@@ -1865,7 +1977,12 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
       screen.getByRole("button", { name: F.dimensionTierHint }),
     );
     const items = await screen.findAllByRole("menuitem");
-    expect(items.map((item) => item.textContent)).toEqual(["256", "512", "768", "1024"]);
+    expect(items.map((item) => item.textContent)).toEqual([
+      "256",
+      "512",
+      "768",
+      "1024",
+    ]);
     expect(screen.getByText(F.dimensionNativeHint(1024))).toBeTruthy();
   });
 
@@ -1874,10 +1991,14 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
     renderPage();
     openAdvanced();
 
-    const dot = document.querySelector<HTMLElement>('[data-slot="dimension-status"]')!;
+    const dot = document.querySelector<HTMLElement>(
+      '[data-slot="dimension-status"]',
+    )!;
     expect(dot.getAttribute("data-state")).toBe("unprobed");
     expect(dot.getAttribute("aria-label")).toContain(F.dimensionUnprobed);
-    expect(document.querySelector('[data-slot="dimension-tiers-trigger"]')).toBeNull();
+    expect(
+      document.querySelector('[data-slot="dimension-tiers-trigger"]'),
+    ).toBeNull();
   });
 
   it("turns both role headings into connectivity buttons, and a ready leg asks the server", () => {
@@ -1960,7 +2081,9 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
       name: new RegExp(`^${F.embeddingModel} ·`),
     });
     expect(bad.getAttribute("data-state")).toBe("bad");
-    expect(bad.querySelector('[data-slot="leg-dot"]')!.className).toContain("bg-amber-500");
+    expect(bad.querySelector('[data-slot="leg-dot"]')!.className).toContain(
+      "bg-amber-500",
+    );
   });
 
   it("keeps both legs' own verdicts — probing one never greys the other", () => {
@@ -1968,7 +2091,10 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
     // 另一条（哪怕刚测过绿）当场退回灰。两个 hook 实例各自持有自己的结论。
     // 桩按调用次序一前一后发（该组件两次调用 = 两条腿；StrictMode 下每轮重放同样的次序），
     // 旧实现每次渲染只调一次 ⇒ 第二条腿拿不到自己的结论，本用例即红。
-    setRag({}, { sources: { embedding_api_key: "env", rerank_api_key: "env" } });
+    setRag(
+      {},
+      { sources: { embedding_api_key: "env", rerank_api_key: "env" } },
+    );
     const form = formValuesFromConfig(view());
     const verdictFor = (leg: "embedding" | "rerank") => ({
       mutate: connectivityProbeMock,
@@ -2032,7 +2158,9 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
       name: new RegExp(`^${F.embeddingModel} ·`),
     });
     expect(head.getAttribute("data-state")).toBe("bad-half");
-    expect(head.querySelector('[data-slot="leg-dot"]')!.className).toContain("bg-amber-500");
+    expect(head.querySelector('[data-slot="leg-dot"]')!.className).toContain(
+      "bg-amber-500",
+    );
     expect(head.getAttribute("aria-label")).toContain("没给稀疏那一半");
   });
 
@@ -2045,10 +2173,11 @@ describe("维度行 + 两标题连通点 (spec 2026-09-26 §3 / D5-5)", () => {
       name: new RegExp(`^${F.embeddingModel} ·`),
     });
     expect(ok.getAttribute("data-state")).toBe("ok");
-    expect(ok.querySelector('[data-slot="leg-dot"]')!.className).toContain("bg-emerald-500");
+    expect(ok.querySelector('[data-slot="leg-dot"]')!.className).toContain(
+      "bg-emerald-500",
+    );
   });
 });
-
 
 describe("宽度迁移：保存前的确认 + 在飞状态面 (spec 2026-09-26 D5-7)", () => {
   const openAdvanced = () =>
@@ -2072,13 +2201,17 @@ describe("宽度迁移：保存前的确认 + 在飞状态面 (spec 2026-09-26 D
     expect(saveMock).not.toHaveBeenCalled();
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText(F.dimensionConfirmTitle)).toBeTruthy();
-    expect(within(dialog).getByText(F.dimensionConfirmDescription)).toBeTruthy();
+    expect(
+      within(dialog).getByText(F.dimensionConfirmDescription),
+    ).toBeTruthy();
 
     fireEvent.click(
       within(dialog).getByRole("button", { name: F.dimensionConfirmAction }),
     );
     await waitFor(() => expect(saveMock).toHaveBeenCalledTimes(1));
-    expect(saveMock.mock.calls[0]?.[0]).toMatchObject({ embedding_dimension: 1536 });
+    expect(saveMock.mock.calls[0]?.[0]).toMatchObject({
+      embedding_dimension: 1536,
+    });
   });
 
   it("still saves without asking when the width is not what changed", async () => {
@@ -2143,4 +2276,3 @@ describe("宽度迁移：保存前的确认 + 在飞状态面 (spec 2026-09-26 D
     expect(line.textContent).toContain("向量库连不上");
   });
 });
-

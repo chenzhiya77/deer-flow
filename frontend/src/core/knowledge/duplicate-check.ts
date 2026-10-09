@@ -36,7 +36,9 @@ export function findDuplicateByName(
   const wantedBase = baseName(filename);
   const wantedSuffix = fileSuffix(filename);
   return documents.find(
-    (document) => baseName(document.name) === wantedBase && fileSuffix(document.name) === wantedSuffix,
+    (document) =>
+      baseName(document.name) === wantedBase &&
+      fileSuffix(document.name) === wantedSuffix,
   );
 }
 
@@ -63,7 +65,10 @@ export function verdictForDuplicate(
  * free. `existingNames` should include every current document name of the KB
  * (plus any already-allocated copies within the same batch).
  */
-export function nextCopyName(filename: string, existingNames: ReadonlySet<string>): string {
+export function nextCopyName(
+  filename: string,
+  existingNames: ReadonlySet<string>,
+): string {
   const base = baseName(filename);
   const suffix = fileSuffix(filename);
   let counter = 2;

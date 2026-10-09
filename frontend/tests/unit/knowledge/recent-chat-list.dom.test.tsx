@@ -13,7 +13,11 @@ rs.mock("next/navigation", () => ({
 }));
 
 rs.mock("@/core/features", () => ({
-  useKnowledgeBaseEnabled: () => ({ enabled: true, scopeSelectionEnabled: false, isLoading: false }),
+  useKnowledgeBaseEnabled: () => ({
+    enabled: true,
+    scopeSelectionEnabled: false,
+    isLoading: false,
+  }),
 }));
 
 // 基座版组件带项目分组查询；本对只钉 kb 隔离，项目面给空桩（与分组模式无关）。
@@ -55,7 +59,11 @@ rs.mock("@/components/workspace/thread-list-virtualizer", () => ({
   }: {
     items: Array<Record<string, unknown>>;
     renderItem: (item: Record<string, unknown>) => React.ReactNode;
-  }) => <div data-testid="virtual-list">{items.map((item) => renderItem(item))}</div>,
+  }) => (
+    <div data-testid="virtual-list">
+      {items.map((item) => renderItem(item))}
+    </div>
+  ),
 }));
 
 rs.mock("@/env", () => ({
@@ -71,7 +79,11 @@ import type { AgentThread } from "@/core/threads/types";
 
 const mockedUseInfiniteThreads = rs.mocked(useInfiniteThreads);
 
-function thread(id: string, title: string, metadata: Record<string, unknown>): AgentThread {
+function thread(
+  id: string,
+  title: string,
+  metadata: Record<string, unknown>,
+): AgentThread {
   return {
     thread_id: id,
     created_at: "2026-08-09T10:00:00Z",
@@ -93,7 +105,9 @@ function mockThreads(threads: AgentThread[]) {
 
 function renderList() {
   return render(
-    <I18nContext.Provider value={{ locale: "en-US", setLocale: () => undefined, t: enUS }}>
+    <I18nContext.Provider
+      value={{ locale: "en-US", setLocale: () => undefined, t: enUS }}
+    >
       <SidebarProvider>
         <RecentChatList />
       </SidebarProvider>

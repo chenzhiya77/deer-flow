@@ -108,7 +108,16 @@ describe("DocumentPanel 空态", () => {
     expect(icons).toHaveLength(9);
     const kinds = icons.map((svg) => svg.getAttribute("data-filetype"));
     // 视频腿已裁（切片不接受 .mp4 上传）⇒ 九宫格不含 media，notes.md 补第九格（code 类重复）。
-    for (const kind of ["pdf", "word", "sheet", "ppt", "code", "image", "archive", "unknown"]) {
+    for (const kind of [
+      "pdf",
+      "word",
+      "sheet",
+      "ppt",
+      "code",
+      "image",
+      "archive",
+      "unknown",
+    ]) {
       expect(kinds).toContain(kind);
     }
     expect(kinds).not.toContain("media");
@@ -149,7 +158,9 @@ describe("DocumentPanel 拖入类型识别（九宫格双态反馈）", () => {
 
   function iconsOf(kind: string) {
     return [
-      ...screen.getByTestId("empty-doc-icons").querySelectorAll(`[data-filetype="${kind}"]`),
+      ...screen
+        .getByTestId("empty-doc-icons")
+        .querySelectorAll(`[data-filetype="${kind}"]`),
     ];
   }
 
@@ -243,16 +254,20 @@ describe("DocumentPanel table", () => {
     expect(headCell.className).toContain("sticky");
     expect(headCell.className).toContain("top-0");
     expect(headCell.className).not.toContain("border-b");
-    expect(headCell.className).toContain("shadow-[inset_0_-1px_0_var(--border)]");
+    expect(headCell.className).toContain(
+      "shadow-[inset_0_-1px_0_var(--border)]",
+    );
     expect(headCell.className).toContain("bg-background");
-    expect(table.querySelector("thead tr")!.className).not.toContain("border-b");
+    expect(table.querySelector("thead tr")!.className).not.toContain(
+      "border-b",
+    );
     // 表头行固定高度（2026-09-01）：防止全选框 unchecked↔indeterminate 切换时，
     // 折叠布局重新取整导致表头高度变化、所有行跟着上下抖动。
-    expect(
-      table.querySelector("thead tr")!.className,
-    ).toContain("h-9");
+    expect(table.querySelector("thead tr")!.className).toContain("h-9");
     // 表头上方不画线（2026-09-01）：工具栏与表头间靠留白分界，避免表头被两条线夹成条状。
-    const toolbar = screen.getByLabelText("搜索文档…").closest("div[class*='h-11']")!;
+    const toolbar = screen
+      .getByLabelText("搜索文档…")
+      .closest("div[class*='h-11']")!;
     expect(toolbar.className).not.toContain("border-b");
   });
 
@@ -453,8 +468,16 @@ describe("DocumentPanel table", () => {
     expect(cancel.querySelector("svg")).toBeTruthy();
     fireEvent.click(cancel);
     // 选择清空：两行复选框都回到未勾选（批量栏已退役，看行状态）。
-    expect(screen.getByLabelText("选择文档: 产品手册.pdf").getAttribute("aria-checked")).toBe("false");
-    expect(screen.getByLabelText("选择文档: 并发笔记.md").getAttribute("aria-checked")).toBe("false");
+    expect(
+      screen
+        .getByLabelText("选择文档: 产品手册.pdf")
+        .getAttribute("aria-checked"),
+    ).toBe("false");
+    expect(
+      screen
+        .getByLabelText("选择文档: 并发笔记.md")
+        .getAttribute("aria-checked"),
+    ).toBe("false");
   });
 
   it("单选右键菜单也提供取消选择（两态对称，2026-09-02）", () => {
@@ -464,7 +487,11 @@ describe("DocumentPanel table", () => {
     const cancel = screen.getByRole("menuitem", { name: "取消选择" });
     expect(cancel.querySelector("svg")).toBeTruthy();
     fireEvent.click(cancel);
-    expect(screen.getByLabelText("选择文档: 产品手册.pdf").getAttribute("aria-checked")).toBe("false");
+    expect(
+      screen
+        .getByLabelText("选择文档: 产品手册.pdf")
+        .getAttribute("aria-checked"),
+    ).toBe("false");
   });
 
   it("单选右键菜单删除项措辞对齐批量栏（删除所选，2026-09-02）", () => {
@@ -970,7 +997,9 @@ describe("PathStatusBreakdown 首期两腿 + degraded 琥珀", () => {
       }),
     );
     expect(lines!.map((line) => line.path)).toEqual(["caption", "vector"]);
-    expect(lines!.find((line) => line.path === "caption")!.state).toBe("degraded");
+    expect(lines!.find((line) => line.path === "caption")!.state).toBe(
+      "degraded",
+    );
   });
 
   it("pathStatusLines 不带 caption 键时只有 vector 一行", () => {

@@ -196,7 +196,7 @@ export function ChunkDrawer({
             viewportRef={viewportRef}
           >
             <SheetHeader
-              className="sticky top-0 z-10 border-b bg-background/95 px-4 py-2.5 backdrop-blur-sm"
+              className="bg-background/95 sticky top-0 z-10 border-b px-4 py-2.5 backdrop-blur-sm"
               ref={headerRef}
             >
               {/* 单行紧凑头（2026-09-05 头部重设计）：文档名主标题 + 类型徽章，
@@ -205,16 +205,25 @@ export function ChunkDrawer({
                 <div className="flex min-w-0 items-center gap-1.5">
                   {/* 文档类型图标（2026-09-05）：复用文档列表同款 FileTypeBadge
                       （size-5 = 保住折角细节的 S 档），标题与列表视觉同源。 */}
-                  <FileTypeBadge className="size-5 shrink-0" fileName={doc.name} />
+                  <FileTypeBadge
+                    className="size-5 shrink-0"
+                    fileName={doc.name}
+                  />
                   <SheetTitle className="truncate">{doc.name}</SheetTitle>
                   <Badge className="shrink-0 text-[10px]" variant="secondary">
                     {tc.title}
                   </Badge>
-                  <Badge className="shrink-0 text-[10px] tabular-nums" variant="outline">
+                  <Badge
+                    className="shrink-0 text-[10px] tabular-nums"
+                    variant="outline"
+                  >
                     {total} {tc.chunkUnit}
                   </Badge>
                   {total > 0 && (
-                    <Badge className="shrink-0 text-[10px] tabular-nums" variant="outline">
+                    <Badge
+                      className="shrink-0 text-[10px] tabular-nums"
+                      variant="outline"
+                    >
                       {tc.current} #{activeIndex + 1}
                     </Badge>
                   )}

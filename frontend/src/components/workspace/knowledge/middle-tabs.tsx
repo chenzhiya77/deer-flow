@@ -23,7 +23,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useI18n } from "@/core/i18n/hooks";
-import { acceptAttribute, partitionFilesBySuffix } from "@/core/knowledge/supported-formats";
+import {
+  acceptAttribute,
+  partitionFilesBySuffix,
+} from "@/core/knowledge/supported-formats";
 import type { KnowledgeBase } from "@/core/knowledge/types";
 
 import { toast } from "./kb-toast";
@@ -83,7 +86,10 @@ export function MiddleTabs({
   const [deleteKbOpen, setDeleteKbOpen] = useState(false);
 
   return (
-    <div className="flex h-full min-h-0 flex-col" data-testid="knowledge-middle-tabs">
+    <div
+      className="flex h-full min-h-0 flex-col"
+      data-testid="knowledge-middle-tabs"
+    >
       {/* Row 1: library header (fold toggle + name + library-level overflow menu) */}
       <div
         className="relative flex h-12 items-center gap-2 border-b px-4"
@@ -97,7 +103,9 @@ export function MiddleTabs({
             button. */}
         {listToggle}
         <h2 className="min-w-0 truncate text-sm font-semibold">{kb.name}</h2>
-        <Badge className="shrink-0" variant="outline">{t.knowledge.personalKBs}</Badge>
+        <Badge className="shrink-0" variant="outline">
+          {t.knowledge.personalKBs}
+        </Badge>
         <div className="ml-auto flex shrink-0 items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -147,9 +155,16 @@ export function MiddleTabs({
             if (files && files.length > 0) {
               // Task 6: pre-upload allowlist intercept (accept is advisory;
               // users can still pick anything via "all files").
-              const { accepted, rejected } = partitionFilesBySuffix(Array.from(files), supportedSuffixes);
+              const { accepted, rejected } = partitionFilesBySuffix(
+                Array.from(files),
+                supportedSuffixes,
+              );
               if (rejected.length > 0) {
-                toast.error(tk.unsupportedFilesSkipped(rejected.map((f) => f.name).join(", ")));
+                toast.error(
+                  tk.unsupportedFilesSkipped(
+                    rejected.map((f) => f.name).join(", "),
+                  ),
+                );
               }
               if (accepted.length > 0) {
                 onUpload(accepted);
@@ -187,7 +202,10 @@ export function MiddleTabs({
             <DialogTitle>{tk.renameKb}</DialogTitle>
           </DialogHeader>
           <div className="py-2">
-            <Input value={renameValue} onChange={(event) => setRenameValue(event.target.value)} />
+            <Input
+              value={renameValue}
+              onChange={(event) => setRenameValue(event.target.value)}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRenameOpen(false)}>
@@ -211,7 +229,9 @@ export function MiddleTabs({
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{tk.deleteKbConfirmTitle}</DialogTitle>
-            <DialogDescription>{tk.deleteKbConfirmDescription}</DialogDescription>
+            <DialogDescription>
+              {tk.deleteKbConfirmDescription}
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteKbOpen(false)}>

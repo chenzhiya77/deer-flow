@@ -17,8 +17,20 @@ export function knowledgeDocumentsKey(kbId: string) {
   return ["knowledge-bases", kbId, "documents"] as const;
 }
 
-export function knowledgeChunksKey(kbId: string, docId: string, offset: number, limit: number) {
-  return ["knowledge-bases", kbId, "documents", docId, "chunks", { offset, limit }] as const;
+export function knowledgeChunksKey(
+  kbId: string,
+  docId: string,
+  offset: number,
+  limit: number,
+) {
+  return [
+    "knowledge-bases",
+    kbId,
+    "documents",
+    docId,
+    "chunks",
+    { offset, limit },
+  ] as const;
 }
 
 export function useKnowledgeBases(enabled = true) {
@@ -56,11 +68,18 @@ export function useCreateKnowledgeBase() {
 export function useUpdateKnowledgeBase() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ kbId, patch }: { kbId: string; patch: { name?: string; description?: string } }) =>
-      api.updateKnowledgeBase(kbId, patch),
+    mutationFn: ({
+      kbId,
+      patch,
+    }: {
+      kbId: string;
+      patch: { name?: string; description?: string };
+    }) => api.updateKnowledgeBase(kbId, patch),
     onSuccess: (_data, { kbId }) => {
       void queryClient.invalidateQueries({ queryKey: knowledgeBasesKey() });
-      void queryClient.invalidateQueries({ queryKey: knowledgeDocumentsKey(kbId) });
+      void queryClient.invalidateQueries({
+        queryKey: knowledgeDocumentsKey(kbId),
+      });
     },
   });
 }
@@ -89,7 +108,9 @@ export function useUploadDocument(kbId: string) {
   return useMutation({
     mutationFn: (file: File) => api.uploadDocument(kbId, file),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: knowledgeDocumentsKey(kbId) });
+      void queryClient.invalidateQueries({
+        queryKey: knowledgeDocumentsKey(kbId),
+      });
     },
   });
 }
@@ -99,7 +120,9 @@ export function useDeleteDocument(kbId: string) {
   return useMutation({
     mutationFn: (docId: string) => api.deleteDocument(kbId, docId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: knowledgeDocumentsKey(kbId) });
+      void queryClient.invalidateQueries({
+        queryKey: knowledgeDocumentsKey(kbId),
+      });
     },
   });
 }
@@ -109,7 +132,9 @@ export function useRetryDocument(kbId: string) {
   return useMutation({
     mutationFn: (docId: string) => api.retryDocument(kbId, docId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: knowledgeDocumentsKey(kbId) });
+      void queryClient.invalidateQueries({
+        queryKey: knowledgeDocumentsKey(kbId),
+      });
     },
   });
 }
@@ -141,8 +166,16 @@ export function useReindexKnowledgeBase(kbId: string | null) {
     mutationFn: () => api.reindexKnowledgeBase(kbId!),
     onSuccess: () => {
       if (kbId === null) return;
-      void queryClient.invalidateQueries({ queryKey: knowledgeReindexStatusKey(kbId) });
-      setTimeout(() => void queryClient.invalidateQueries({ queryKey: knowledgeReindexStatusKey(kbId) }), 1000);
+      void queryClient.invalidateQueries({
+        queryKey: knowledgeReindexStatusKey(kbId),
+      });
+      setTimeout(
+        () =>
+          void queryClient.invalidateQueries({
+            queryKey: knowledgeReindexStatusKey(kbId),
+          }),
+        1000,
+      );
     },
   });
 }

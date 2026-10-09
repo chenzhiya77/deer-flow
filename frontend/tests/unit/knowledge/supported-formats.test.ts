@@ -26,15 +26,26 @@ describe("fileSuffix", () => {
 
 describe("partitionFilesBySuffix", () => {
   it("splits accepted and rejected files case-insensitively", () => {
-    const files = [{ name: "a.md" }, { name: "evil.EXE" }, { name: "笔记.TXT" }, { name: "noext" }];
-    const { accepted, rejected } = partitionFilesBySuffix(files, [".md", ".txt"]);
+    const files = [
+      { name: "a.md" },
+      { name: "evil.EXE" },
+      { name: "笔记.TXT" },
+      { name: "noext" },
+    ];
+    const { accepted, rejected } = partitionFilesBySuffix(files, [
+      ".md",
+      ".txt",
+    ]);
     expect(accepted.map((f) => f.name)).toEqual(["a.md", "笔记.TXT"]);
     expect(rejected.map((f) => f.name)).toEqual(["evil.EXE", "noext"]);
   });
 
   it("accepts everything when the suffixes are the full allowlist", () => {
     const files = [{ name: "手册.pdf" }, { name: "数据.csv" }];
-    const { accepted, rejected } = partitionFilesBySuffix(files, FALLBACK_SUPPORTED_SUFFIXES);
+    const { accepted, rejected } = partitionFilesBySuffix(
+      files,
+      FALLBACK_SUPPORTED_SUFFIXES,
+    );
     expect(accepted).toHaveLength(2);
     expect(rejected).toHaveLength(0);
   });

@@ -5,7 +5,13 @@
  */
 import { afterEach, describe, expect, it, rs } from "@rstest/core";
 import { useQuery } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 
 rs.mock("@tanstack/react-query", () => ({
   useQuery: rs.fn(),
@@ -20,7 +26,10 @@ rs.mock("@/core/knowledge/api", () => ({
 }));
 
 import { ChunkCard } from "@/components/workspace/knowledge/chunk-card";
-import { ChunkDrawer, fetchChunkWindow } from "@/components/workspace/knowledge/chunk-drawer";
+import {
+  ChunkDrawer,
+  fetchChunkWindow,
+} from "@/components/workspace/knowledge/chunk-drawer";
 import { I18nContext } from "@/core/i18n/context";
 import { zhCN } from "@/core/i18n/locales/zh-CN";
 import { listDocumentChunks } from "@/core/knowledge/api";
@@ -57,15 +66,27 @@ const DOC: KnowledgeDocument = {
 
 function renderWithI18n(node: React.ReactNode) {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       {node}
     </I18nContext.Provider>,
   );
 }
 
 function mockChunks(items: KnowledgeChunk[], total = items.length) {
-  rs.mocked(knowledgeChunksKey).mockReturnValue(["knowledge-bases", "kb-1", "documents", "doc-1", "chunks", { offset: 0, limit: 50 }]);
-  rs.mocked(useQuery).mockReturnValue({ data: { items, total, offset: 0, limit: 50 }, isLoading: false } as never);
+  rs.mocked(knowledgeChunksKey).mockReturnValue([
+    "knowledge-bases",
+    "kb-1",
+    "documents",
+    "doc-1",
+    "chunks",
+    { offset: 0, limit: 50 },
+  ]);
+  rs.mocked(useQuery).mockReturnValue({
+    data: { items, total, offset: 0, limit: 50 },
+    isLoading: false,
+  } as never);
 }
 
 afterEach(() => {
@@ -75,7 +96,15 @@ afterEach(() => {
 
 describe("ChunkCard", () => {
   it("renders text with heading path, page, tokens, and entities", () => {
-    renderWithI18n(<ChunkCard text={CHUNK.text} headingPath={CHUNK.heading_path} page={CHUNK.page} tokenCount={CHUNK.token_count} entities={CHUNK.entities} />);
+    renderWithI18n(
+      <ChunkCard
+        text={CHUNK.text}
+        headingPath={CHUNK.heading_path}
+        page={CHUNK.page}
+        tokenCount={CHUNK.token_count}
+        entities={CHUNK.entities}
+      />,
+    );
     expect(screen.getByText(CHUNK.text)).toBeTruthy();
     expect(screen.getByText(/第一章/)).toBeTruthy();
     expect(screen.getByText(/1\.1 目标/)).toBeTruthy();
@@ -86,7 +115,9 @@ describe("ChunkCard", () => {
   });
 
   it("renders the citation form (doc name + text) without drawer-only metadata", () => {
-    renderWithI18n(<ChunkCard docName="产品手册.pdf" text={CHUNK.text} page={2} />);
+    renderWithI18n(
+      <ChunkCard docName="产品手册.pdf" text={CHUNK.text} page={2} />,
+    );
     expect(screen.getByText(/产品手册\.pdf/)).toBeTruthy();
     expect(screen.getByText(CHUNK.text)).toBeTruthy();
   });
@@ -94,7 +125,14 @@ describe("ChunkCard", () => {
   it("lets the entity badge row wrap so many long entities never overflow the card", () => {
     // Production repro: six long entity badges rendered on ONE nowrap flex line and
     // spilled past the card boundary; the 实体: label got squeezed into a vertical column.
-    const many = ["知识库 RAG 一期", "三路索引", "三栏工作台", "多租户共享与权限", "召回测试与评估面板", "图谱可视化探索"];
+    const many = [
+      "知识库 RAG 一期",
+      "三路索引",
+      "三栏工作台",
+      "多租户共享与权限",
+      "召回测试与评估面板",
+      "图谱可视化探索",
+    ];
     renderWithI18n(<ChunkCard text={CHUNK.text} entities={many} />);
     const label = screen.getByText(/实体/);
     expect(label.className).toContain("shrink-0");
@@ -123,8 +161,18 @@ describe("fetchChunkWindow", () => {
     const first = Array.from({ length: 200 }, (_, i) => chunkAt(i));
     const rest = Array.from({ length: 41 }, (_, i) => chunkAt(200 + i));
     rs.mocked(listDocumentChunks)
-      .mockResolvedValueOnce({ items: first, total: 241, offset: 0, limit: 200 })
-      .mockResolvedValueOnce({ items: rest, total: 241, offset: 200, limit: 41 });
+      .mockResolvedValueOnce({
+        items: first,
+        total: 241,
+        offset: 0,
+        limit: 200,
+      })
+      .mockResolvedValueOnce({
+        items: rest,
+        total: 241,
+        offset: 200,
+        limit: 41,
+      });
 
     const page = await fetchChunkWindow("kb-1", "doc-1", 241);
 
@@ -158,7 +206,9 @@ describe("ChunkDrawer", () => {
     const gapped = { ...CHUNK, chunk_id: "doc-1#0001", chunk_index: 1 };
     mockChunks([gapped]);
 
-    renderWithI18n(<ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
 
     expect(await screen.findByText(CHUNK.text)).toBeTruthy();
     expect(screen.getByText("#1")).toBeTruthy();
@@ -166,26 +216,46 @@ describe("ChunkDrawer", () => {
   });
 
   it("auto-loads every chunk when total is within the full-load cap", async () => {
-    rs.mocked(knowledgeChunksKey).mockReturnValue(["knowledge-bases", "kb-1", "documents", "doc-1", "chunks", { offset: 0, limit: 20 }]);
+    rs.mocked(knowledgeChunksKey).mockReturnValue([
+      "knowledge-bases",
+      "kb-1",
+      "documents",
+      "doc-1",
+      "chunks",
+      { offset: 0, limit: 20 },
+    ]);
     rs.mocked(useQuery).mockReturnValue({
       data: { items: [CHUNK], total: 50, offset: 0, limit: 20 },
       isLoading: false,
     } as never);
 
-    renderWithI18n(<ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
 
     // 50 ≤ FULL_LOAD_CAP(300) → limit grows to total without user interaction
-    await waitFor(() => expect(rs.mocked(knowledgeChunksKey).mock.calls.at(-1)![3]).toBe(50));
+    await waitFor(() =>
+      expect(rs.mocked(knowledgeChunksKey).mock.calls.at(-1)![3]).toBe(50),
+    );
   });
 
   it("paginates through 加载更多 when total exceeds the full-load cap", async () => {
-    rs.mocked(knowledgeChunksKey).mockReturnValue(["knowledge-bases", "kb-1", "documents", "doc-1", "chunks", { offset: 0, limit: 1 }]);
+    rs.mocked(knowledgeChunksKey).mockReturnValue([
+      "knowledge-bases",
+      "kb-1",
+      "documents",
+      "doc-1",
+      "chunks",
+      { offset: 0, limit: 1 },
+    ]);
     rs.mocked(useQuery).mockReturnValue({
       data: { items: [CHUNK], total: 350, offset: 0, limit: 1 },
       isLoading: false,
     } as never);
 
-    renderWithI18n(<ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
 
     fireEvent.click(await screen.findByRole("button", { name: "加载更多" }));
     const calls = rs.mocked(knowledgeChunksKey).mock.calls;
@@ -197,30 +267,58 @@ describe("ChunkDrawer", () => {
   it("shows the empty-state copy when the document has no chunks", async () => {
     mockChunks([], 0);
 
-    renderWithI18n(<ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
 
     expect(await screen.findByText("该文档还没有切片")).toBeTruthy();
   });
 
   it("shows the failure copy instead of the empty copy when the query errors", async () => {
-    rs.mocked(knowledgeChunksKey).mockReturnValue(["knowledge-bases", "kb-1", "documents", "doc-1", "chunks", { offset: 0, limit: 50 }]);
-    rs.mocked(useQuery).mockReturnValue({ data: undefined, isLoading: false, isError: true } as never);
+    rs.mocked(knowledgeChunksKey).mockReturnValue([
+      "knowledge-bases",
+      "kb-1",
+      "documents",
+      "doc-1",
+      "chunks",
+      { offset: 0, limit: 50 },
+    ]);
+    rs.mocked(useQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    } as never);
 
-    renderWithI18n(<ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
 
     expect(await screen.findByText("加载失败")).toBeTruthy();
     expect(screen.queryByText("该文档还没有切片")).toBeNull();
   });
 
   it("keeps the header position badges and the prev/next jump buttons", async () => {
-    const second = { ...CHUNK, chunk_id: "doc-1#0001", chunk_index: 1, text: "第二章的切片正文。" };
+    const second = {
+      ...CHUNK,
+      chunk_id: "doc-1#0001",
+      chunk_index: 1,
+      text: "第二章的切片正文。",
+    };
     mockChunks([CHUNK, second]);
 
-    renderWithI18n(<ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />);
+    renderWithI18n(
+      <ChunkDrawer kbId="kb-1" doc={DOC} open onOpenChange={() => undefined} />,
+    );
 
     expect(await screen.findByText("当前 #1")).toBeTruthy();
     // 首位时「上一切片」禁用；「下一切片」可用（滚动落定后的徽章联动由真浏览器量）。
-    expect(screen.getByRole<HTMLButtonElement>("button", { name: "上一切片" }).disabled).toBe(true);
-    expect(screen.getByRole<HTMLButtonElement>("button", { name: "下一切片" }).disabled).toBe(false);
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "上一切片" })
+        .disabled,
+    ).toBe(true);
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "下一切片" })
+        .disabled,
+    ).toBe(false);
   });
 });

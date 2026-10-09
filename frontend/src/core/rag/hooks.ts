@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -46,7 +42,8 @@ export function useRagConfig({ enabled = true }: { enabled?: boolean } = {}) {
     enabled,
     // The form is seeded from this view; a focus refetch must not clobber edits.
     refetchOnWindowFocus: false,
-    retry: (count, error) => !(error instanceof RagConfigRequestError) && count < 3,
+    retry: (count, error) =>
+      !(error instanceof RagConfigRequestError) && count < 3,
   });
   return { view: data, isLoading, error };
 }
@@ -72,7 +69,9 @@ export function useSaveRagConfig() {
  * idle deployment asks once per mount. Its verdict is what the settings view shows next to
  * the save button — the row keeps rendering the width that is *in force* until the switch.
  */
-export function useRagMigrationStatus({ enabled = true }: { enabled?: boolean } = {}) {
+export function useRagMigrationStatus({
+  enabled = true,
+}: { enabled?: boolean } = {}) {
   const queryClient = useQueryClient();
   // 迁移「落地」的那一刻才需要重读生效配置：成功则宽度真的换了，失败则没换 —— 两种都要让
   // 表单离开「正在迁移到的那个值」。在飞期间不重读（那时文件里仍是旧宽度，读回来反而误导）。
@@ -167,7 +166,9 @@ export function useProbeDimensions() {
 }
 
 /** The connectivity probe's input: one leg's candidate coordinates, plus the key. */
-export type ConnectivityProbeInput = RagConnectivityProbeRequest & { key: string };
+export type ConnectivityProbeInput = RagConnectivityProbeRequest & {
+  key: string;
+};
 
 /**
  * One connectivity call per leg (D5-5). Manual by裁: the dot's answer only ever comes from a

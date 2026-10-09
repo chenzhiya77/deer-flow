@@ -261,7 +261,9 @@ describe("表头末尾 Columns 总控（Task 6）", () => {
     const columnsButton = screen.getByRole("button", { name: "列" });
     // 淡入门控仍用 group-hover/colhead；但 group/colhead 已上移到表头 tr，
     // 故悬停任意表头格（名称/状态/上传者…）都触发，不再局限末尾窄列。
-    expect(columnsButton.className).toContain("group-hover/colhead:opacity-100");
+    expect(columnsButton.className).toContain(
+      "group-hover/colhead:opacity-100",
+    );
     const headerRow = columnsButton.closest("tr")!;
     expect(headerRow.className).toContain("group/colhead");
   });

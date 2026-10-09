@@ -39,7 +39,9 @@ export async function executeDuplicateAction(
       await deps.uploadFile(context.file);
       return "replaced";
     case "copy": {
-      const copy = new File([context.file], context.copyName, { type: context.file.type });
+      const copy = new File([context.file], context.copyName, {
+        type: context.file.type,
+      });
       await deps.uploadFile(copy);
       return "copied";
     }

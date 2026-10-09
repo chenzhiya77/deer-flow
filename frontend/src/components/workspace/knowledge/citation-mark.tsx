@@ -3,7 +3,11 @@
 import { FileText } from "lucide-react";
 import type { ComponentProps } from "react";
 
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { useI18n } from "@/core/i18n/hooks";
 import type { KnowledgeCitation } from "@/core/knowledge/types";
 
@@ -32,7 +36,11 @@ export type CitationJumpDetail = { messageId: string; indices: number[] };
 
 export type CitationMarkItem = { citation: KnowledgeCitation; index: number };
 
-export function CitationPreviewCard({ citation }: { citation: KnowledgeCitation }) {
+export function CitationPreviewCard({
+  citation,
+}: {
+  citation: KnowledgeCitation;
+}) {
   const { t } = useI18n();
   const tc = t.knowledge.chat;
   return (
@@ -40,13 +48,23 @@ export function CitationPreviewCard({ citation }: { citation: KnowledgeCitation 
       <div className="flex items-center gap-1.5 text-xs">
         <FileText className="text-muted-foreground size-3.5" />
         <span className="text-muted-foreground">{tc.sourceTypeChunk}</span>
-        <span className="min-w-0 flex-1 truncate font-medium">{citation.doc_name}</span>
-        {citation.page != null && <span className="text-muted-foreground shrink-0">{tc.pageLabel(citation.page)}</span>}
+        <span className="min-w-0 flex-1 truncate font-medium">
+          {citation.doc_name}
+        </span>
+        {citation.page != null && (
+          <span className="text-muted-foreground shrink-0">
+            {tc.pageLabel(citation.page)}
+          </span>
+        )}
       </div>
       {citation.heading_path.length > 0 && (
-        <div className="text-muted-foreground truncate text-xs">{citation.heading_path.join(" / ")}</div>
+        <div className="text-muted-foreground truncate text-xs">
+          {citation.heading_path.join(" / ")}
+        </div>
       )}
-      <p className="text-muted-foreground line-clamp-3 text-xs">{citation.text.slice(0, 120)}</p>
+      <p className="text-muted-foreground line-clamp-3 text-xs">
+        {citation.text.slice(0, 120)}
+      </p>
     </div>
   );
 }
@@ -77,7 +95,9 @@ export function CitationMark({
               messageId,
               indices: items.map((item) => item.index),
             };
-            window.dispatchEvent(new CustomEvent(KB_CITATION_JUMP_EVENT, { detail }));
+            window.dispatchEvent(
+              new CustomEvent(KB_CITATION_JUMP_EVENT, { detail }),
+            );
           }}
         >
           {items.map((item) => item.index).join(",")}
@@ -111,7 +131,10 @@ export function CitationMark({
  * text, as before) so stale/foreign marks never crash; in a mixed group the
  * resolvable part still renders as a pill.
  */
-export function createCitationSupRenderer(sources: KnowledgeCitation[], messageId: string) {
+export function createCitationSupRenderer(
+  sources: KnowledgeCitation[],
+  messageId: string,
+) {
   return function CitationSupRenderer(props: ComponentProps<"sup">) {
     const record = props as Record<string, unknown>;
     const raws = parseCitedNumbers(

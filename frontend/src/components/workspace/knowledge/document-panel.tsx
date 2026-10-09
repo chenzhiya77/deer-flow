@@ -375,9 +375,7 @@ function DocumentStatusCell({
 
 /** 任一腿 degraded（RFC §5.2 D1=甲：caption/graph/视频腿统一）——降级=ready+标记，
     与后端 ``has_degraded_leg`` 同判据；整篇重试入口的条件源。 */
-function hasDegradedLeg(
-  pathStatus: KnowledgeDocument["path_status"],
-): boolean {
+function hasDegradedLeg(pathStatus: KnowledgeDocument["path_status"]): boolean {
   return Object.values(pathStatus ?? {}).some((state) => state === "degraded");
 }
 

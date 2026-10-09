@@ -77,7 +77,10 @@ describe("knowledge-base endpoints", () => {
 
   test("createKnowledgeBase POSTs name/description and parses 201", async () => {
     mockedFetch.mockResolvedValueOnce(jsonResponse(201, KB));
-    const result = await createKnowledgeBase({ name: "产品资料", description: "d" });
+    const result = await createKnowledgeBase({
+      name: "产品资料",
+      description: "d",
+    });
     const [url, init] = mockedFetch.mock.calls[0]!;
     expect(url).toBe("http://gw/api/knowledge-bases");
     expect(init?.method).toBe("POST");
@@ -91,12 +94,16 @@ describe("knowledge-base endpoints", () => {
   test("getKnowledgeBase GETs the detail route", async () => {
     mockedFetch.mockResolvedValueOnce(jsonResponse(200, KB));
     const result = await getKnowledgeBase("kb-1");
-    expect(mockedFetch).toHaveBeenCalledWith("http://gw/api/knowledge-bases/kb-1");
+    expect(mockedFetch).toHaveBeenCalledWith(
+      "http://gw/api/knowledge-bases/kb-1",
+    );
     expect(result.name).toBe("产品资料");
   });
 
   test("updateKnowledgeBase PATCHes only provided fields", async () => {
-    mockedFetch.mockResolvedValueOnce(jsonResponse(200, { ...KB, name: "新名" }));
+    mockedFetch.mockResolvedValueOnce(
+      jsonResponse(200, { ...KB, name: "新名" }),
+    );
     const result = await updateKnowledgeBase("kb-1", { name: "新名" });
     const [url, init] = mockedFetch.mock.calls[0]!;
     expect(url).toBe("http://gw/api/knowledge-bases/kb-1");
@@ -112,23 +119,30 @@ describe("knowledge-base endpoints", () => {
   });
 
   test("surfaces backend detail on failure", async () => {
-    mockedFetch.mockResolvedValueOnce(jsonResponse(403, { detail: "你没有访问该知识库的权限" }));
-    await expect(listKnowledgeBases()).rejects.toThrow("你没有访问该知识库的权限");
+    mockedFetch.mockResolvedValueOnce(
+      jsonResponse(403, { detail: "你没有访问该知识库的权限" }),
+    );
+    await expect(listKnowledgeBases()).rejects.toThrow(
+      "你没有访问该知识库的权限",
+    );
   });
-
 });
 
 describe("document endpoints", () => {
   test("listDocuments GETs the bare list", async () => {
     mockedFetch.mockResolvedValueOnce(jsonResponse(200, [DOC]));
     const result = await listDocuments("kb-1");
-    expect(mockedFetch).toHaveBeenCalledWith("http://gw/api/knowledge-bases/kb-1/documents");
+    expect(mockedFetch).toHaveBeenCalledWith(
+      "http://gw/api/knowledge-bases/kb-1/documents",
+    );
     expect(result[0]!.status).toBe("ready");
   });
 
   test("uploadDocument POSTs multipart form data with the file part", async () => {
     mockedFetch.mockResolvedValueOnce(jsonResponse(202, DOC));
-    const file = new File(["pdf-bytes"], "手册.pdf", { type: "application/pdf" });
+    const file = new File(["pdf-bytes"], "手册.pdf", {
+      type: "application/pdf",
+    });
     const result = await uploadDocument("kb-1", file);
     const [url, init] = mockedFetch.mock.calls[0]!;
     expect(url).toBe("http://gw/api/knowledge-bases/kb-1/documents");
@@ -137,7 +151,9 @@ describe("document endpoints", () => {
     expect(body.get("file")).toBeInstanceOf(File);
     expect((body.get("file") as File).name).toBe("手册.pdf");
     // multipart must let fetch set its own boundary header
-    expect((init?.headers as Record<string, string> | undefined)?.["Content-Type"]).toBeUndefined();
+    expect(
+      (init?.headers as Record<string, string> | undefined)?.["Content-Type"],
+    ).toBeUndefined();
     expect(result.status).toBe("ready");
   });
 
@@ -152,7 +168,12 @@ describe("document endpoints", () => {
 
   test("retryDocument POSTs the retry route and parses 202", async () => {
     mockedFetch.mockResolvedValueOnce(
-      jsonResponse(202, { ...DOC, status: "uploaded", progress_percent: 0, error: null }),
+      jsonResponse(202, {
+        ...DOC,
+        status: "uploaded",
+        progress_percent: 0,
+        error: null,
+      }),
     );
     const result = await retryDocument("kb-1", "doc-1");
     expect(mockedFetch.mock.calls[0]![0]).toBe(
@@ -183,7 +204,10 @@ describe("document endpoints", () => {
       limit: 20,
     };
     mockedFetch.mockResolvedValueOnce(jsonResponse(200, page));
-    const result = await listDocumentChunks("kb-1", "doc-1", { offset: 40, limit: 20 });
+    const result = await listDocumentChunks("kb-1", "doc-1", {
+      offset: 40,
+      limit: 20,
+    });
     expect(mockedFetch).toHaveBeenCalledWith(
       "http://gw/api/knowledge-bases/kb-1/documents/doc-1/chunks?offset=40&limit=20",
     );
@@ -194,16 +218,22 @@ describe("document endpoints", () => {
 
 describe("supported formats endpoint", () => {
   test("getSupportedFormats fetches the allowlist (Task 6)", async () => {
-    mockedFetch.mockResolvedValueOnce(jsonResponse(200, { suffixes: [".md", ".txt"] }));
+    mockedFetch.mockResolvedValueOnce(
+      jsonResponse(200, { suffixes: [".md", ".txt"] }),
+    );
     const result = await getSupportedFormats();
-    expect(mockedFetch).toHaveBeenCalledWith("http://gw/api/knowledge-bases/supported-formats");
+    expect(mockedFetch).toHaveBeenCalledWith(
+      "http://gw/api/knowledge-bases/supported-formats",
+    );
     expect(result.suffixes).toEqual([".md", ".txt"]);
   });
 });
 
 describe("reindex endpoint", () => {
   test("reindexKnowledgeBase POSTs the library-scoped rebuild path", async () => {
-    mockedFetch.mockResolvedValueOnce(jsonResponse(202, { status: "enqueued" }));
+    mockedFetch.mockResolvedValueOnce(
+      jsonResponse(202, { status: "enqueued" }),
+    );
     const result = await reindexKnowledgeBase("kb-1");
 
     expect(mockedFetch).toHaveBeenCalledWith(
@@ -224,7 +254,9 @@ describe("reindex endpoint", () => {
 
     const status = await getReindexStatus("kb-1");
 
-    expect(mockedFetch).toHaveBeenCalledWith("http://gw/api/knowledge-bases/kb-1/reindex/status");
+    expect(mockedFetch).toHaveBeenCalledWith(
+      "http://gw/api/knowledge-bases/kb-1/reindex/status",
+    );
     expect(status.in_progress).toBe(true);
     expect(status.progress?.chunks_indexed).toBe(42);
   });

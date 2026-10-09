@@ -96,14 +96,14 @@ export function KbListPanel({
            装饰，而它占宽把「个人知识库」挤折行。 */}
         <button
           aria-expanded={personalOpen}
-          className="text-muted-foreground hover:text-foreground -ml-1 mr-auto flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium whitespace-nowrap transition-colors"
+          className="text-muted-foreground hover:text-foreground mr-auto -ml-1 flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium whitespace-nowrap transition-colors"
           data-testid="kb-personal-toggle"
           type="button"
           onClick={() => setPersonalOpen((open) => !open)}
         >
           {/* 分组醒目图标（2026-09-10）：单人=个人、多人=共享，色随项目强调色惯例
               （text-X-600 dark:text-X-500，同 document-panel 的 amber 用法）。 */}
-          <UserRound className="text-sky-600 dark:text-sky-500 size-3.5 shrink-0" />
+          <UserRound className="size-3.5 shrink-0 text-sky-600 dark:text-sky-500" />
           {tk.personalKBs}
         </button>
         <Button
@@ -132,100 +132,99 @@ export function KbListPanel({
           （type="scroll"、停 2s 淡出），取代原生 overflow-y-auto。 */}
       {/* px-2 在内容层而非 Root（焦点环修复 2026-10-02）：裁剪盒是 ScrollArea 视口自己，
           Root 的留白挡不住外扩 3px 的 focus ring——留白下移到 ul/分组层后行几何不变。 */}
-      <ScrollArea
-        className="flex-1 pb-2"
-        scrollHideDelay={2000}
-        type="scroll"
-      >
+      <ScrollArea className="flex-1 pb-2" scrollHideDelay={2000} type="scroll">
         {personalOpen &&
           (kbs.length === 0 ? (
-          <p className="text-muted-foreground px-4 py-6 text-center text-xs">
-            {tk.emptyKbList}
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-0.5 px-2 py-1">
-            {kbs.map((kb) => {
-              const isActive = kb.id === selectedKbId;
-              return (
-                <li
-                  data-drag-source={dragId === kb.id ? "true" : undefined}
-                  draggable={onReorder ? true : undefined}
-                  key={kb.id}
-                  onDragEnd={() => {
-                    setDragId(null);
-                    setOverId(null);
-                  }}
-                  onDragLeave={(event) => {
-                    // Only clear when genuinely leaving the row — child
-                    // elements (button, icon, text) fire dragleave too, and
-                    // reacting to them re-triggered dragover and flickered.
-                    if (
-                      !event.currentTarget.contains(
-                        event.relatedTarget as Node | null,
-                      )
-                    ) {
-                      setOverId((cur) => (cur === kb.id ? null : cur));
-                    }
-                  }}
-                  onDragOver={(event) => {
-                    if (!onReorder || !dragId || dragId === kb.id) return;
-                    event.preventDefault();
-                    // dataTransfer can be absent on synthetic drag events.
-                    if (event.dataTransfer)
-                      event.dataTransfer.dropEffect = "move";
-                    // Sortable-style: cross a row, take its slot — once per
-                    // crossing, so one gesture can walk the whole list.
-                    if (overId !== kb.id) {
-                      setOverId(kb.id);
-                      onReorder(dragId, kb.id);
-                    }
-                  }}
-                  onDragStart={(event) => {
-                    if (!onReorder) return;
-                    setDragId(kb.id);
-                    if (event.dataTransfer) {
-                      event.dataTransfer.effectAllowed = "move";
-                      event.dataTransfer.setData("text/plain", kb.id);
-                    }
-                  }}
-                  onDrop={(event) => {
-                    // The move already happened on crossing; drop just lands.
-                    event.preventDefault();
-                    setDragId(null);
-                    setOverId(null);
-                  }}
-                >
-                  <button
-                    className={cn(
-                      "hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
-                      isActive && "bg-muted font-medium",
-                      dragId === kb.id && "cursor-grabbing",
-                    )}
-                    data-active={isActive}
-                    type="button"
-                    onClick={() => onSelect(kb.id)}
+            <p className="text-muted-foreground px-4 py-6 text-center text-xs">
+              {tk.emptyKbList}
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-0.5 px-2 py-1">
+              {kbs.map((kb) => {
+                const isActive = kb.id === selectedKbId;
+                return (
+                  <li
+                    data-drag-source={dragId === kb.id ? "true" : undefined}
+                    draggable={onReorder ? true : undefined}
+                    key={kb.id}
+                    onDragEnd={() => {
+                      setDragId(null);
+                      setOverId(null);
+                    }}
+                    onDragLeave={(event) => {
+                      // Only clear when genuinely leaving the row — child
+                      // elements (button, icon, text) fire dragleave too, and
+                      // reacting to them re-triggered dragover and flickered.
+                      if (
+                        !event.currentTarget.contains(
+                          event.relatedTarget as Node | null,
+                        )
+                      ) {
+                        setOverId((cur) => (cur === kb.id ? null : cur));
+                      }
+                    }}
+                    onDragOver={(event) => {
+                      if (!onReorder || !dragId || dragId === kb.id) return;
+                      event.preventDefault();
+                      // dataTransfer can be absent on synthetic drag events.
+                      if (event.dataTransfer)
+                        event.dataTransfer.dropEffect = "move";
+                      // Sortable-style: cross a row, take its slot — once per
+                      // crossing, so one gesture can walk the whole list.
+                      if (overId !== kb.id) {
+                        setOverId(kb.id);
+                        onReorder(dragId, kb.id);
+                      }
+                    }}
+                    onDragStart={(event) => {
+                      if (!onReorder) return;
+                      setDragId(kb.id);
+                      if (event.dataTransfer) {
+                        event.dataTransfer.effectAllowed = "move";
+                        event.dataTransfer.setData("text/plain", kb.id);
+                      }
+                    }}
+                    onDrop={(event) => {
+                      // The move already happened on crossing; drop just lands.
+                      event.preventDefault();
+                      setDragId(null);
+                      setOverId(null);
+                    }}
                   >
-                    <LibraryBig className="text-muted-foreground size-4 shrink-0" />
-                    <span className="min-w-0 truncate">{kb.name}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                    <button
+                      className={cn(
+                        "hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
+                        isActive && "bg-muted font-medium",
+                        dragId === kb.id && "cursor-grabbing",
+                      )}
+                      data-active={isActive}
+                      type="button"
+                      onClick={() => onSelect(kb.id)}
+                    >
+                      <LibraryBig className="text-muted-foreground size-4 shrink-0" />
+                      <span className="min-w-0 truncate">{kb.name}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           ))}
 
         {/* 共享知识库（2026-09-10 纯展示）：后期规划的共享库分组预览——静态行
             （无按钮、不可拖拽、不可选中），数据未接后端，仅演示信息架构。 */}
-        <div className="mt-4 flex flex-col gap-0.5 px-2" data-testid="kb-shared-group">
+        <div
+          className="mt-4 flex flex-col gap-0.5 px-2"
+          data-testid="kb-shared-group"
+        >
           <div className="flex items-center gap-1.5 px-2 pb-1">
             <button
               aria-expanded={sharedOpen}
-              className="text-muted-foreground hover:text-foreground -ml-1 mr-auto flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium whitespace-nowrap transition-colors"
+              className="text-muted-foreground hover:text-foreground mr-auto -ml-1 flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-medium whitespace-nowrap transition-colors"
               data-testid="kb-shared-toggle"
               type="button"
               onClick={() => setSharedOpen((open) => !open)}
             >
-              <Users className="text-violet-600 dark:text-violet-500 size-3.5 shrink-0" />
+              <Users className="size-3.5 shrink-0 text-violet-600 dark:text-violet-500" />
               {tk.sharedKBs}
             </button>
           </div>

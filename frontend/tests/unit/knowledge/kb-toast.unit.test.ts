@@ -7,7 +7,10 @@
  */
 import { describe, expect, it, rs } from "@rstest/core";
 
-import { KB_TOASTER_ID, toast } from "@/components/workspace/knowledge/kb-toast";
+import {
+  KB_TOASTER_ID,
+  toast,
+} from "@/components/workspace/knowledge/kb-toast";
 
 const sonnerMock = rs.hoisted(() => ({
   error: rs.fn(),
@@ -21,16 +24,24 @@ rs.mock("sonner", () => ({ toast: sonnerMock }));
 describe("kb-toast（中栏作用域分流）", () => {
   it("injects the middle-column toaster id on every call", () => {
     toast.info("中栏通知");
-    expect(sonnerMock.info).toHaveBeenCalledWith("中栏通知", { toasterId: KB_TOASTER_ID });
+    expect(sonnerMock.info).toHaveBeenCalledWith("中栏通知", {
+      toasterId: KB_TOASTER_ID,
+    });
 
     toast.success("已保存");
-    expect(sonnerMock.success).toHaveBeenCalledWith("已保存", { toasterId: KB_TOASTER_ID });
+    expect(sonnerMock.success).toHaveBeenCalledWith("已保存", {
+      toasterId: KB_TOASTER_ID,
+    });
 
     toast.warning("注意");
-    expect(sonnerMock.warning).toHaveBeenCalledWith("注意", { toasterId: KB_TOASTER_ID });
+    expect(sonnerMock.warning).toHaveBeenCalledWith("注意", {
+      toasterId: KB_TOASTER_ID,
+    });
 
     toast.error("失败");
-    expect(sonnerMock.error).toHaveBeenCalledWith("失败", { toasterId: KB_TOASTER_ID });
+    expect(sonnerMock.error).toHaveBeenCalledWith("失败", {
+      toasterId: KB_TOASTER_ID,
+    });
   });
 
   it("preserves caller options alongside the scoped id", () => {

@@ -140,7 +140,10 @@ export async function probeEmbeddingDimensions(
   if (!response.ok) {
     throw new RagConfigRequestError(
       response.status,
-      await readErrorDetail(response, "Failed to probe the embedding dimensions"),
+      await readErrorDetail(
+        response,
+        "Failed to probe the embedding dimensions",
+      ),
     );
   }
   return response.json() as Promise<RagDimensionProbeResponse>;
@@ -169,7 +172,6 @@ export async function probeLegConnectivity(
   }
   return response.json() as Promise<RagConnectivityProbeResponse>;
 }
-
 
 /**
  * Ask the server whether the configured *external sparse service* answers (connectivity spec §3 D1).

@@ -23,10 +23,15 @@ export function isKnowledgeThread(thread: ThreadWithMetadata): boolean {
   return kbIdOfThread(thread) !== null;
 }
 
-export function excludeKnowledgeThreads<T extends ThreadWithMetadata>(threads: readonly T[]): T[] {
+export function excludeKnowledgeThreads<T extends ThreadWithMetadata>(
+  threads: readonly T[],
+): T[] {
   return threads.filter((thread) => !isKnowledgeThread(thread));
 }
 
-export function threadsForKb<T extends ThreadWithMetadata>(threads: readonly T[], kbId: string): T[] {
+export function threadsForKb<T extends ThreadWithMetadata>(
+  threads: readonly T[],
+  kbId: string,
+): T[] {
   return threads.filter((thread) => kbIdOfThread(thread) === kbId);
 }

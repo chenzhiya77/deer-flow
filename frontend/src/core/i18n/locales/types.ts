@@ -545,7 +545,7 @@ export interface Translations {
 
   // Knowledge scope for custom-agent chat
   knowledge: {
-  scope: {
+    scope: {
       title: string;
       description: string;
       buttonAll: string;
@@ -574,96 +574,96 @@ export interface Translations {
       historyAll: string;
       historyDisabled: string;
       historySelected: (datasets: number, documents: number) => string;
-    }
-  personalKBs: string;
-  sharedKBs: string;
-  sharedKbSamples: string[];
-  createKB: string;
-  kbNamePlaceholder: string;
-  kbDescriptionPlaceholder: string;
-  emptyKbList: string;
-  selectKbTitle: string;
-  selectKbHint: string;
-  /** 未启用门控：扩展关闭时知识页的直连兜底文案。 */
-  disabledHint: string;
-  collapseKbList: string;
-  expandKbList: string;
-  uploadDocuments: string;
-  uploadingDocuments: string;
-  dropToUpload: string;
-  dropUnsupported: string;
-  unsupportedFilesSkipped: (names: string) => string;
-  duplicateUpload: {
-    identicalTitle: string;
-    identicalDescription: (name: string) => string;
-    conflictTitle: string;
-    conflictDescription: (name: string) => string;
-    copyNamePreview: (name: string) => string;
-    skipUpload: string;
-    keepCopy: string;
-    keepBoth: string;
-    replaceOld: string;
-    skippedDuplicate: (name: string) => string;
-    uploadedAsCopy: (name: string) => string;
-    replacedDocument: (name: string) => string;
-  };
-  searchDocuments: string;
-  clearSearch: string;
-  noMatchingDocuments: string;
-  selectAllDocuments: string;
-  selectDocument: string;
-  selectedCount: (count: number) => string;
-  deleteSelected: string;
-  cancelSelection: string;
-  openChunks: string;
-  downloadDocument: string;
-  moreActions: string;
-  sortDocuments: string;
-  sort: {
-    createdAt: string;
-    name: string;
-    size: string;
-    chunks: string;
-    asc: string;
-    desc: string;
-  };
-  settings: string;
-  renameKb: string;
-  deleteKb: string;
-  deleteKbConfirmTitle: string;
-  deleteKbConfirmDescription: string;
-  statsDocuments: string;
-  statsChunks: string;
-  table: {
-    name: string;
-    uploader: string;
-    size: string;
-    chunks: string;
-    status: string;
-    createdAt: string;
-    columnMenu: string;
-    hideColumn: string;
-    columns: string;
-    showAllColumns: string;
-    timeFormat: string;
-    timeFormatAbsolute: string;
-    timeFormatRelative: string;
-    sizeUnit: string;
-    sizeUnitKb: string;
-    sizeUnitMb: string;
-  };
-  status: {
-    uploaded: string;
-    parsing: string;
-    chunking: string;
-    indexing: string;
-    ready: string;
-    failed: string;
-  };
-  pathStatus: {
-    vector: string;
-    caption: string;
-    state: {
+    };
+    personalKBs: string;
+    sharedKBs: string;
+    sharedKbSamples: string[];
+    createKB: string;
+    kbNamePlaceholder: string;
+    kbDescriptionPlaceholder: string;
+    emptyKbList: string;
+    selectKbTitle: string;
+    selectKbHint: string;
+    /** 未启用门控：扩展关闭时知识页的直连兜底文案。 */
+    disabledHint: string;
+    collapseKbList: string;
+    expandKbList: string;
+    uploadDocuments: string;
+    uploadingDocuments: string;
+    dropToUpload: string;
+    dropUnsupported: string;
+    unsupportedFilesSkipped: (names: string) => string;
+    duplicateUpload: {
+      identicalTitle: string;
+      identicalDescription: (name: string) => string;
+      conflictTitle: string;
+      conflictDescription: (name: string) => string;
+      copyNamePreview: (name: string) => string;
+      skipUpload: string;
+      keepCopy: string;
+      keepBoth: string;
+      replaceOld: string;
+      skippedDuplicate: (name: string) => string;
+      uploadedAsCopy: (name: string) => string;
+      replacedDocument: (name: string) => string;
+    };
+    searchDocuments: string;
+    clearSearch: string;
+    noMatchingDocuments: string;
+    selectAllDocuments: string;
+    selectDocument: string;
+    selectedCount: (count: number) => string;
+    deleteSelected: string;
+    cancelSelection: string;
+    openChunks: string;
+    downloadDocument: string;
+    moreActions: string;
+    sortDocuments: string;
+    sort: {
+      createdAt: string;
+      name: string;
+      size: string;
+      chunks: string;
+      asc: string;
+      desc: string;
+    };
+    settings: string;
+    renameKb: string;
+    deleteKb: string;
+    deleteKbConfirmTitle: string;
+    deleteKbConfirmDescription: string;
+    statsDocuments: string;
+    statsChunks: string;
+    table: {
+      name: string;
+      uploader: string;
+      size: string;
+      chunks: string;
+      status: string;
+      createdAt: string;
+      columnMenu: string;
+      hideColumn: string;
+      columns: string;
+      showAllColumns: string;
+      timeFormat: string;
+      timeFormatAbsolute: string;
+      timeFormatRelative: string;
+      sizeUnit: string;
+      sizeUnitKb: string;
+      sizeUnitMb: string;
+    };
+    status: {
+      uploaded: string;
+      parsing: string;
+      chunking: string;
+      indexing: string;
+      ready: string;
+      failed: string;
+    };
+    pathStatus: {
+      vector: string;
+      caption: string;
+      state: {
         pending: string;
         indexing: string;
         done: string;
@@ -672,74 +672,74 @@ export interface Translations {
         generating: string;
         ready: string;
       };
-  };
-  deleteDocument: string;
-  deleteDocumentConfirmTitle: string;
-  deleteDocumentConfirmDescription: string;
-  retryDocument: string;
-  degradedRetryHint: string;
-  uploaderMe: string;
-  emptyDocuments: string;
-  chunkDrawer: {
-    title: string;
-    chunkUnit: string;
-    current: string;
-    prevChunk: string;
-    nextChunk: string;
-    page: string;
-    tokens: string;
-    entities: string;
-    empty: string;
-    loadFailed: string;
-    loadMore: string;
-    loading: string;
-    viewRendered: string;
-    viewRaw: string;
-    imageUnavailable: string;
-  };
-  tabs: {
-    documents: string;
-    more: string;
-  };
-  chat: {
-    newChat: string;
-    history: string;
-    noHistory: string;
-    deleteChat: string;
-    sourcesTitle: (count: number) => string;
-    chunkSources: (count: number) => string;
-    viewAllSources: string;
-    sourceTypeChunk: string;
-    sourceMarkAriaLabel: (index: number, name: string) => string;
-    expandToFullPage: string;
-    expandDisabledAgentsOff: string;
-    pageLabel: (page: number) => string;
-    inputPlaceholder: string;
-    selectModel: string;
-    searchModels: string;
-    send: string;
-  };
-  errors: {
-    createFailed: string;
-    renameFailed: string;
-    deleteFailed: string;
-    uploadFailed: string;
-    deleteDocumentFailed: string;
-    retryFailed: string;
-  };
-  docErrors: {
-    toastTitle: string;
-    dismissAll: string;
-    dismiss: string;
-    empty: string;
-    unsupported: string;
-    retryLimit: string;
-    serviceUnconfigured: string;
-    timeout: string;
-    indexIncomplete: string;
-    noIndexableContent: string;
-    unknown: string;
-  };
+    };
+    deleteDocument: string;
+    deleteDocumentConfirmTitle: string;
+    deleteDocumentConfirmDescription: string;
+    retryDocument: string;
+    degradedRetryHint: string;
+    uploaderMe: string;
+    emptyDocuments: string;
+    chunkDrawer: {
+      title: string;
+      chunkUnit: string;
+      current: string;
+      prevChunk: string;
+      nextChunk: string;
+      page: string;
+      tokens: string;
+      entities: string;
+      empty: string;
+      loadFailed: string;
+      loadMore: string;
+      loading: string;
+      viewRendered: string;
+      viewRaw: string;
+      imageUnavailable: string;
+    };
+    tabs: {
+      documents: string;
+      more: string;
+    };
+    chat: {
+      newChat: string;
+      history: string;
+      noHistory: string;
+      deleteChat: string;
+      sourcesTitle: (count: number) => string;
+      chunkSources: (count: number) => string;
+      viewAllSources: string;
+      sourceTypeChunk: string;
+      sourceMarkAriaLabel: (index: number, name: string) => string;
+      expandToFullPage: string;
+      expandDisabledAgentsOff: string;
+      pageLabel: (page: number) => string;
+      inputPlaceholder: string;
+      selectModel: string;
+      searchModels: string;
+      send: string;
+    };
+    errors: {
+      createFailed: string;
+      renameFailed: string;
+      deleteFailed: string;
+      uploadFailed: string;
+      deleteDocumentFailed: string;
+      retryFailed: string;
+    };
+    docErrors: {
+      toastTitle: string;
+      dismissAll: string;
+      dismiss: string;
+      empty: string;
+      unsupported: string;
+      retryLimit: string;
+      serviceUnconfigured: string;
+      timeout: string;
+      indexIncomplete: string;
+      noIndexableContent: string;
+      unknown: string;
+    };
   };
 
   // Thread-scoped MCP background tasks
@@ -1510,7 +1510,8 @@ export interface Translations {
       sparseBaseUrl: string;
       sparseModel: string;
       sparseApiKey: string;
-    };    sections: {
+    };
+    sections: {
       models: string;
       account: string;
       appearance: string;

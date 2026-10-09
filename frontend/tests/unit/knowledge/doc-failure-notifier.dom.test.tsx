@@ -43,7 +43,9 @@ function Harness({ documents }: { documents: KnowledgeDocument[] }) {
 
 function withI18n(documents: KnowledgeDocument[]) {
   return (
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <Harness documents={documents} />
     </I18nContext.Provider>
   );
@@ -53,42 +55,71 @@ afterEach(cleanup);
 
 describe("useDocFailureNotifier", () => {
   it("首次载入已失败的文档不补发条目（只报新发生的失败）", () => {
-    render(withI18n([doc({ status: "failed", error: "retry limit reached (5 attempts)" })]));
+    render(
+      withI18n([
+        doc({ status: "failed", error: "retry limit reached (5 attempts)" }),
+      ]),
+    );
     expect(latest.failures).toHaveLength(0);
   });
 
   it("轮询到新失败：一条条目（文件名 + 友好原因），原始英文不外露", () => {
     const { rerender } = render(withI18n([doc({})]));
-    rerender(withI18n([doc({ status: "failed", error: "retry limit reached (5 attempts), please try again later" })]));
+    rerender(
+      withI18n([
+        doc({
+          status: "failed",
+          error: "retry limit reached (5 attempts), please try again later",
+        }),
+      ]),
+    );
 
     expect(latest.failures).toHaveLength(1);
-    expect(latest.failures[0]).toMatchObject({ key: "doc-1", name: "户号.pptx", retryable: true });
+    expect(latest.failures[0]).toMatchObject({
+      key: "doc-1",
+      name: "户号.pptx",
+      retryable: true,
+    });
     expect(latest.failures[0]!.reason).toContain("解析服务多次重试仍失败");
     expect(latest.failures[0]!.reason).not.toContain("retry limit");
   });
 
   it("同一周期多个失败各自成条", () => {
-    const { rerender } = render(withI18n([doc({}), doc({ id: "doc-2", name: "报告.docx" })]));
+    const { rerender } = render(
+      withI18n([doc({}), doc({ id: "doc-2", name: "报告.docx" })]),
+    );
     rerender(
       withI18n([
         doc({ status: "failed", error: "retry limit reached (5 attempts)" }),
-        doc({ id: "doc-2", name: "报告.docx", status: "failed", error: "MinerU parse timed out after 1800s" }),
+        doc({
+          id: "doc-2",
+          name: "报告.docx",
+          status: "failed",
+          error: "MinerU parse timed out after 1800s",
+        }),
       ]),
     );
 
     expect(latest.failures).toHaveLength(2);
-    expect(latest.failures.map((f) => f.name)).toEqual(["户号.pptx", "报告.docx"]);
+    expect(latest.failures.map((f) => f.name)).toEqual([
+      "户号.pptx",
+      "报告.docx",
+    ]);
     expect(latest.failures[1]!.reason).toContain("解析超时");
   });
 
   it("同一失败只提醒一次；重试离开 failed 即撤条，再次失败重新进列表", () => {
     const { rerender } = render(withI18n([doc({})]));
 
-    rerender(withI18n([doc({ status: "failed", error: "retry limit reached" })]));
+    rerender(
+      withI18n([doc({ status: "failed", error: "retry limit reached" })]),
+    );
     expect(latest.failures).toHaveLength(1);
 
     // 相同数据再来一轮轮询：不重复
-    rerender(withI18n([doc({ status: "failed", error: "retry limit reached" })]));
+    rerender(
+      withI18n([doc({ status: "failed", error: "retry limit reached" })]),
+    );
     expect(latest.failures).toHaveLength(1);
 
     // 用户点重试：状态离开 failed——条目立即撤掉（界面只剩处理中状态）
@@ -96,7 +127,9 @@ describe("useDocFailureNotifier", () => {
     expect(latest.failures).toHaveLength(0);
 
     // 再次失败属于新的一轮，重新进列表
-    rerender(withI18n([doc({ status: "failed", error: "retry limit reached" })]));
+    rerender(
+      withI18n([doc({ status: "failed", error: "retry limit reached" })]),
+    );
     expect(latest.failures).toHaveLength(1);
   });
 
@@ -109,7 +142,11 @@ describe("useDocFailureNotifier", () => {
     });
     expect(latest.failures).toHaveLength(2);
     expect(latest.failures[0]!.key).toMatch(/^rejection-/);
-    expect(latest.failures[0]).toMatchObject({ name: "户号.pptx", reason: "文件内容为空", retryable: false });
+    expect(latest.failures[0]).toMatchObject({
+      name: "户号.pptx",
+      reason: "文件内容为空",
+      retryable: false,
+    });
 
     act(() => {
       latest.dismissOne(latest.failures[0]!.key);

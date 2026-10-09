@@ -26,7 +26,9 @@ function renderPanel(props?: Partial<Parameters<typeof KbListPanel>[0]>) {
   const onSelect = rs.fn();
   const onCreate = rs.fn().mockResolvedValue(undefined);
   render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <KbListPanel
         kbs={[KB_A, KB_B]}
         selectedKbId={null}
@@ -61,7 +63,9 @@ describe("KbListPanel", () => {
     function renderReorderable() {
       const onReorder = rs.fn();
       render(
-        <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+        <I18nContext.Provider
+          value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+        >
           <KbListPanel
             kbs={[KB_A, KB_B, KB_C]}
             selectedKbId={null}
@@ -151,7 +155,9 @@ describe("KbListPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "新建知识库" }));
     const submit = screen.getByRole("button", { name: "创建" });
     expect(submit.hasAttribute("disabled")).toBe(true);
-    fireEvent.change(screen.getByPlaceholderText("知识库名称"), { target: { value: "x" } });
+    fireEvent.change(screen.getByPlaceholderText("知识库名称"), {
+      target: { value: "x" },
+    });
     expect(submit.hasAttribute("disabled")).toBe(false);
   });
 

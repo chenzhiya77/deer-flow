@@ -7,7 +7,13 @@
  * settle timer fire.
  */
 import { afterEach, beforeAll, describe, expect, it, rs } from "@rstest/core";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 
 import { KnowledgePanelsShell } from "@/components/workspace/knowledge/panels-shell";
 import { I18nContext } from "@/core/i18n/context";
@@ -37,10 +43,16 @@ beforeAll(() => {
 
 function renderShell() {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <KnowledgePanelsShell
         left={({ collapseLeft }) => (
-          <button data-testid="left-collapse" type="button" onClick={collapseLeft}>
+          <button
+            data-testid="left-collapse"
+            type="button"
+            onClick={collapseLeft}
+          >
             收起
           </button>
         )}
@@ -61,13 +73,18 @@ function headerToggle() {
 }
 
 function foldState() {
-  return screen.getByTestId("knowledge-panels-shell").getAttribute("data-kb-fold-state");
+  return screen
+    .getByTestId("knowledge-panels-shell")
+    .getAttribute("data-kb-fold-state");
 }
 
 /** Simulate the transition landing at a resting width (stand-in for
  *  transitionend): set the width, let the settle fallback fire. */
 function settleAt(aside: HTMLElement, px: number) {
-  Object.defineProperty(aside, "offsetWidth", { configurable: true, value: px });
+  Object.defineProperty(aside, "offsetWidth", {
+    configurable: true,
+    value: px,
+  });
   act(() => {
     rs.advanceTimersByTime(450);
   });
@@ -84,7 +101,9 @@ describe("KnowledgePanelsShell", () => {
     expect(screen.getByTestId("left-collapse")).toBeTruthy();
     expect(screen.getByTestId("middle-content")).toBeTruthy();
     expect(screen.getByTestId("right-content")).toBeTruthy();
-    expect(container.querySelectorAll('[data-slot="resizable-handle"]').length).toBe(2);
+    expect(
+      container.querySelectorAll('[data-slot="resizable-handle"]').length,
+    ).toBe(2);
   });
 
   it("keeps the restore overlay inert while the list is expanded", () => {
@@ -98,7 +117,9 @@ describe("KnowledgePanelsShell", () => {
     expect(screen.getByTestId("middle-header").textContent).toBe("");
     const styleText = container.querySelector("style")?.textContent ?? "";
     expect(styleText).toContain(".kb-restore-overlay { visibility: hidden");
-    expect(styleText).toContain('[data-kb-fold-state="collapsed"] .kb-restore-overlay:hover');
+    expect(styleText).toContain(
+      '[data-kb-fold-state="collapsed"] .kb-restore-overlay:hover',
+    );
   });
 
   it("marks the shell folding while the fold is mid-flight", () => {
@@ -116,7 +137,9 @@ describe("KnowledgePanelsShell", () => {
     expect(scroll).toBeTruthy();
     // 三列 Group 沉进 overlay ScrollArea 的 Viewport（真滚动层）；横向细滑条
     // 元素在 jsdom 无溢出尺寸时不挂载，故钉结构不钉 scrollbar 节点。
-    const viewport = scroll?.querySelector("[data-slot='scroll-area-viewport']");
+    const viewport = scroll?.querySelector(
+      "[data-slot='scroll-area-viewport']",
+    );
     expect(viewport).toBeTruthy();
     expect(viewport?.querySelector("#kb-list")).toBeTruthy();
   });
@@ -180,7 +203,10 @@ describe("KnowledgePanelsShell", () => {
     // wrapping the user reported.
     const { container } = renderShell();
     const aside = container.querySelector("aside")!;
-    Object.defineProperty(aside, "offsetWidth", { configurable: true, value: 224 });
+    Object.defineProperty(aside, "offsetWidth", {
+      configurable: true,
+      value: 224,
+    });
     const inner = aside.firstElementChild as HTMLElement;
 
     fireEvent.click(screen.getByTestId("left-collapse"));
@@ -198,7 +224,10 @@ describe("KnowledgePanelsShell", () => {
   it("fades the content per direction while mid-flight", () => {
     const { container } = renderShell();
     const aside = container.querySelector("aside")!;
-    Object.defineProperty(aside, "offsetWidth", { configurable: true, value: 224 });
+    Object.defineProperty(aside, "offsetWidth", {
+      configurable: true,
+      value: 224,
+    });
 
     fireEvent.click(screen.getByTestId("left-collapse"));
     // Collapsing: legible for the first half, then a late accelerating fade.
@@ -209,7 +238,9 @@ describe("KnowledgePanelsShell", () => {
     expect(aside.className).toContain("delay-100");
     expect(aside.className).toContain("opacity-0");
     // The divider does NOT fade with it — see the gutter test below.
-    const handle = container.querySelectorAll('[data-slot="resizable-handle"]')[0]!;
+    const handle = container.querySelectorAll(
+      '[data-slot="resizable-handle"]',
+    )[0]!;
     expect(handle.className).not.toContain("opacity-0");
     settleAt(aside, 0);
     expect(aside.className).toContain("opacity-0");
@@ -224,8 +255,13 @@ describe("KnowledgePanelsShell", () => {
   it("keeps the collapsed gutter painted so the table stays flush with the divider", () => {
     const { container } = renderShell();
     const aside = container.querySelector("aside")!;
-    Object.defineProperty(aside, "offsetWidth", { configurable: true, value: 224 });
-    const handle = container.querySelectorAll('[data-slot="resizable-handle"]')[0]!;
+    Object.defineProperty(aside, "offsetWidth", {
+      configurable: true,
+      value: 224,
+    });
+    const handle = container.querySelectorAll(
+      '[data-slot="resizable-handle"]',
+    )[0]!;
     // Expanded: painted and draggable.
     expect(handle.className).toContain("w-0.5");
     expect(handle.className).not.toContain("opacity-0");
@@ -259,9 +295,13 @@ describe("KnowledgePanelsShell 中栏通知面（2026-09-08）", () => {
     const middle = screen.getByTestId("middle-content").closest("section");
     expect(middle?.className).toContain("relative");
     // sonner scoped Toaster 挂在中栏内（其 section 是 absolute ol 的宿主）。
-    expect(middle?.querySelector("section[aria-label^='Notifications']")).toBeTruthy();
+    expect(
+      middle?.querySelector("section[aria-label^='Notifications']"),
+    ).toBeTruthy();
     // 会话栏零通知面：通知不再 fixed 到视口右下压住输入框。
     const chat = screen.getByTestId("right-content").closest("aside");
-    expect(chat?.querySelector("section[aria-label^='Notifications']")).toBeFalsy();
+    expect(
+      chat?.querySelector("section[aria-label^='Notifications']"),
+    ).toBeFalsy();
   });
 });

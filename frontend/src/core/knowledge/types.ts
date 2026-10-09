@@ -14,18 +14,35 @@ export interface KnowledgeBase {
 }
 
 /** Document status machine (spec §3.6): uploaded → parsing → chunking → indexing → ready / failed. */
-export type KnowledgeDocumentStatus = "uploaded" | "parsing" | "chunking" | "indexing" | "ready" | "failed";
+export type KnowledgeDocumentStatus =
+  | "uploaded"
+  | "parsing"
+  | "chunking"
+  | "indexing"
+  | "ready"
+  | "failed";
 
 // ── P3 per-path sub-status (phase-2 batch-1, spec 2026-08-11 §5) ──────────
 
 /** Vector leg: pending → indexing → done / failed. */
-export type VectorPathState = "pending" | "indexing" | "done" | "failed" | string;
+export type VectorPathState =
+  | "pending"
+  | "indexing"
+  | "done"
+  | "failed"
+  | string;
 /**
  * Caption leg (spec 2026-09-08 §5): image descriptions feeding the vector
  * leg. Written only by documents with images; `degraded` marks a fallback
  * (caption failures beyond the threshold).
  */
-export type CaptionLegState = "pending" | "indexing" | "done" | "degraded" | "failed" | string;
+export type CaptionLegState =
+  | "pending"
+  | "indexing"
+  | "done"
+  | "degraded"
+  | "failed"
+  | string;
 
 /** Per-path indexing sub-status persisted on the document row. */
 export interface DocumentPathStatus {

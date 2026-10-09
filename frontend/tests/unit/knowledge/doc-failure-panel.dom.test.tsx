@@ -15,21 +15,47 @@ import { I18nContext } from "@/core/i18n/context";
 import { zhCN } from "@/core/i18n/locales/zh-CN";
 import type { DocFailureEntry } from "@/core/knowledge/use-doc-failure-notifier";
 
-const A: DocFailureEntry = { key: "doc-a", name: "户号.pptx", reason: "文件内容为空", retryable: true };
-const B: DocFailureEntry = { key: "doc-b", name: "报告.docx", reason: "解析超时，请重试", retryable: true };
+const A: DocFailureEntry = {
+  key: "doc-a",
+  name: "户号.pptx",
+  reason: "文件内容为空",
+  retryable: true,
+};
+const B: DocFailureEntry = {
+  key: "doc-b",
+  name: "报告.docx",
+  reason: "解析超时，请重试",
+  retryable: true,
+};
 // 上传即拒类（无文档行，不可重试）
-const C: DocFailureEntry = { key: "rejection-1", name: "新建 Microsoft Word 文档.docx", reason: "文件内容为空", retryable: false };
+const C: DocFailureEntry = {
+  key: "rejection-1",
+  name: "新建 Microsoft Word 文档.docx",
+  reason: "文件内容为空",
+  retryable: false,
+};
 
 function renderPanel(
   failures: DocFailureEntry[],
-  handlers?: { onDismiss?: (key: string) => void; onDismissAll?: () => void; onRetry?: (key: string) => void },
+  handlers?: {
+    onDismiss?: (key: string) => void;
+    onDismissAll?: () => void;
+    onRetry?: (key: string) => void;
+  },
 ) {
   const onDismiss = handlers?.onDismiss ?? rs.fn();
   const onDismissAll = handlers?.onDismissAll ?? rs.fn();
   const onRetry = handlers?.onRetry ?? rs.fn();
   render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
-      <DocFailurePanel failures={failures} onDismiss={onDismiss} onDismissAll={onDismissAll} onRetry={onRetry} />
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
+      <DocFailurePanel
+        failures={failures}
+        onDismiss={onDismiss}
+        onDismissAll={onDismissAll}
+        onRetry={onRetry}
+      />
     </I18nContext.Provider>,
   );
   return { onDismiss, onDismissAll, onRetry };
@@ -59,7 +85,9 @@ describe("DocFailurePanel", () => {
     expect(screen.getByText("文件内容为空")).toBeTruthy();
     expect(screen.queryByText(/文档处理失败/)).toBeNull();
     // 底色沿用全局消息框：纯白（暗色纯黑），靠阴影与页面拉开层次
-    expect(screen.getByTestId("doc-failure-panel").className).toContain("bg-white");
+    expect(screen.getByTestId("doc-failure-panel").className).toContain(
+      "bg-white",
+    );
     // 上传即拒类无文档行——不出重试按钮，只有关闭
     expect(screen.queryByRole("button", { name: "重试" })).toBeNull();
     expect(screen.getByRole("button", { name: "全部关闭" })).toBeTruthy();

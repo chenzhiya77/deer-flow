@@ -43,14 +43,20 @@ describe("useKbLocalOrder", () => {
   });
 
   it("applies the stored order and appends unknown kbs at the end", () => {
-    window.localStorage.setItem(KB_ORDER_STORAGE_KEY, JSON.stringify(["c", "a"]));
+    window.localStorage.setItem(
+      KB_ORDER_STORAGE_KEY,
+      JSON.stringify(["c", "a"]),
+    );
     const { result } = renderHook(() => useKbLocalOrder(THREE));
     // c and a follow the stored order; b was never ordered, so it trails.
     expect(result.current.ordered.map((k) => k.id)).toEqual(["c", "a", "b"]);
   });
 
   it("ignores stored ids that no longer exist", () => {
-    window.localStorage.setItem(KB_ORDER_STORAGE_KEY, JSON.stringify(["ghost", "b", "a"]));
+    window.localStorage.setItem(
+      KB_ORDER_STORAGE_KEY,
+      JSON.stringify(["ghost", "b", "a"]),
+    );
     const { result } = renderHook(() => useKbLocalOrder(THREE));
     expect(result.current.ordered.map((k) => k.id)).toEqual(["b", "a", "c"]);
   });
@@ -68,11 +74,9 @@ describe("useKbLocalOrder", () => {
       result.current.commitMove("c", "a");
     });
     expect(result.current.ordered.map((k) => k.id)).toEqual(["c", "a", "b"]);
-    expect(JSON.parse(window.localStorage.getItem(KB_ORDER_STORAGE_KEY)!)).toEqual([
-      "c",
-      "a",
-      "b",
-    ]);
+    expect(
+      JSON.parse(window.localStorage.getItem(KB_ORDER_STORAGE_KEY)!),
+    ).toEqual(["c", "a", "b"]);
   });
 
   it("commitMove is a no-op when the ids match or are unknown", () => {
@@ -94,7 +98,10 @@ describe("remembered last kb", () => {
   });
 
   it("returns null for non-string garbage", () => {
-    window.localStorage.setItem(LAST_KB_STORAGE_KEY, JSON.stringify({ nope: 1 }));
+    window.localStorage.setItem(
+      LAST_KB_STORAGE_KEY,
+      JSON.stringify({ nope: 1 }),
+    );
     expect(readLastKbId()).toBeNull();
   });
 });

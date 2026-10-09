@@ -15,7 +15,9 @@ import { zhCN } from "@/core/i18n/locales/zh-CN";
 
 function renderCard(text: string) {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <ChunkCard text={text} />
     </I18nContext.Provider>,
   );
@@ -45,10 +47,14 @@ describe("ChunkCard 表格行卡渲染（spec 2026-09-09 §8）", () => {
     const table = container.querySelector("table");
     expect(table).toBeTruthy();
     // 表头列名进 <th>，数据行进 <td>——即前端把行卡渲染为真表格（零改动）。
-    const headers = [...container.querySelectorAll("th")].map((th) => th.textContent);
+    const headers = [...container.querySelectorAll("th")].map(
+      (th) => th.textContent,
+    );
     expect(headers).toContain("Region");
     expect(headers).toContain("Product");
-    const cells = [...container.querySelectorAll("td")].map((td) => td.textContent);
+    const cells = [...container.querySelectorAll("td")].map(
+      (td) => td.textContent,
+    );
     expect(cells).toContain("华北");
     expect(cells).toContain("Widget-A");
   });
@@ -75,7 +81,9 @@ describe("ChunkCard 表格行卡渲染（spec 2026-09-09 §8）", () => {
     expect(screen.queryByLabelText(/fullscreen/i)).toBeNull();
     // 表格沉入 ScrollArea（隐式滑条，aa02a307 同款）：table 在 scroll-area viewport 内，
     // 横滚由 ScrollArea 承担而非 streamdown 外壳的原生粗滑条。
-    const viewport = container.querySelector('[data-slot="scroll-area-viewport"]');
+    const viewport = container.querySelector(
+      '[data-slot="scroll-area-viewport"]',
+    );
     expect(viewport).toBeTruthy();
     expect(viewport!.querySelector("table")).toBeTruthy();
   });

@@ -20,7 +20,9 @@ const KB: KnowledgeBase = {
 
 function renderTabs() {
   return render(
-    <I18nContext.Provider value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}>
+    <I18nContext.Provider
+      value={{ locale: "zh-CN", setLocale: () => undefined, t: zhCN }}
+    >
       <MiddleTabs
         kb={KB}
         supportedSuffixes={[".md", ".pdf", ".txt"]}
@@ -34,7 +36,10 @@ function renderTabs() {
 }
 
 const stateOf = (testid: string) =>
-  screen.getByTestId(testid).closest("[data-slot='tabs-content']")?.getAttribute("data-state");
+  screen
+    .getByTestId(testid)
+    .closest("[data-slot='tabs-content']")
+    ?.getAttribute("data-state");
 
 describe("MiddleTabs 首期收窄", () => {
   afterEach(() => {

@@ -73,7 +73,9 @@ const READY_DOC: KnowledgeDocument = {
 
 function createWrapper(queryClient: QueryClient) {
   return function QueryWrapper({ children }: PropsWithChildren) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
   };
 }
 
@@ -86,7 +88,11 @@ beforeEach(() => {
   rs.mocked(api.listDocuments).mockResolvedValue([READY_DOC]);
   rs.mocked(api.createKnowledgeBase).mockResolvedValue(KB);
   rs.mocked(api.uploadDocument).mockResolvedValue(READY_DOC);
-  rs.mocked(api.retryDocument).mockResolvedValue({ ...READY_DOC, status: "uploaded", progress_percent: 0 });
+  rs.mocked(api.retryDocument).mockResolvedValue({
+    ...READY_DOC,
+    status: "uploaded",
+    progress_percent: 0,
+  });
 });
 
 afterEach(() => {
@@ -130,16 +136,26 @@ describe("useCreateKnowledgeBase", () => {
     await waitFor(() => expect(list.result.current.isSuccess).toBe(true));
 
     const mutation = renderHook(() => useCreateKnowledgeBase(), { wrapper });
-    await mutation.result.current.mutateAsync({ name: "新库", description: "" });
+    await mutation.result.current.mutateAsync({
+      name: "新库",
+      description: "",
+    });
 
-    expect(rs.mocked(api.createKnowledgeBase).mock.calls[0]?.[0]).toEqual({ name: "新库", description: "" });
-    await waitFor(() => expect(api.listKnowledgeBases).toHaveBeenCalledTimes(2));
+    expect(rs.mocked(api.createKnowledgeBase).mock.calls[0]?.[0]).toEqual({
+      name: "新库",
+      description: "",
+    });
+    await waitFor(() =>
+      expect(api.listKnowledgeBases).toHaveBeenCalledTimes(2),
+    );
   });
 });
 
 describe("useDocuments", () => {
   it("is disabled without a kb id (no fetch fires)", () => {
-    renderHook(() => useDocuments(null), { wrapper: createWrapper(freshQueryClient()) });
+    renderHook(() => useDocuments(null), {
+      wrapper: createWrapper(freshQueryClient()),
+    });
     expect(api.listDocuments).not.toHaveBeenCalled();
   });
 
@@ -190,7 +206,9 @@ describe("document mutations", () => {
           },
         },
       ])
-      .mockResolvedValue([{ ...READY_DOC, status: "uploaded", progress_percent: 0 }]);
+      .mockResolvedValue([
+        { ...READY_DOC, status: "uploaded", progress_percent: 0 },
+      ]);
     const queryClient = freshQueryClient();
     const wrapper = createWrapper(queryClient);
     const docs = renderHook(() => useDocuments("kb-1"), { wrapper });
@@ -213,6 +231,8 @@ describe("document mutations", () => {
     const wrapper = createWrapper(queryClient);
     const docs = renderHook(() => useDocuments("kb-1"), { wrapper });
     await waitFor(() => expect(docs.result.current.isSuccess).toBe(true));
-    expect(queryClient.getQueryData(knowledgeDocumentsKey("kb-1"))).toEqual([READY_DOC]);
+    expect(queryClient.getQueryData(knowledgeDocumentsKey("kb-1"))).toEqual([
+      READY_DOC,
+    ]);
   });
 });

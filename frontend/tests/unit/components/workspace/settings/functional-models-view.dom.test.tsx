@@ -228,7 +228,9 @@ describe("RAG default row", () => {
 
     renderDefaultRow("qwen-max");
 
-    expect(screen.getByLabelText("defaultModel").textContent).toContain("Qwen Max");
+    expect(screen.getByLabelText("defaultModel").textContent).toContain(
+      "Qwen Max",
+    );
   });
 
   it("labels a configured entry by its display name, not by the raw id", () => {
@@ -250,7 +252,9 @@ describe("RAG default row", () => {
   });
 
   it("keeps a stored value that names no entry instead of clearing it", () => {
-    catalogues.models = [{ name: "deepseek-chat", display_name: "DeepSeek Chat" }];
+    catalogues.models = [
+      { name: "deepseek-chat", display_name: "DeepSeek Chat" },
+    ];
 
     renderDefaultRow("gone-model");
 
@@ -269,7 +273,9 @@ describe("RAG default row", () => {
   });
 
   it("sits above the role rows, under its own label", () => {
-    catalogues.models = [{ name: "deepseek-chat", display_name: "DeepSeek Chat" }];
+    catalogues.models = [
+      { name: "deepseek-chat", display_name: "DeepSeek Chat" },
+    ];
 
     renderDefaultRow("deepseek-chat");
 
@@ -288,7 +294,10 @@ describe("RAG default row", () => {
     // trigger's text for the same reason), so this rule is pinned where it lives: the row's
     // handler writes the draft, and the view keeps exactly one save call site.
     const source = readFileSync(
-      path.join(FRONTEND_ROOT, "src/components/workspace/settings/functional-models-view.tsx"),
+      path.join(
+        FRONTEND_ROOT,
+        "src/components/workspace/settings/functional-models-view.tsx",
+      ),
       "utf8",
     );
 
@@ -302,7 +311,10 @@ describe("provider rows", () => {
     // Spec 2026-09-25 rag-endpoint-unlock: no lock and no restore-to-default — the same vendor
     // may serve different addresses (Bailian workspace-scoped endpoints), so the rows are always
     // editable and the default endpoint is only a grey hint (never a value).
-    renderWith({ embedding_provider: "dashscope", rerank_provider: "dashscope" });
+    renderWith({
+      embedding_provider: "dashscope",
+      rerank_provider: "dashscope",
+    });
 
     expect(labelCount("embeddingBaseUrl")).toBe(1);
     expect(labelCount("rerankBaseUrl")).toBe(1);

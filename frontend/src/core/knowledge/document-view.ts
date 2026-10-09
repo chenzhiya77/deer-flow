@@ -1,9 +1,16 @@
 import type { KnowledgeDocument } from "./types";
 
-export type DocumentSortKey = "created_at" | "name" | "size_bytes" | "chunk_count";
+export type DocumentSortKey =
+  | "created_at"
+  | "name"
+  | "size_bytes"
+  | "chunk_count";
 export type SortDirection = "asc" | "desc";
 
-export const DEFAULT_DOCUMENT_SORT: { key: DocumentSortKey; direction: SortDirection } = {
+export const DEFAULT_DOCUMENT_SORT: {
+  key: DocumentSortKey;
+  direction: SortDirection;
+} = {
   key: "created_at",
   direction: "desc",
 };

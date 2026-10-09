@@ -65,7 +65,11 @@ function item(type: string) {
 describe("kindFromMime", () => {
   it("maps common document MIME types to their badge kind", () => {
     expect(kindFromMime("application/pdf")).toBe("pdf");
-    expect(kindFromMime("application/vnd.openxmlformats-officedocument.wordprocessingml.document")).toBe("word");
+    expect(
+      kindFromMime(
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ),
+    ).toBe("word");
     expect(kindFromMime("text/plain")).toBe("word");
     expect(kindFromMime("text/markdown")).toBe("code");
     expect(kindFromMime("text/tab-separated-values")).toBe("sheet");
@@ -111,7 +115,10 @@ describe("probeDraggedItems", () => {
 
   it("ignores non-file items and empty drags", () => {
     expect(probeDraggedItems(null, ALLOW).anyAccepted).toBe(false);
-    const probe = probeDraggedItems([{ kind: "string", type: "text/plain" }], ALLOW);
+    const probe = probeDraggedItems(
+      [{ kind: "string", type: "text/plain" }],
+      ALLOW,
+    );
     expect(probe.anyAccepted).toBe(false);
     expect(probe.anyRejected).toBe(false);
   });

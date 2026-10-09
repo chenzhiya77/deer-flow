@@ -34,7 +34,11 @@ function splitText(value: string): HastNode[] {
   CITATION_PATTERN.lastIndex = 0;
   const out: HastNode[] = [];
   let cursor = 0;
-  for (let match = CITATION_PATTERN.exec(value); match !== null; match = CITATION_PATTERN.exec(value)) {
+  for (
+    let match = CITATION_PATTERN.exec(value);
+    match !== null;
+    match = CITATION_PATTERN.exec(value)
+  ) {
     const index = Number(match[1]);
     if (match.index > cursor) {
       out.push({ type: "text", value: value.slice(cursor, match.index) });
