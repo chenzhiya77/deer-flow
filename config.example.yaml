@@ -907,6 +907,17 @@ tools:
     group: rag
     use: deerflow.tools.builtins.hybrid_search_tool:knowledge_search
     opt_in: true
+  # Document-level read-only tools (spec 2026-10-08): enumerate the bound
+  # library's documents and read a document's chunks (paged, or a window
+  # centered on a known chunk_id).
+  - name: list_knowledge_documents
+    group: rag
+    use: deerflow.tools.builtins.knowledge_documents_tool:list_knowledge_documents
+    opt_in: true
+  - name: read_knowledge_document
+    group: rag
+    use: deerflow.tools.builtins.knowledge_documents_tool:read_knowledge_document
+    opt_in: true
 
   # Web search tool (uses DuckDuckGo, no API key required)
   - name: web_search
